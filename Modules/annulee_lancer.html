@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commandes Annulées - SoufStock WMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
+                        emerald: { 600: '#059669', 500: '#10b981', 400: '#34d399' },
+                        rose: { 600: '#e11d48', 500: '#f43f5e', 400: '#fb7185' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-slate-900/60 border-b border-slate-800 px-6 flex items-center justify-between shrink-0">
+        <a href="lancer.html" class="flex items-center gap-3 group">
+            <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 group-hover:bg-rose-500/20 transition">
+                <i class="fas fa-ban"></i>
+            </div>
+            <div>
+                <span class="font-bold text-sm block">SoufStock <span class="text-rose-400">WMS</span></span>
+                <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Commandes Annulées</span>
+            </div>
+        </a>
+        <div class="flex items-center gap-3">
+            <!-- RECHERCHE RAPIDE & VERIFICATION COMMANDE -->
+            <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl">
+                <i class="fas fa-search text-xs text-rose-400"></i>
+                <input type="text" id="searchCommandeInput" placeholder="N° Commande (Ex: C-123)..." class="bg-transparent text-xs text-slate-200 focus:outline-none font-mono w-40">
+                <button onclick="verifierEtInitierAnnulation()" class="bg-rose-600 hover:bg-rose-500 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer">Vérifier</button>
+            </div>
+
+            <a href="lancer.html" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow cursor-pointer">
+                <i class="fas fa-arrow-left"></i> Retour au Lancement
+            </a>
+            <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-xs">
+                <span id="liveClock" class="text-rose-400">--:--:--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <main class="flex-1 p-6 overflow-hidden flex flex-col gap-5">
+        
+        <!-- BARRE DE FILTRE ET STATS -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+            <div class="xl:col-span-9 bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4 shadow-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xs font-bold text-slate-100 uppercase tracking-wider">Filtrer par Période (Annulations)</h2>
+                        <p class="text-[11px] text-slate-400">Affichage des commandes annulées</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl">
+                        <span class="text-[10px] text-slate-400 uppercase">Du:</span>
+                        <input type="date" id="dateDebut" class="bg-transparent text-xs text-slate-200 focus:outline-none font-mono cursor-pointer">
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl">
+                        <span class="text-[10px] text-slate-400 uppercase">Au:</span>
+                        <input type="date" id="dateFin" class="bg-transparent text-xs text-slate-200 focus:outline-none font-mono cursor-pointer">
+                    </div>
+                    <button onclick="loadCommandesAnnulees()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow cursor-pointer">
+                        <i class="fas fa-search"></i> Afficher
+                    </button>
+                </div>
+            </div>
+
+            <!-- STAT TOTAL ANNULEES -->
+            <div class="xl:col-span-3 bg-slate-900 border border-slate-800 p-3 rounded-xl shadow-lg flex items-center justify-around">
+                <div class="text-center">
+                    <span class="text-[9px] text-slate-400 uppercase block tracking-wider">Total Annulées</span>
+                    <span id="statTotalAnnulees" class="text-xl font-bold font-mono text-rose-400">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE CONTAINER -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl flex-1 flex flex-col">
+            <div class="p-3 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-300"><i class="fas fa-list-check text-rose-400 mr-2"></i> Liste des Commandes Annulées</span>
+                <span id="tableCountBadge" class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-1 rounded-lg font-mono text-[11px]">0 éléments</span>
+            </div>
+
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="sticky top-0 bg-slate-950 text-slate-400 uppercase text-[10px] z-10 border-b border-slate-800">
+                        <tr>
+                            <th class="p-3.5">N° Commande</th>
+                            <th class="p-3.5">Client / Réceptionnaire</th>
+                            <th class="p-3.5">Date Livraison</th>
+                            <th class="p-3.5 text-center">Nb Postes</th>
+                            <th class="p-3.5 text-right">Total KG</th>
+                            <th class="p-3.5 text-right text-rose-400">Total Pièces</th>
+                            <th class="p-3.5">Itinéraire</th>
+                            <th class="p-3.5">Statut</th>
+                            <th class="p-3.5 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="annuleeTableBody" class="divide-y divide-slate-800/50 font-mono">
+                        <tr><td colspan="9" class="p-8 text-center text-slate-500">Chargement...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL DETAILS & INFOS ANNULATION -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-all duration-300">
+        <div class="bg-slate-900 border border-slate-800 w-[750px] max-h-[85vh] rounded-2xl p-6 shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fas fa-boxes-stacked text-rose-400"></i> Détails : <span id="modalDocTitle" class="text-rose-400"></span>
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white cursor-pointer"><i class="fas fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- BLOC INFO ANNULATION -->
+            <div id="modalAnnulationInfo" class="mt-4 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-xs">
+                <div class="flex items-center gap-2 text-rose-400 font-bold mb-1">
+                    <i class="fas fa-circle-info"></i> Informations d'annulation
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-slate-300 font-mono text-[11px]">
+                    <div><span class="text-slate-400">Annulé par:</span> <span id="infoUserAnnule" class="text-white font-bold">Chargement...</span></div>
+                    <div><span class="text-slate-400">Date:</span> <span id="infoDateAnnule" class="text-white font-bold">Chargement...</span></div>
+                    <div class="col-span-2"><span class="text-slate-400">Motif:</span> <span id="infoMotifAnnule" class="text-rose-300 font-bold">Chargement...</span></div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto py-4">
+                <table class="w-full text-left text-xs font-mono">
+                    <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] border-b border-slate-800">
+                        <tr>
+                            <th class="p-2.5">Poste</th>
+                            <th class="p-2.5">Article</th>
+                            <th class="p-2.5">Désignation</th>
+                            <th class="p-2.5 text-right">Quantité KG</th>
+                            <th class="p-2.5 text-right text-rose-400">Pièces</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalDetailsBody" class="divide-y divide-slate-800/40"></tbody>
+                </table>
+            </div>
+            <div class="pt-4 border-t border-slate-800 flex justify-end">
+                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MOTIF D'ANNULATION -->
+    <div id="motifModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-all duration-300">
+        <div class="bg-slate-900 border border-slate-800 w-[450px] rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+                    <i class="fas fa-triangle-exclamation"></i> Motif d'Annulation : <span id="modalMotifDoc" class="text-slate-100"></span>
+                </h3>
+                <button onclick="closeMotifModal()" class="text-slate-400 hover:text-white cursor-pointer"><i class="fas fa-xmark text-lg"></i></button>
+            </div>
+            <div class="flex flex-col gap-3">
+                <label class="text-xs text-slate-300">Khtari wla kteb motif d'annulation:</label>
+                <select id="selectMotif" class="bg-slate-950 border border-slate-800 text-xs text-slate-200 p-2.5 rounded-xl focus:outline-none cursor-pointer">
+                    <option value="Client absent / Fermé">Client absent / Fermé</option>
+                    <option value="Erreur de saisie / Doublon">Erreur de saisie / Doublon</option>
+                    <option value="Article non disponible en stock">Article non disponible en stock</option>
+                    <option value="Refusé par le client">Refusé par le client</option>
+                    <option value="Autre motif">Autre motif</option>
+                </select>
+                <textarea id="inputAutreMotif" placeholder="Wla kteb motif hna (optionnel)..." class="bg-slate-950 border border-slate-800 text-xs text-slate-200 p-2.5 rounded-xl focus:outline-none h-20 resize-none"></textarea>
+            </div>
+            <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button onclick="closeMotifModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Annuler</button>
+                <button onclick="validerAnnulationAvecMotif()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow cursor-pointer">Confirmer l'Annulation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP SCRIPT -->
+    <script type="module">
+        import supabase from '../assets/js/core/supabase.js';
+
+        let selectedDocForAnnulation = null;
+
+        function getLocalDateString(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        const today = new Date();
+        document.getElementById('dateDebut').value = getLocalDateString(new Date(today.getFullYear(), today.getMonth(), 1));
+        const finMois = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        document.getElementById('dateFin').value = getLocalDateString(finMois);
+
+        window.loadCommandesAnnulees = async function() {
+            const dateDebut = document.getElementById('dateDebut').value;
+            const dateFin = document.getElementById('dateFin').value;
+            const tbody = document.getElementById("annuleeTableBody");
+            
+            tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Chargement...</td></tr>`;
+
+            let query = supabase.from('commandes_excel').select('document_vente, nom_receptionnaire, date_livraison, itineraire, statut').eq('statut', 'ANNULEE');
+            if (dateDebut) query = query.gte('date_livraison', dateDebut);
+            if (dateFin) query = query.lte('date_livraison', dateFin);
+
+            const { data: tableRows, error } = await query;
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-rose-500">Erreur: ${error.message}</td></tr>`;
+                return;
+            }
+
+            const uniqueMap = {};
+            if (tableRows) tableRows.forEach(r => { if (!uniqueMap[r.document_vente]) uniqueMap[r.document_vente] = r; });
+            const list = Object.values(uniqueMap);
+
+            document.getElementById('statTotalAnnulees').textContent = list.length;
+            document.getElementById('tableCountBadge').textContent = `${list.length} commandes annulées`;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-500">Aucune commande annulée trouvée pour cette période.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            for (let item of list) {
+                const { data: details } = await supabase.from('commandes_excel').select('quantite_commandee, nombre_pieces, "Poste"').eq('document_vente', item.document_vente);
+                const nbPostes = details ? details.length : 0;
+                const totalKg = details ? details.reduce((a, c) => a + Number(c.quantite_commandee || 0), 0) : 0;
+                const totalPieces = details ? details.reduce((a, c) => a + Number(c.nombre_pieces || 0), 0) : 0;
+
+                html += `
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="p-3.5 font-bold text-rose-400">${item.document_vente}</td>
+                        <td class="p-3.5 text-slate-200">${item.nom_receptionnaire || 'Client Divers'}</td>
+                        <td class="p-3.5 text-sky-300 font-mono">${item.date_livraison || '-'}</td>
+                        <td class="p-3.5 text-center font-bold text-sky-400">${nbPostes} Postes</td>
+                        <td class="p-3.5 text-right font-bold text-slate-100">${totalKg.toFixed(2)} KG</td>
+                        <td class="p-3.5 text-right font-bold text-rose-400">${totalPieces} Pcs</td>
+                        <td class="p-3.5 text-slate-300"><span class="bg-slate-950 px-2 py-1 rounded border border-slate-800 text-[11px]">${item.itineraire || 'Non assigné'}</span></td>
+                        <td class="p-3.5"><span class="border border-rose-500/20 bg-rose-500/10 text-rose-400 px-2.5 py-1 rounded-full text-[10px] font-bold">${item.statut}</span></td>
+                        <td class="p-3.5 text-center flex items-center justify-center gap-2">
+                            <button onclick="openDetails('${item.document_vente}')" class="bg-slate-800 hover:bg-slate-700 text-sky-400 px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow">
+                                <i class="fas fa-eye"></i> Articles
+                            </button>
+                            <button onclick="changerStatutCommande('${item.document_vente}', 'IMPORTEE')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow" title="Remettre en statut IMPORTEE">
+                                <i class="fas fa-rotate-left"></i> Restaurer
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        };
+
+        window.verifierEtInitierAnnulation = async function() {
+            const inputVal = document.getElementById('searchCommandeInput').value.trim();
+            if (!inputVal) {
+                alert("Kteb N° dyal la commande 3afak!");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('commandes_excel')
+                .select('document_vente, statut')
+                .eq('document_vente', inputVal);
+
+            if (error || !data || data.length === 0) {
+                alert(`La commande "${inputVal}" mat-l9atch ga3 f la base de données!`);
+                return;
+            }
+
+            const currentStatut = data[0].statut;
+
+            if (currentStatut === 'ANNULEE') {
+                alert(`La commande "${inputVal}" hiya أصلاً ANNULEE!`);
+                loadCommandesAnnulees();
+            } else {
+                selectedDocForAnnulation = inputVal;
+                document.getElementById('modalMotifDoc').textContent = inputVal;
+                document.getElementById('motifModal').classList.remove('hidden');
+                setTimeout(() => document.getElementById('motifModal').classList.remove('opacity-0'), 10);
+            }
+        };
+
+        window.closeMotifModal = function() {
+            const modal = document.getElementById('motifModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            selectedDocForAnnulation = null;
+        };
+
+        window.validerAnnulationAvecMotif = async function() {
+            if (!selectedDocForAnnulation) return;
+
+            const selectVal = document.getElementById('selectMotif').value;
+            const textVal = document.getElementById('inputAutreMotif').value.trim();
+            const motifFinal = textVal ? `${selectVal} - ${textVal}` : selectVal;
+
+            const { data: { user } } = await supabase.auth.getUser();
+            const userId = user ? user.id : null;
+            const nowIso = new Date().toISOString();
+
+            const { error: err1 } = await supabase
+                .from('commandes_excel')
+                .update({ 
+                    statut: 'ANNULEE', 
+                    updated_at: nowIso,
+                    derniere_modification: nowIso,
+                    est_modifie: true
+                })
+                .eq('document_vente', selectedDocForAnnulation);
+
+            if (err1) {
+                alert("Erreur f commandes_excel: " + err1.message);
+                return;
+            }
+
+            const { error: err2 } = await supabase
+                .from('suivi_commandes_lancer')
+                .update({
+                    statut: 'ANNULEE',
+                    annule_par: userId,
+                    date_annulation: nowIso,
+                    motif_annulation: motifFinal,
+                    updated_at: nowIso
+                })
+                .eq('document_vente', selectedDocForAnnulation);
+
+            if (err2) {
+                alert("Erreur f suivi_commandes_lancer: " + err2.message);
+                return;
+            }
+
+            alert(`La commande "${selectedDocForAnnulation}" t-annulat b naja7 w tsjlat l-m3lomat dyalha!`);
+            closeMotifModal();
+            document.getElementById('searchCommandeInput').value = '';
+            loadCommandesAnnulees();
+        };
+
+        // OPEN DETAILS M3A JIBAN ISAM KAMIL (nom_complet / nom + prenom)
+        window.openDetails = async function(docVente) {
+            document.getElementById("modalDocTitle").textContent = docVente;
+            const modalBody = document.getElementById("modalDetailsBody");
+            
+            document.getElementById('infoUserAnnule').textContent = "Non spécifié";
+            document.getElementById('infoDateAnnule').textContent = "-";
+            document.getElementById('infoMotifAnnule').textContent = "Aucun motif enregistré";
+
+            modalBody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Chargement...</td></tr>`;
+            document.getElementById("detailModal").classList.remove("hidden");
+            setTimeout(() => document.getElementById("detailModal").classList.remove("opacity-0"), 10);
+
+            // 1. Jib l-m3lomat mn suivi_commandes_lancer
+            const { data: suiviData, error: suiviErr } = await supabase
+                .from('suivi_commandes_lancer')
+                .select('annule_par, date_annulation, motif_annulation')
+                .eq('document_vente', docVente)
+                .single();
+
+            if (suiviData) {
+                if (suiviData.motif_annulation) {
+                    document.getElementById('infoMotifAnnule').textContent = suiviData.motif_annulation;
+                }
+                if (suiviData.date_annulation) {
+                    document.getElementById('infoDateAnnule').textContent = new Date(suiviData.date_annulation).toLocaleString('fr-FR');
+                }
+
+                // 2. Jib l-ism l-kamil mn user_profiles (nom_complet, wla nom + prenom)
+                if (suiviData.annule_par) {
+                    const { data: userData, error: userErr } = await supabase
+                        .from('user_profiles')
+                        .select('nom_complet, nom, prenom, email')
+                        .eq('id', suiviData.annule_par)
+                        .single();
+
+                    if (userData) {
+                        let finalName = userData.nom_complet;
+                        if (!finalName && (userData.nom || userData.prenom)) {
+                            finalName = `${userData.prenom || ''} ${userData.nom || ''}`.trim();
+                        }
+                        document.getElementById('infoUserAnnule').textContent = finalName || userData.email || 'Utilisateur';
+                    } else {
+                        document.getElementById('infoUserAnnule').textContent = suiviData.annule_par;
+                    }
+                }
+            }
+
+            // 3. Jib les articles dyal la commande
+            const { data } = await supabase.from('commandes_excel').select('"Poste", article, designation_article, quantite_commandee, nombre_pieces').eq('document_vente', docVente).order('"Poste"', { ascending: true });
+            let html = "";
+            if (data) {
+                data.forEach(row => {
+                    html += `<tr class="hover:bg-slate-800/40"><td class="p-2.5 text-rose-400 font-bold">${row.Poste}</td><td class="p-2.5 text-sky-400">${row.article}</td><td class="p-2.5 text-slate-200">${row.designation_article}</td><td class="p-2.5 text-right font-bold text-slate-100">${row.quantite_commandee} KG</td><td class="p-2.5 text-right font-bold text-rose-400">${row.nombre_pieces} Pcs</td></tr>`;
+                });
+            }
+            modalBody.innerHTML = html;
+        };
+
+        window.closeModal = function() {
+            const modal = document.getElementById("detailModal");
+            modal.classList.add("opacity-0");
+            setTimeout(() => modal.classList.add("hidden"), 300);
+        };
+
+        window.changerStatutCommande = async function(docVente, nouveauStatut) {
+            if (!confirm(`Wesh bghiti t-rdd la commande ${docVente} l statut [${nouveauStatut}] ?`)) return;
+
+            const nowIso = new Date().toISOString();
+
+            const { error: errUpdate } = await supabase
+                .from('commandes_excel')
+                .update({ 
+                    statut: nouveauStatut, 
+                    updated_at: nowIso,
+                    derniere_modification: nowIso,
+                    est_modifie: true
+                })
+                .eq('document_vente', docVente);
+
+            if (errUpdate) {
+                alert("Erreur f tahdid statut f commandes_excel: " + errUpdate.message);
+                return;
+            }
+
+            await supabase
+                .from('suivi_commandes_lancer')
+                .update({ 
+                    statut: nouveauStatut, 
+                    annule_par: null,
+                    date_annulation: null,
+                    motif_annulation: null,
+                    updated_at: nowIso 
+                })
+                .eq('document_vente', docVente);
+
+            alert(`T-bdel statut dyal la commande ${docVente} b naja7 l [${nouveauStatut}] !`);
+            loadCommandesAnnulees();
+        };
+
+        setInterval(() => {
+            document.getElementById("liveClock").innerText = new Date().toLocaleTimeString('fr-FR');
+        }, 1000);
+
+        loadCommandesAnnulees();
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Stock - SMTG</title>
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0b1118;
+            --bg-card: #131b26;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --text-main: #fff;
+            --text-muted: #8a99ad;
+            --accent-green: #10b981;
+            --accent-green-bg: rgba(16, 185, 129, 0.15);
+        }
+        
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .card-smg {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-smg::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; width: 50px; height: 50px;
+            background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-smg.alert-card::after {
+            background: radial-gradient(circle, rgba(239,68,68,0.15) 0%, transparent 70%);
+        }
+
+        .panel-select-sm {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #8a99ad;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .mini-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+
+        .mini-data-table th {
+            text-align: left;
+            color: #8a99ad;
+            font-weight: 500;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .mini-data-table td {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: #f8fafc;
+        }
+
+        .badge-status {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 600;
+        }
+        .badge-critique { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-faible { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-entree { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .badge-sortie { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .badge-transfert { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .badge-ajustement { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: #10b981;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<main style="width: 100%; box-sizing: border-box;">
+    <!-- PAGE HEADER -->
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <h1 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Tableau de bord Stock</h1>
+            <p style="font-size: 11px; color: #8a99ad; margin: 0;">Accueil &bull; Tableau de bord &bull; Gestion globale du stock SMTG</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-export-rapport" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-download"></i> Exporter le rapport
+            </button>
+            <button id="refreshBtn" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+        </div>
+    </div>
+
+    <!-- TOP STATS GRID (5 KPI CARDS) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        <!-- Stock total disponible -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Stock total disponible</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-boxes"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="statTotalStockVal">—</div>
+            <div style="font-size: 9px; color: #8a99ad; margin: 2px 0 4px 0;">KG / Pièce</div>
+            <div id="statTotalStockTrend" style="font-size: 10px; color: #8a99ad; display: flex; align-items: center; gap: 4px; font-weight: 500;">—</div>
+        </div>
+
+        <!-- Valeur totale du stock -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Valeur totale du stock</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-file-invoice-dollar"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="statTotalValueVal">—</div>
+            <div style="font-size: 9px; color: #8a99ad; margin: 2px 0 4px 0;">MAD</div>
+            <div id="statTotalValueTrend" style="font-size: 10px; color: #8a99ad; display: flex; align-items: center; gap: 4px; font-weight: 500;">Prix non disponible dans la base</div>
+        </div>
+
+        <!-- Références articles -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Références articles</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-tags"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="statTotalRefsVal">—</div>
+            <div style="font-size: 9px; color: #8a99ad; margin: 2px 0 4px 0;">Actives</div>
+            <div id="statTotalRefsTrend" style="font-size: 10px; color: #8a99ad; display: flex; align-items: center; gap: 4px; font-weight: 500;">—</div>
+        </div>
+
+        <!-- Lots en stock -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Lots en stock</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-layer-group"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="statTotalLotsVal">—</div>
+            <div style="font-size: 9px; color: #8a99ad; margin: 2px 0 4px 0;">Lots</div>
+            <div id="statTotalLotsTrend" style="font-size: 10px; color: #8a99ad; display: flex; align-items: center; gap: 4px; font-weight: 500;">—</div>
+        </div>
+
+        <!-- Alertes stock -->
+        <div class="card-smg alert-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Alertes stock</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(239,68,68,0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-exclamation-triangle"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #ef4444;" id="statTotalAlertsVal">—</div>
+            <div style="font-size: 9px; color: #8a99ad; margin: 2px 0 4px 0;">Alertes</div>
+            <div id="statTotalAlertsTrend" style="font-size: 10px; color: #8a99ad; display: flex; align-items: center; gap: 4px; font-weight: 500;">—</div>
+        </div>
+    </div>
+
+    <!-- MIDDLE ROW: CHARTS & METRICS (4 PANELS) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 15px;">
+        <!-- Stock par emplacement -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #fff; font-weight: 600;">Stock par emplacement</span>
+                <select class="panel-select-sm"><option>KG / Pièce</option></select>
+            </div>
+            <div style="position: relative; height: 110px; width: 100%; display: flex; justify-content: center;">
+                <canvas id="stockEmplacementChart"></canvas>
+            </div>
+            <div id="stockEmplacementLegend" style="font-size: 9px; display: flex; flex-direction: column; gap: 3px; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 6px; margin-top: 6px;"><div style="color:#8a99ad;">Chargement des données...</div></div>
+        </div>
+
+        <!-- Évolution du stock -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #fff; font-weight: 600;">Évolution du stock (7 jours)</span>
+                <select class="panel-select-sm"><option>KG / Pièce</option></select>
+            </div>
+            <div style="position: relative; height: 160px; width: 100%;">
+                <canvas id="stockEvolutionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Répartition par catégorie -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #fff; font-weight: 600;">Répartition par catégorie</span>
+            </div>
+            <div style="position:relative;height:1px;width:1px;overflow:hidden;opacity:0;pointer-events:none;"><canvas id="stockCategoryChart"></canvas></div>
+            <div id="categoryLegend" style="display: flex; flex-direction: column; gap: 8px; padding: 4px 0;"><div style="color:#8a99ad;">Chargement des données...</div></div>
+        </div>
+
+        <!-- Stock par statut DLC -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #fff; font-weight: 600;">Stock par statut DLC</span>
+            </div>
+            <div style="position: relative; height: 110px; width: 100%; display: flex; justify-content: center;">
+                <canvas id="stockDlcChart"></canvas>
+            </div>
+            <div id="dlcLegend" style="font-size: 9px; display: flex; flex-direction: column; gap: 3px; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 6px; margin-top: 6px;"><div style="color:#8a99ad;">Chargement des données...</div></div>
+        </div>
+    </div>
+
+    <!-- LOWER ROW: TABLES & TUNNELS (3 PANELS) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;">
+        <!-- Articles avec stock faible -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #fff; font-weight: 600;">Articles avec stock faible</span>
+                <a href="#" style="font-size: 9px; color: #10b981; text-decoration: none;">Voir toutes les alertes &rarr;</a>
+            </div>
+            <table class="mini-data-table">
+                <thead>
+                    <tr>
+                        <th>Article</th>
+                        <th>Lot</th>
+                        <th>Empl.</th>
+                        <th>Stock dispo.</th>
+                        <th>Stock min.</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="lowStockTableBody"><tr><td colspan="6" style="text-align:center;color:#8a99ad;padding:15px;">Chargement...</td></tr></tbody>
+            </table>
+        </div>
+
+        <!-- Mouvements récents -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #fff; font-weight: 600;">Mouvements récents</span>
+                <a href="#" style="font-size: 9px; color: #10b981; text-decoration: none;">Voir tout</a>
+            </div>
+            <table class="mini-data-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Article / Lot</th>
+                        <th>Empl.</th>
+                        <th>Quantité</th>
+                        <th>Date / Heure</th>
+                    </tr>
+                </thead>
+                <tbody id="recentMovementsTableBody"><tr><td colspan="5" style="text-align:center;color:#8a99ad;padding:15px;">Chargement...</td></tr></tbody>
+            </table>
+        </div>
+
+        <!-- Stock par tunnel -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #fff; font-weight: 600;">Stock par tunnel</span>
+                <select class="panel-select-sm"><option>KG / Pièce</option></select>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;" id="tunnelsContainer">
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px;"><span>Tunnel 401</span><span style="color:#8a99ad;">245.6K / 315K</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 78%;"></div></div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px;"><span>Tunnel 402</span><span style="color:#8a99ad;">195.3K / 315K</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 62%; background: #3b82f6;"></div></div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px;"><span>Tunnel 403</span><span style="color:#8a99ad;">287.6K / 315K</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 91%; background: #10b981;"></div></div>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px;"><span>Tunnel 404</span><span style="color:#8a99ad;">142.1K / 315K</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 45%; background: #f59e0b;"></div></div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); margin-top: 10px; padding-top: 8px; font-size: 9px; color: #8a99ad;">
+                <div>Capacité totale: <strong id="tunnelTotalCapacity" style="color:#fff;">—</strong></div>
+                <div>Occupation moyenne: <strong id="tunnelAverageOccupation" style="color:#10b981;">—</strong></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Integration of the ES Module Controller for Stock Dashboard -->
+<script type="module" src="/assets/js/core/stock-dashboard-controller.js"></script>
+</body>
+</html>

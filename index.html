@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoufStock Enterprise ERP - Connexion</title>
+    <link rel="stylesheet" href="assets/css/login.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Conteneur principal (Deux colonnes) -->
+    <div class="login-wrapper">
+        
+        <!-- ==========================================
+             PANNEAU DE GAUCHE : IDENTITÉ VISUELLE & ENGAGEMENT
+             ========================================== -->
+        <section class="brand-panel">
+            <!-- Logo & Nom de la marque -->
+            <div class="brand-header">
+                <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                <div class="brand-names">
+                    <span class="brand-title" data-i18n="brand_title">SoufStock</span>
+                    <span class="brand-subtitle" data-i18n="brand_subtitle">Enterprise ERP</span>
+                </div>
+            </div>
+
+            <!-- Accroche principale et arguments de vente -->
+            <div class="brand-content">
+                <h2 data-i18n="welcome_title">Bienvenue sur <br><span class="highlight">SoufStock</span> <br>Enterprise ERP</h2>
+                <p class="brand-pitch" data-i18n="brand_pitch">La solution complète pour la gestion de votre stock et de vos opérations.</p>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                        </div>
+                        <div class="feature-text">
+                            <h3 data-i18n="feat_stock_title">Gestion de Stock</h3>
+                            <p data-i18n="feat_stock_desc">Suivi en temps réel de vos stocks</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
+                        <div class="feature-text">
+                            <h3 data-i18n="feat_comm_title">Gestion Commerciale</h3>
+                            <p data-i18n="feat_comm_desc">Commandes, clients et fournisseurs</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        </div>
+                        <div class="feature-text">
+                            <h3 data-i18n="feat_stats_title">Rapports & Analyses</h3>
+                            <p data-i18n="feat_stats_desc">Tableaux de bord et statistiques détaillées</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </div>
+                        <div class="feature-text">
+                            <h3 data-i18n="feat_security_title">Sécurité Avancée</h3>
+                            <p data-i18n="feat_security_desc">Protection des données et accès sécurisés</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="brand-footer">
+                <span data-i18n="copyright">© 2026 SoufStock Enterprise ERP. Tous droits réservés.</span>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PANNEAU DE DROITE : FORMULAIRE DE CONNEXION
+             ========================================== -->
+        <main class="form-panel">
+            
+            <!-- Sélecteur de langue -->
+            <div class="language-selector-container">
+                <div class="language-dropdown">
+                    <svg class="lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <select id="langSelect">
+                        <option value="fr">Français</option>
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Formulaire principal -->
+            <div class="form-container">
+                
+                <!-- Avatar de style par défaut -->
+                <div class="avatar-header">
+                    <div class="user-avatar-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+
+                <h1 data-i18n="login_title">Connexion</h1>
+                <p class="subtitle" data-i18n="login_subtitle">Connectez-vous à votre compte</p>
+
+                <!-- Zone d'affichage des messages de retour -->
+                <div id="message"></div>
+
+                <form id="loginForm" novalidate>
+                    <!-- Identifiant / E-mail -->
+                    <div class="input-group">
+                        <label for="email" data-i18n="label_username">Nom d'utilisateur ou e-mail</label>
+                        <div class="input-wrapper-inner">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input id="email" type="text" data-i18n="placeholder_username" placeholder="Entrez votre nom d'utilisateur ou e-mail" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <!-- Mot de passe -->
+                    <div class="input-group">
+                        <label for="password" data-i18n="label_password">Mot de passe</label>
+                        <div class="input-wrapper-inner">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <input id="password" type="password" data-i18n="placeholder_password" placeholder="Entrez votre mot de passe" required autocomplete="current-password">
+                            <button type="button" id="togglePassword" class="password-toggle">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Options annexes -->
+                    <div class="form-actions">
+                        <label class="remember-me">
+                            <input type="checkbox" id="rememberMe">
+                            <span class="checkbox-custom"></span>
+                            <span data-i18n="remember_me">Se souvenir de moi</span>
+                        </label>
+                        <a href="#" class="forgot-link" data-i18n="forgot_password">Mot de passe oublié ?</a>
+                    </div>
+
+                    <!-- Bouton de connexion -->
+                    <button type="submit" id="loginBtn" class="btn btn-submit">
+                        <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 6px;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span data-i18n="btn_connect">Se connecter</span>
+                    </button>
+                </form>
+
+                <!-- Connexions alternatives -->
+                <div class="divider" data-i18n="divider_text">ou continuer avec</div>
+
+                <button id="googleLoginBtn" class="btn btn-google">
+                    <svg viewBox="0 0 24 24" width="18" height="18" style="margin-right: 6px; display: inline-block; vertical-align: middle;">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span data-i18n="btn_google">Se connecter avec Google</span>
+                </button>
+
+                <p class="signup-prompt">
+                    <span data-i18n="no_account">Pas encore de compte ?</span> <a href="#" data-i18n="contact_admin">Contactez l'administrateur</a>
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================
+         PIED DE PAGE TECHNIQUE : BADGES DE FIABILITÉ
+         ========================================== -->
+    <footer class="system-badges">
+        <div class="badge-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <div>
+                <h4 data-i18n="badge_secure_title">Sécurisé</h4>
+                <p data-i18n="badge_secure_desc">Données protégées</p>
+            </div>
+        </div>
+        <div class="badge-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <div>
+                <h4 data-i18n="badge_backup_title">Sauvegarde</h4>
+                <p data-i18n="badge_backup_desc">Sauvegarde automatique</p>
+            </div>
+        </div>
+        <div class="badge-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <div>
+                <h4 data-i18n="badge_perf_title">Performant</h4>
+                <p data-i18n="badge_perf_desc">Rapide et efficace</p>
+            </div>
+        </div>
+        <div class="badge-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <div>
+                <h4 data-i18n="badge_support_title">Support</h4>
+                <p data-i18n="badge_support_desc">Assistance 24/7</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script principal de connexion -->
+    <script type="module" src="assets/js/login.js"></script>
+</body>
+</html>

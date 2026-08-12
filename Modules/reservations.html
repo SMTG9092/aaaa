@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservations - SMTG</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --green: #008f4c;
+            --green-dark: #006f3d;
+            --green-soft: #e9f8f0;
+            --navy: #0b121b;
+            --navy-2: #101a25;
+            --border: #e3e8ee;
+            --text: #142033;
+            --muted: #6b7787;
+            --bg: #f3f5f7;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        body { padding: 0; }
+
+        .page-wrap {
+            width: 100%;
+            padding: 16px;
+        }
+
+        .page-title-card,
+        .command-card,
+        .info-card,
+        .table-card {
+            background: #fff;
+            border: 1px solid #e7ebef;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(16, 24, 40, .045);
+        }
+
+        .page-title-card {
+            min-height: 70px;
+            padding: 13px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .title-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            background: var(--green);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .title-main {
+            color: var(--green-dark);
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .title-sub {
+            color: #738093;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 9px;
+            padding: 9px 13px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: .15s;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn-green { background: var(--green); color: #fff; }
+        .btn-green:hover { background: var(--green-dark); }
+        .btn-light-green { background: #edf8f2; color: #087c45; }
+        .btn-blue { background: #eef3ff; color: #3855c7; }
+        .btn-purple { background: #f5efff; color: #7342c5; }
+        .btn-orange { background: #fff7e7; color: #bd7411; }
+
+        .command-card {
+            padding: 13px 15px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .command-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--green-soft);
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+
+        .command-label {
+            min-width: 180px;
+        }
+
+        .command-label strong {
+            display: block;
+            font-size: 12px;
+            color: #172236;
+        }
+
+        .command-label span {
+            display: block;
+            color: #8a95a4;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 440px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8290a2;
+            font-size: 12px;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 38px;
+            border: 1px solid #d8dee7;
+            border-radius: 9px;
+            padding: 0 12px 0 34px;
+            outline: none;
+            font-size: 12px;
+            color: #172236;
+            background: #fff;
+        }
+
+        .search-box input:focus {
+            border-color: #71c99c;
+            box-shadow: 0 0 0 3px rgba(0,143,76,.08);
+        }
+
+        .date-filter-box {
+            height: 42px;
+            min-width: 155px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 0 12px;
+            background: #ffffff;
+            border: 1px solid #d8e1e7;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        .date-filter-box i {
+            color: #008f4c;
+            font-size: 14px;
+        }
+
+        .date-filter-box input {
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: #172033;
+            font-size: 12px;
+            font-weight: 600;
+            width: 125px;
+            cursor: pointer;
+        }
+
+        .date-filter-box input::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: .75;
+        }
+
+        @media (max-width: 1050px) {
+            .date-filter-box { min-width: 145px; }
+            .date-filter-box input { width: 115px; }
+        }
+
+        .command-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 7px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr 1fr .55fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .info-card {
+            min-height: 77px;
+            padding: 12px 14px;
+            position: relative;
+        }
+
+        .info-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .info-label {
+            color: #68758a;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .25px;
+            font-weight: 700;
+        }
+
+        .info-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: var(--green-soft);
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .info-value {
+            color: #182236;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .info-value.green { color: var(--green-dark); }
+        .info-value.orange { color: #c95e24; }
+
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-head {
+            padding: 12px 14px;
+            border-bottom: 1px solid #edf0f3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #182236;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-title i { color: var(--green); }
+
+        .table-count {
+            color: #7c8797;
+            font-size: 10px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            max-height: calc(100vh - 305px);
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 980px;
+        }
+
+        thead th {
+            background: #f8fafb;
+            color: #637084;
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: .2px;
+            padding: 11px 12px;
+            border-bottom: 1px solid #e9edf1;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #eef1f4;
+            font-size: 11px;
+            color: #263247;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover { background: #fbfdfc; }
+
+        .article-code {
+            color: #3150ca;
+            font-weight: 800;
+        }
+
+        .doc-code {
+            color: #087c45;
+            font-weight: 800;
+        }
+
+        .designation {
+            color: #556174;
+            font-size: 10px;
+            margin-top: 3px;
+            max-width: 300px;
+        }
+
+        .qty-cmd { color: #5d6979; }
+        .qty-prep { color: var(--green); font-weight: 800; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 5px 8px;
+            border: 1px solid transparent;
+            font-size: 9px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .badge-green {
+            background: #eaf8f0;
+            color: #087c45;
+            border-color: #cdebdc;
+        }
+
+        .badge-blue {
+            background: #edf4ff;
+            color: #3564c7;
+            border-color: #d7e5ff;
+        }
+
+        .badge-orange {
+            background: #fff5e8;
+            color: #b96816;
+            border-color: #f4dfc1;
+        }
+
+        .badge-gray {
+            background: #f2f4f7;
+            color: #6b7482;
+            border-color: #e2e6eb;
+        }
+
+        .empty-state {
+            padding: 58px 20px;
+            text-align: center;
+            color: #8a95a4;
+        }
+
+        .empty-state i {
+            font-size: 31px;
+            color: #aab4c0;
+            margin-bottom: 10px;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: #596678;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .empty-state span { font-size: 10px; }
+
+        .footer-bar {
+            border-top: 1px solid #edf0f3;
+            padding: 9px 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #7b8796;
+            background: #fbfcfd;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .page-btn {
+            border: 1px solid #dfe4ea;
+            background: #fff;
+            color: #536174;
+            border-radius: 7px;
+            padding: 5px 9px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .page-btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .loading { color: #8a95a4; }
+
+        .select-disabled-row td:first-child {
+            background: rgba(148, 163, 184, 0.025);
+        }
+
+        .row-checkbox:disabled {
+            cursor: not-allowed !important;
+            opacity: .35;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1050px) {
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .command-card { flex-wrap: wrap; }
+            .command-actions { margin-left: 0; }
+        }
+
+        @media (max-width: 700px) {
+            .page-wrap { padding: 8px; }
+            .page-title-card { align-items: flex-start; flex-direction: column; }
+            .info-grid { grid-template-columns: 1fr; }
+            .command-label { min-width: 140px; }
+            .search-box { max-width: none; width: 100%; }
+            .top-actions { width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-wrap">
+
+    <section class="page-title-card">
+        <div class="title-left">
+            <div class="title-icon">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <div>
+                <div class="title-main">Réservations</div>
+                <div class="title-sub">Gestion des réservations de stock et suivi des lignes de picking</div>
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <button class="btn btn-light-green" onclick="exportToExcel()">
+                <i class="fas fa-file-excel"></i> Exporter Excel
+            </button>
+            <button class="btn btn-light-green" onclick="loadData()">
+                <i class="fas fa-rotate"></i> Actualiser
+            </button>
+        </div>
+    </section>
+
+    <section class="command-card">
+        <div class="command-icon">
+            <i class="fas fa-barcode"></i>
+        </div>
+
+        <div class="command-label">
+            <strong>Recherche réservation</strong>
+            <span>Rechercher par document, article ou lot</span>
+        </div>
+
+        <div class="date-filter-box">
+            <i class="fas fa-calendar-days"></i>
+            <input id="filterDateInput" type="date" title="Filtrer par date">
+        </div>
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input id="searchInput" type="text" placeholder="N° DE COMMANDE / ARTICLE / LOT...">
+        </div>
+
+        <div class="command-actions">
+            <button class="btn btn-green" onclick="processSelectedPickingDetails()">
+                <i class="fas fa-arrow-right"></i> Traiter
+            </button>
+            <button class="btn btn-orange" onclick="loadData()">
+                <i class="fas fa-rotate"></i> Actualiser
+            </button>
+            <button class="btn btn-purple" onclick="selectAllValid()">
+                <i class="fas fa-check-double"></i> Sélectionner
+            </button>
+        </div>
+    </section>
+
+    <section class="info-grid">
+        <div class="info-card">
+            <div class="info-head">
+                <span class="info-label">Total lignes</span>
+                <span class="info-icon"><i class="fas fa-list"></i></span>
+            </div>
+            <div class="info-value green" id="totalLinesBadge">0</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-head">
+                <span class="info-label">Quantité préparée</span>
+                <span class="info-icon"><i class="fas fa-weight-hanging"></i></span>
+            </div>
+            <div class="info-value green" id="totalQtyBadge">0.000</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-head">
+                <span class="info-label">Actifs / Réservés</span>
+                <span class="info-icon"><i class="fas fa-circle-check"></i></span>
+            </div>
+            <div class="info-value orange" id="totalActiveBadge">0</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-head">
+                <span class="info-label">Page</span>
+                <span class="info-icon"><i class="fas fa-list-ol"></i></span>
+            </div>
+            <div class="info-value green" id="pageIndicator">1 / 1</div>
+        </div>
+    </section>
+
+    <section class="table-card">
+        <div class="table-head">
+            <div class="table-title">
+                <i class="fas fa-clock-rotate-left"></i>
+                Historique / Réservations de stock
+            </div>
+            <span class="table-count" id="paginationInfo">Affichage de 0 à 0 sur 0 entrées</span>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:40px;text-align:center;">
+                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
+                        </th>
+                        <th>Document Vente</th>
+                        <th>Article / Désignation</th>
+                        <th>Lot</th>
+                        <th>Magasin / Emplacement</th>
+                        <th style="text-align:right;">Qté Commandée</th>
+                        <th style="text-align:right;">Qté Préparée</th>
+                        <th style="text-align:center;">Statut Réservation</th>
+                        <th style="text-align:center;">Statut Picking</th>
+                    </tr>
+                </thead>
+
+                <tbody id="reservationsTableBody">
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <strong>Chargement des données...</strong>
+                                <span>Veuillez patienter.</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-bar">
+            <span>Réservations • SMTG</span>
+            <div class="pagination">
+                <button id="prevPageBtn" class="page-btn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Précédent
+                </button>
+                <button id="nextPageBtn" class="page-btn" onclick="changePage(1)">
+                    Suivant <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+        (function () {
+        "use strict";
+
+        let supabase = null;
+        let supabasePromise = null;
+
+        async function getSupabaseClient() {
+            if (supabase && typeof supabase.from === "function") return supabase;
+            if (supabasePromise) return supabasePromise;
+
+            supabasePromise = (async () => {
+                const existingClients = [
+                    window.supabaseClient,
+                    window.smtgSupabase,
+                    window.SMTG?.supabase,
+                    window.app?.supabase
+                ];
+
+                const existing = existingClients.find(c => c && typeof c.from === "function");
+                if (existing) {
+                    supabase = existing;
+                    return supabase;
+                }
+
+                const urls = [
+                    new URL("assets/js/core/supabase.js", document.baseURI).href,
+                    new URL("../assets/js/core/supabase.js", document.baseURI).href
+                ];
+
+                let lastError = null;
+                for (const url of [...new Set(urls)]) {
+                    try {
+                        const module = await import(url);
+                        const client = module?.default;
+                        if (client && typeof client.from === "function") {
+                            supabase = client;
+                            window.supabaseClient = client;
+                            window.smtgSupabase = client;
+                            console.log("[SMTG RESERVATIONS] Supabase chargé:", url);
+                            return client;
+                        }
+                    } catch (error) {
+                        lastError = error;
+                        console.warn("[SMTG RESERVATIONS] Échec import:", url, error);
+                    }
+                }
+
+                throw lastError || new Error("Impossible de charger le client Supabase.");
+            })();
+
+            try {
+                return await supabasePromise;
+            } catch (error) {
+                supabasePromise = null;
+                throw error;
+            }
+        }
+
+        let currentPage = 1;
+        const pageSize = 50;
+        let totalRecords = 0;
+        let currentSearch = "";
+        let currentDateFilter = "";
+        let allExportData = [];
+        let currentTableData = [];
+
+        window.changePage = async function(direction) {
+            const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+            const nextPage = currentPage + direction;
+            if (nextPage < 1 || nextPage > totalPages) return;
+            currentPage = nextPage;
+            await loadData();
+        }
+
+        function getLocalDateString() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        async function initializeReservationsPage() {
+            console.log("[SMTG RESERVATIONS] Initialisation...");
+
+            const tbody = document.getElementById("reservationsTableBody");
+            const dateInput = document.getElementById("filterDateInput");
+            const searchInput = document.getElementById("searchInput");
+
+            try {
+                // 1) Charger Supabase avant toute requête.
+                await getSupabaseClient();
+
+                // 2) Par défaut, afficher uniquement les réservations du jour.
+                const todayStr = getLocalDateString();
+                if (dateInput) {
+                    dateInput.value = todayStr;
+                    currentDateFilter = todayStr;
+
+                    dateInput.onchange = async (e) => {
+                        currentDateFilter = e.target.value || "";
+                        currentPage = 1;
+                        await loadData();
+                    };
+                }
+
+                // 3) Charger les données immédiatement.
+                await loadData();
+
+                // 4) Recherche.
+                let timeout;
+                if (searchInput) {
+                    searchInput.oninput = (e) => {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(async () => {
+                            currentSearch = e.target.value.trim();
+                            currentPage = 1;
+                            await loadData();
+                        }, 300);
+                    };
+                }
+            } catch (error) {
+                console.error("[SMTG RESERVATIONS] Initialisation échouée:", error);
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-rose-400 text-xs">Erreur de chargement : ${String(error.message || error)}</td></tr>`;
+                }
+            }
+        }
+
+        function applyFilters(query) {
+            if (currentDateFilter) {
+                const startOfDay = `${currentDateFilter}T00:00:00`;
+                const nextDay = new Date(`${currentDateFilter}T00:00:00`);
+                nextDay.setDate(nextDay.getDate() + 1);
+                const nextDayStr = `${nextDay.getFullYear()}-${String(nextDay.getMonth() + 1).padStart(2, '0')}-${String(nextDay.getDate()).padStart(2, '0')}`;
+                const startOfNextDay = `${nextDayStr}T00:00:00`;
+                query = query.gte('created_at', startOfDay).lt('created_at', startOfNextDay);
+            }
+
+            // La page affiche uniquement les lignes encore à traiter.
+            // Après le bouton "Traiter", les lignes passent à un statut final
+            // (TRANSFERE_AB10 ou VALIDE) et ne remontent plus ici.
+            query = query.in('statut', ['RESERVE', 'EN_COURS']);
+
+            if (currentSearch !== "") {
+                query = query.or(`document_vente.ilike.%${currentSearch}%,article.ilike.%${currentSearch}%,lot.ilike.%${currentSearch}%`);
+            }
+            return query;
+        }
+
+        async function loadData() {
+            const tbody = document.getElementById("reservationsTableBody");
+
+            try {
+                await getSupabaseClient();
+
+                let query = supabase
+                    .from('picking_details')
+                    .select(`
+                        id,
+                        picking_id,
+                        suivi_id,
+                        stock_id,
+                        document_vente,
+                        ligne_commande,
+                        article,
+                        designation_article,
+                        lot,
+                        magasin,
+                        emplacement,
+                        quantite_commandee,
+                        quantite_preparee,
+                        quantite_restante,
+                        unite,
+                        statut,
+                        created_at,
+                        picking:picking_id ( id, statut )
+                    `, { count: 'exact' });
+
+                query = applyFilters(query);
+
+                const start = (currentPage - 1) * pageSize;
+                const end = start + pageSize - 1;
+                query = query.range(start, end).order('created_at', { ascending: false });
+
+                const { data, count, error } = await query;
+
+                if (error) {
+                    console.error("Erreur:", error);
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-rose-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur lors du chargement des données.</td></tr>`;
+                    return;
+                }
+
+                totalRecords = count || 0;
+                currentTableData = data || [];
+                renderTable(currentTableData);
+                updatePagination();
+                await fetchGlobalStats();
+
+            } catch (err) {
+                console.error("Erreur technique:", err);
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-rose-400 text-xs">Erreur de connexion.</td></tr>`;
+            }
+        }
+
+        async function fetchGlobalStats() {
+            try {
+                let q = supabase.from('picking_details').select('id, picking_id, suivi_id, stock_id, document_vente, article, designation_article, lot, magasin, quantite_commandee, quantite_preparee, statut, created_at, picking:picking_id(id, statut)');
+                q = applyFilters(q);
+                const { data, error } = await q.limit(10000);
+                if (error || !data) return;
+
+                allExportData = data;
+                let totalQty = 0;
+                let activeCount = 0;
+
+                data.forEach(item => {
+                    totalQty += Number(item.quantite_preparee || 0);
+                    if (item.statut === 'RESERVE' || item.statut === 'EN_COURS') activeCount++;
+                });
+
+                document.getElementById("totalLinesBadge").textContent = data.length.toLocaleString();
+                document.getElementById("totalQtyBadge").textContent = totalQty.toLocaleString(undefined, {minimumFractionDigits: 3, maximumFractionDigits: 3});
+                document.getElementById("totalActiveBadge").textContent = activeCount.toLocaleString();
+
+            } catch (err) {
+                console.error("Erreur stats:", err);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById("reservationsTableBody");
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500 text-xs"><i class="fas fa-folder-open mr-2"></i> Aucun détail de picking trouvé.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            data.forEach(item => {
+                const reservationStatut = String(item.statut || '').trim().toUpperCase();
+
+                let badgeResColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                if (reservationStatut === 'TRANSFERE_AB10' || reservationStatut === 'VALIDE') badgeResColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (reservationStatut === 'RESERVE' || reservationStatut === 'EN_COURS') badgeResColor = 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+
+                let pickingStatut = item.picking ? item.picking.statut : 'NON_ASSOCIE';
+                let badgePickColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                if (pickingStatut === 'TERMINE' || pickingStatut === 'VALIDE') badgePickColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (pickingStatut === 'EN_COURS' || pickingStatut === 'PICKING') badgePickColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+
+                // Une ligne est sélectionnable UNIQUEMENT si :
+                // 1) la réservation est RESERVE
+                // 2) le picking associé est VALIDE
+                // Les lignes RESERVE + EN_COURS restent totalement non sélectionnables.
+                const pickingStatutNormalise = String(pickingStatut || '').trim().toUpperCase();
+                const isSelectable = reservationStatut === 'RESERVE' && pickingStatutNormalise === 'VALIDE';
+
+                let checkboxDisabled = !isSelectable ? 'disabled' : '';
+                let checkboxClass = !isSelectable ? 'opacity-35 cursor-not-allowed' : 'cursor-pointer';
+                let checkboxTitle = !isSelectable
+                    ? 'Sélection autorisée uniquement pour RESERVE + VALIDE'
+                    : 'Sélectionner cette réservation';
+
+                html += `
+                    <tr class="hover:bg-slate-800/30 transition ${!isSelectable ? 'select-disabled-row' : ''}">
+                        <td class="p-3.5 text-center">
+                            <input type="checkbox" class="row-checkbox rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-emerald-500 w-4 h-4 ${checkboxClass}"
+                                data-id="${item.id}" ${checkboxDisabled} title="${checkboxTitle}" aria-label="Sélection de ${item.document_vente || ''}">
+                        </td>
+                        <td class="p-3.5 font-bold text-emerald-400">${item.document_vente || '-'}</td>
+                        <td class="p-3.5 text-slate-100">
+                            <span class="font-bold text-slate-200">${item.article || ''}</span>
+                            <span class="text-slate-400 block text-[10px] font-sans">${item.designation_article || ''}</span>
+                        </td>
+                        <td class="p-3.5 text-slate-300">${item.lot || '-'}</td>
+                        <td class="p-3.5 text-slate-300">
+                            ${item.magasin || '-'}<span class="text-[10px] text-slate-400 block">${item.emplacement || ''}</span>
+                        </td>
+                        <td class="p-3.5 text-right">
+                            <span class="text-slate-400">${Number(item.quantite_commandee || 0).toFixed(3)}</span> ➔ 
+                            <span class="font-bold text-sky-400">${Number(item.quantite_preparee || 0).toFixed(3)}</span> <span class="text-[10px] text-slate-400">${item.unite || 'KG'}</span>
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${badgeResColor}">
+                                ${item.statut || 'EN_COURS'}
+                            </span>
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${badgePickColor}">
+                                ${pickingStatut}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        window.toggleSelectAll = function(master) {
+            // Le bouton général ne peut sélectionner QUE les lignes autorisées.
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+
+            checkboxes.forEach(cb => {
+                if (!cb.disabled) {
+                    cb.checked = !!master.checked;
+                } else {
+                    cb.checked = false;
+                }
+            });
+
+            updateSelectAllState();
+        };
+
+        // Sélectionner = uniquement RESERVE + VALIDE.
+        window.selectAllValid = function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            let selectableCount = 0;
+
+            checkboxes.forEach(cb => {
+                if (!cb.disabled) {
+                    cb.checked = true;
+                    selectableCount++;
+                } else {
+                    cb.checked = false;
+                }
+            });
+
+            updateSelectAllState();
+
+            if (selectableCount === 0) {
+                alert('Aucune réservation RESERVE + VALIDE à sélectionner.');
+            }
+        };
+
+        function updateSelectAllState() {
+            const master = document.getElementById('selectAll');
+            if (!master) return;
+
+            const eligible = Array.from(document.querySelectorAll('.row-checkbox:not(:disabled)'));
+            const checked = eligible.filter(cb => cb.checked);
+
+            master.checked = eligible.length > 0 && checked.length === eligible.length;
+            master.indeterminate = checked.length > 0 && checked.length < eligible.length;
+        }
+
+        // Sécurité supplémentaire : même si un script ou un clic tente de modifier
+        // une ligne interdite, elle est immédiatement remise à false.
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('row-checkbox')) {
+                if (e.target.disabled) {
+                    e.target.checked = false;
+                    return;
+                }
+                updateSelectAllState();
+            }
+        });
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startItem = totalRecords === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+            const endItem = Math.min(currentPage * pageSize, totalRecords);
+
+            document.getElementById("paginationInfo").textContent = `Affichage de ${startItem} à ${endItem} sur ${totalRecords} entrées`;
+            document.getElementById("pageIndicator").textContent = `Page ${currentPage} / ${totalPages}`;
+            document.getElementById("prevPageBtn").disabled = currentPage <= 1;
+            document.getElementById("nextPageBtn").disabled = currentPage >= totalPages;
+        }
+
+        // ================================================================
+        // RÉSERVATION : traitement + génération automatique PDF / EXCEL
+        // ================================================================
+
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        function generateReservationNumber() {
+            const d = new Date();
+            const dayKey = `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`;
+            const storageKey = `SMTG_RESERVATION_SEQ_${dayKey}`;
+            let seq = Number(localStorage.getItem(storageKey) || 0) + 1;
+            localStorage.setItem(storageKey, String(seq));
+            return `RES-${dayKey}-${String(seq).padStart(3, '0')}`;
+        }
+
+        function normalizeKey(value) {
+            return String(value ?? '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '');
+        }
+
+        function getObjectValue(obj, candidates) {
+            if (!obj) return '';
+            const keys = Object.keys(obj);
+            const normalized = new Map(keys.map(k => [normalizeKey(k), k]));
+            for (const candidate of candidates) {
+                const realKey = normalized.get(normalizeKey(candidate));
+                if (realKey && obj[realKey] !== null && obj[realKey] !== undefined && obj[realKey] !== '') {
+                    return obj[realKey];
+                }
+            }
+            return '';
+        }
+
+        function formatDeliveryDate(value) {
+            if (!value) return '-';
+            const raw = String(value).trim();
+            const d = new Date(raw);
+            if (!Number.isNaN(d.getTime())) return d.toLocaleDateString('fr-FR');
+            if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                const [y, m, day] = raw.split('-');
+                return `${day}/${m}/${y}`;
+            }
+            return raw;
+        }
+
+        async function fetchReservationOrderMeta(documentVentes) {
+            const result = new Map();
+            if (!documentVentes || documentVentes.length === 0) return result;
+
+            try {
+                const { data, error } = await supabase
+                    .from('commandes_excel')
+                    .select('*')
+                    .in('document_vente', documentVentes);
+
+                if (error) {
+                    console.warn('[SMTG RESERVATIONS] Métadonnées commandes non disponibles:', error.message);
+                    return result;
+                }
+
+                (data || []).forEach(row => {
+                    const doc = getObjectValue(row, ['document_vente', 'Document de vente', 'numero_commande', 'commande']);
+                    if (!doc) return;
+
+                    const client = getObjectValue(row, [
+                        'client', 'nom_client', 'client_nom', 'customer', 'customer_name',
+                        'nom_receptionnaire', 'Nom Réceptionnaire', 'nom receptionnaire'
+                    ]);
+                    const livraison = getObjectValue(row, [
+                        'date_livraison', 'date_livraison_prevue', 'livraison',
+                        'date_livraison_prevue', 'delivery_date', 'date_delivery'
+                    ]);
+
+                    if (!result.has(String(doc))) {
+                        result.set(String(doc), {
+                            client: client || '-',
+                            livraison: formatDeliveryDate(livraison)
+                        });
+                    } else {
+                        const old = result.get(String(doc));
+                        if (old.client === '-' && client) old.client = client;
+                        if (old.livraison === '-' && livraison) old.livraison = formatDeliveryDate(livraison);
+                    }
+                });
+            } catch (e) {
+                console.warn('[SMTG RESERVATIONS] Impossible de récupérer client/livraison:', e);
+            }
+
+            return result;
+        }
+
+        function getQtyForPdf(item, type) {
+            const unite = String(item?.unite || '').toUpperCase();
+            const kgCandidates = [
+                'quantite_preparee_kg', 'qte_preparee_kg', 'quantite_kg', 'kg_prepare',
+                'kg', 'quantite_kg_preparee'
+            ];
+            const pieceCandidates = [
+                'quantite_preparee_pieces', 'quantite_preparee_piece', 'qte_preparee_pieces',
+                'pieces_preparees', 'pieces', 'piece', 'quantite_pieces'
+            ];
+
+            if (type === 'kg') {
+                const explicit = getObjectValue(item, kgCandidates);
+                if (explicit !== '') return Number(explicit) || 0;
+                return /KG|KILO/.test(unite) || !/PIECE|PCS|PCE/.test(unite)
+                    ? Number(item?.quantite_preparee || 0) : 0;
+            }
+
+            const explicit = getObjectValue(item, pieceCandidates);
+            if (explicit !== '') return Number(explicit) || 0;
+            return /PIECE|PCS|PCE/.test(unite) ? Number(item?.quantite_preparee || 0) : 0;
+        }
+
+        function reservationExcelRows(rows, reservationNumber, orderMeta) {
+            return rows.map(item => {
+                const meta = orderMeta.get(String(item.document_vente)) || {};
+                return {
+                    'N° Réservation': reservationNumber,
+                    'N° Commande': item.document_vente || '',
+                    'Client': meta.client || '-',
+                    'Date Livraison': meta.livraison || '-',
+                    'Article': item.article || '',
+                    'Désignation': item.designation_article || '',
+                    'KG': Number(getQtyForPdf(item, 'kg')).toFixed(3),
+                    'Pièces': Number(getQtyForPdf(item, 'pieces')).toFixed(0),
+                    'Lot': item.lot || '',
+                    'Qté Préparée': Number(item.quantite_preparee || 0).toFixed(3),
+                    'Unité': item.unite || 'KG',
+                    'Magasin': item.magasin || '',
+                    'Emplacement': item.emplacement || ''
+                };
+            });
+        }
+
+        function downloadReservationExcel(rows, reservationNumber, orderMeta) {
+            if (!window.XLSX) throw new Error('La bibliothèque Excel n’est pas chargée.');
+
+            const data = reservationExcelRows(rows, reservationNumber, orderMeta);
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            worksheet['!cols'] = [
+                { wch: 22 }, { wch: 16 }, { wch: 34 }, { wch: 16 }, { wch: 16 },
+                { wch: 42 }, { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 18 },
+                { wch: 10 }, { wch: 16 }, { wch: 16 }
+            ];
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Réservation');
+            XLSX.writeFile(workbook, `${reservationNumber}.xlsx`);
+        }
+
+        function pdfHeader(doc, reservationNumber, reservationDate, service) {
+            const pageWidth = doc.internal.pageSize.getWidth();
+            doc.setDrawColor(0, 91, 51);
+            doc.setLineWidth(0.45);
+            doc.line(12, 29, pageWidth - 12, 29);
+
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(20, 40, 55);
+            doc.setFontSize(18);
+            doc.text('BON DE PRÉPARATION', pageWidth / 2, 18, { align: 'center' });
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(70, 78, 88);
+            doc.text(`Date : ${reservationDate}`, pageWidth - 14, 11, { align: 'right' });
+            doc.text(`Heure : ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`, pageWidth - 14, 17, { align: 'right' });
+
+            doc.setDrawColor(0, 91, 51);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(14, 7, 48, 17, 2, 2);
+            doc.setFontSize(7.5);
+            doc.setTextColor(0, 91, 51);
+            doc.text('Réservation :', 18, 13);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10.5);
+            doc.text(reservationNumber, 18, 20);
+        }
+
+        function pdfFooter(doc, pageNumber, totalPages) {
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.5);
+            doc.setTextColor(35, 40, 48);
+            doc.text('Préparé par : ______________________________', 14, pageHeight - 10);
+            doc.text(`Page ${pageNumber} / ${totalPages}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
+        }
+
+        function downloadReservationPDF(rows, reservationNumber, orderMeta) {
+            if (!window.jspdf || !window.jspdf.jsPDF) throw new Error('La bibliothèque PDF n’est pas chargée.');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const reservationDate = new Date().toLocaleDateString('fr-FR');
+            const service = 'CONGELÉ';
+
+            // Groupe les lignes par commande sans perdre aucune ligne sélectionnée.
+            const groups = [];
+            const groupMap = new Map();
+            rows.forEach(item => {
+                const key = String(item.document_vente || 'SANS_COMMANDE');
+                if (!groupMap.has(key)) {
+                    const group = { document: key, rows: [] };
+                    groupMap.set(key, group);
+                    groups.push(group);
+                }
+                groupMap.get(key).rows.push(item);
+            });
+
+            let y = 37;
+
+            pdfHeader(doc, reservationNumber, reservationDate, service);
+
+            // Une seule ligne d'information en haut, sans logo ni éléments supplémentaires.
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.5);
+            doc.setTextColor(45, 55, 65);
+            doc.text(`Service : ${service}`, 14, 34);
+
+            groups.forEach((group, groupIndex) => {
+                const meta = orderMeta.get(String(group.document)) || {};
+                const client = meta.client || '-';
+                const livraison = meta.livraison || '-';
+
+                // Si l'espace restant est insuffisant, on passe à la page suivante.
+                if (y > 258) {
+                    doc.addPage();
+                    pdfHeader(doc, reservationNumber, reservationDate, service);
+                    y = 37;
+                }
+
+                doc.setFillColor(242, 245, 247);
+                doc.setDrawColor(220, 225, 230);
+                doc.roundedRect(14, y, pageWidth - 28, 11, 1.5, 1.5, 'FD');
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8.8);
+                doc.setTextColor(25, 31, 42);
+                doc.text(
+                    `Commande : ${group.document}  |  Client : ${client}  |  Livraison : ${livraison}`,
+                    18, y + 7
+                );
+                y += 14;
+
+                const body = group.rows.map(item => [
+                    item.ligne_commande || item.poste || item.ligne || '-',
+                    item.article || '-',
+                    item.designation_article || '-',
+                    Number(item.quantite_commandee || 0).toFixed(3),
+                    Number(item.quantite_preparee || 0).toFixed(3),
+                    item.lot || '-',
+                    Number(item.quantite_preparee || 0).toFixed(3)
+                ]);
+
+                doc.autoTable({
+                    startY: y,
+                    margin: { left: 14, right: 14, top: 34, bottom: 15 },
+                    tableWidth: pageWidth - 28,
+                    head: [['POSTE', 'ARTICLE', 'DÉSIGNATION', 'QUANTITÉ COMMANDÉE', 'QUANTITÉ PRÉPARÉE', 'LOT (RECHERCHE)', 'QTÉ PRÉP. SAISIE']],
+                    body,
+                    theme: 'grid',
+                    styles: {
+                        font: 'helvetica',
+                        fontSize: 7.8,
+                        textColor: [35, 40, 48],
+                        cellPadding: 3.1,
+                        lineColor: [218, 223, 228],
+                        lineWidth: 0.25,
+                        valign: 'middle'
+                    },
+                    headStyles: {
+                        fillColor: [232, 238, 235],
+                        textColor: [22, 31, 39],
+                        fontStyle: 'bold',
+                        fontSize: 8,
+                        halign: 'center'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 18, halign: 'left', fontStyle: 'bold' },
+                        1: { cellWidth: 28, halign: 'left', textColor: [49, 80, 202] },
+                        2: { cellWidth: 64, halign: 'left' },
+                        3: { cellWidth: 32, halign: 'right', fontStyle: 'bold' },
+                        4: { cellWidth: 32, halign: 'right', fontStyle: 'bold' },
+                        5: { cellWidth: 38, halign: 'center' },
+                        6: { cellWidth: 32, halign: 'right', fontStyle: 'bold', textColor: [0, 143, 76] }
+                    },
+                    didParseCell: function (data) {
+                        if (data.section === 'body' && data.column.index === 4) {
+                            data.cell.styles.fontStyle = 'bold';
+                        }
+                    }
+                });
+
+                y = (doc.lastAutoTable?.finalY || y) + 6;
+            });
+
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let page = 1; page <= totalPages; page++) {
+                doc.setPage(page);
+                pdfFooter(doc, page, totalPages);
+            }
+
+            doc.save(`${reservationNumber}.pdf`);
+        }
+
+        async function downloadReservationFiles(rows, reservationNumber, orderMeta) {
+            // Téléchargement automatique des DEUX fichiers après "Traiter".
+            // On espace volontairement les deux téléchargements pour éviter que
+            // le navigateur bloque le second fichier comme téléchargement multiple.
+            downloadReservationPDF(rows, reservationNumber, orderMeta);
+
+            await new Promise(resolve => setTimeout(resolve, 700));
+
+            downloadReservationExcel(rows, reservationNumber, orderMeta);
+        }
+
+        async function insertReservationWithNumber(payload, reservationNumber) {
+            // Le champ numero_reservation est utilisé s'il existe dans reservations_stock.
+            // Si la base actuelle ne possède pas encore ce champ, on garde la compatibilité
+            // avec la structure existante et on insère sans ce champ.
+            const withNumber = { ...payload, numero_reservation: reservationNumber };
+            let result = await supabase
+                .from('reservations_stock')
+                .insert(withNumber)
+                .select('id')
+                .single();
+
+            if (result.error && /numero_reservation|column .* does not exist/i.test(result.error.message || '')) {
+                result = await supabase
+                    .from('reservations_stock')
+                    .insert(payload)
+                    .select('id')
+                    .single();
+            }
+
+            return result;
+        }
+
+        window.processSelectedPickingDetails = async function() {
+            try {
+                const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+                if (selectedCheckboxes.length === 0) {
+                    alert('Veuillez sélectionner au moins une ligne valide à traiter.');
+                    return;
+                }
+
+                const { data: { user } } = await supabase.auth.getUser();
+                const userId = user ? user.id : null;
+                const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-id'));
+                const targetRows = currentTableData.filter(item => selectedIds.includes(item.id));
+
+                if (targetRows.length === 0) {
+                    alert('Aucune ligne valide sélectionnée.');
+                    return;
+                }
+
+                // Un seul numéro pour tout le traitement et pour les fichiers PDF / Excel.
+                const reservationNumber = generateReservationNumber();
+                const documentVentes = [...new Set(targetRows.map(i => i.document_vente).filter(Boolean))];
+                const orderMeta = await fetchReservationOrderMeta(documentVentes);
+
+                // IMPORTANT : une quantité préparée = 0 reste visible dans la réservation,
+                // mais ne doit créer NI réservation stock avec quantité 0, NI mouvement,
+                // NI transfert AB10. Elle reste donc disponible pour une préparation future.
+                const zeroRows = targetRows.filter(item => Number(item.quantite_preparee || 0) <= 0);
+                const positiveRows = targetRows.filter(item => Number(item.quantite_preparee || 0) > 0);
+
+                // 1. Suivi des commandes nécessaires uniquement pour les lignes réellement transférées.
+                let suiviMap = new Map();
+                if (positiveRows.length > 0) {
+                    const positiveDocuments = [...new Set(positiveRows.map(i => i.document_vente).filter(Boolean))];
+                    const { data: suivisData, error: errSuivi } = await supabase
+                        .from('suivi_commandes_lancer')
+                        .select('id, document_vente, commande_id')
+                        .in('document_vente', positiveDocuments);
+
+                    if (errSuivi) throw errSuivi;
+                    suiviMap = new Map((suivisData || []).map(s => [s.document_vente, s]));
+                }
+
+                // 2. Réservations existantes.
+                let reservationsData = [];
+                if (positiveRows.length > 0) {
+                    const positiveDocuments = [...new Set(positiveRows.map(i => i.document_vente).filter(Boolean))];
+                    const { data, error: errReservations } = await supabase
+                        .from('reservations_stock')
+                        .select('id, document_vente, article, lot, picking_detail_id')
+                        .in('document_vente', positiveDocuments);
+
+                    if (errReservations) throw errReservations;
+                    reservationsData = data || [];
+                }
+
+                const reservationMap = new Map();
+                reservationsData.forEach(r => {
+                    if (r.picking_detail_id) reservationMap.set(String(r.picking_detail_id), r.id);
+                    reservationMap.set(`${r.document_vente}_${r.article}_${r.lot}`, r.id);
+                });
+
+                const ab10Payloads = [];
+                const mouvementsPayloads = [];
+                const processedRows = [];
+
+                // Les lignes à quantité 0 sont volontairement gardées dans le document PDF/Excel,
+                // mais ne passent jamais dans le stock.
+                const pdfRows = [...targetRows];
+
+                for (const item of positiveRows) {
+                    const qty = Number(item.quantite_preparee || 0);
+                    const suiviObj = suiviMap.get(item.document_vente);
+
+                    if (!suiviObj) {
+                        throw new Error(`Aucun suivi trouvé pour le document ${item.document_vente} (Article: ${item.article}).`);
+                    }
+
+                    let reservationId = reservationMap.get(String(item.id)) ||
+                        reservationMap.get(`${item.document_vente}_${item.article}_${item.lot}`);
+
+                    if (!reservationId) {
+                        const { data: existingRes, error: existingErr } = await supabase
+                            .from('reservations_stock')
+                            .select('id')
+                            .eq('picking_detail_id', item.id)
+                            .maybeSingle();
+
+                        if (existingErr) throw existingErr;
+                        if (existingRes) {
+                            reservationId = existingRes.id;
+                        } else {
+                            // Ici qty est STRICTEMENT > 0, donc le check constraint
+                            // chk_qte_reservee ne reçoit jamais 0.
+                            const reservationPayload = {
+                                document_vente: item.document_vente,
+                                article: item.article,
+                                designation_article: item.designation_article,
+                                lot: item.lot,
+                                magasin: item.magasin,
+                                quantite: qty,
+                                quantite_reservee: qty,
+                                unite: item.unite || 'KG',
+                                picking_detail_id: item.id,
+                                stock_id: item.stock_id || null,
+                                picking_id: item.picking_id || null,
+                                suivi_id: suiviObj.id || null,
+                                statut: 'RESERVE'
+                            };
+
+                            const { data: newRes, error: errInsert } = await insertReservationWithNumber(
+                                reservationPayload,
+                                reservationNumber
+                            );
+
+                            if (errInsert) {
+                                console.error('Erreur Insert Réservation:', errInsert);
+                                alert(`Erreur base de données (Réservation) : ${errInsert.message} (Article: ${item.article})`);
+                                return;
+                            }
+                            reservationId = newRes.id;
+                        }
+
+                        reservationMap.set(String(item.id), reservationId);
+                    }
+
+                    // Associer le N° réservation si la colonne existe.
+                    const numberUpdate = await supabase
+                        .from('reservations_stock')
+                        .update({ numero_reservation: reservationNumber })
+                        .eq('id', reservationId);
+                    if (numberUpdate.error && !/numero_reservation|column .* does not exist/i.test(numberUpdate.error.message || '')) {
+                        throw numberUpdate.error;
+                    }
+
+                    processedRows.push(item);
+
+                    // MOUVEMENT uniquement pour une quantité strictement positive.
+                    mouvementsPayloads.push({
+                        stock_id: item.stock_id || null,
+                        document_vente: item.document_vente,
+                        type_mouvement: 'TRANSFERT',
+                        article: item.article,
+                        designation_article: item.designation_article,
+                        lot: item.lot,
+                        magasin_source: item.magasin,
+                        magasin_destination: 'AB10',
+                        quantite: qty,
+                        unite: item.unite || 'KG',
+                        utilisateur: userId,
+                        commentaire: `Transfert vers AB10 depuis Picking - ${reservationNumber}`
+                    });
+
+                    ab10Payloads.push({
+                        reservation_id: reservationId,
+                        picking_id: item.picking_id,
+                        picking_detail_id: item.id,
+                        suivi_id: suiviObj.id,
+                        stock_id: item.stock_id,
+                        document_vente: item.document_vente,
+                        article: item.article,
+                        designation_article: item.designation_article,
+                        lot: item.lot,
+                        magasin_origine: item.magasin,
+                        magasin_destination: 'AB10',
+                        emplacement: item.emplacement,
+                        quantite: qty,
+                        unite: item.unite || 'KG',
+                        statut: 'EN_AB10'
+                    });
+                }
+
+                // Si aucune quantité positive n'est sélectionnée, on génère quand même
+                // le PDF/Excel pour garder la trace de la réservation à préparer plus tard.
+                if (processedRows.length > 0) {
+                    // 3. mouvements_stock : uniquement les quantités > 0.
+                    const { error: errMv } = await supabase
+                        .from('mouvements_stock')
+                        .insert(mouvementsPayloads);
+                    if (errMv) throw errMv;
+
+                    // 4. picking_details : uniquement les lignes réellement transférées.
+                    const processedIds = processedRows.map(i => i.id);
+                    const { error: errDetails } = await supabase
+                        .from('picking_details')
+                        .update({ statut: 'TRANSFERE_AB10' })
+                        .in('id', processedIds);
+                    if (errDetails) throw errDetails;
+
+                    // 5. AB10 : uniquement les quantités > 0.
+                    const { error: errAb10 } = await supabase
+                        .from('ab10_stock')
+                        .insert(ab10Payloads);
+                    if (errAb10) throw errAb10;
+
+                    // 6. reservations_stock -> VALIDE uniquement pour les lignes transférées.
+                    const { error: errVal } = await supabase
+                        .from('reservations_stock')
+                        .update({ statut: 'VALIDE' })
+                        .in('picking_detail_id', processedIds);
+                    if (errVal) throw errVal;
+                }
+
+                // 6 bis. Une ligne sélectionnée avec quantité préparée = 0 est considérée
+                // comme traitée pour cette opération. On utilise le statut VALIDE,
+                // qui fait partie des statuts autorisés par chk_pickdetail_statut.
+                // Le filtre de la page n'affiche que RESERVE / EN_COURS, donc cette ligne
+                // disparaît après le traitement sans créer de mouvement_stock ni AB10.
+                if (zeroRows.length > 0) {
+                    const zeroIds = zeroRows.map(i => i.id);
+                    const { error: errZeroStatus } = await supabase
+                        .from('picking_details')
+                        .update({ statut: 'VALIDE' })
+                        .in('id', zeroIds);
+                    if (errZeroStatus) throw errZeroStatus;
+                }
+
+                // 7. Ne mettre un picking à TERMINE que si TOUTES ses lignes sont réellement transférées.
+                const pickingIds = [...new Set(processedRows.map(i => i.picking_id).filter(Boolean))];
+                for (const pickingId of pickingIds) {
+                    const { data: details, error } = await supabase
+                        .from('picking_details')
+                        .select('id, statut, quantite_preparee')
+                        .eq('picking_id', pickingId);
+                    if (error) throw error;
+
+                    const allTransferred = (details || []).length > 0 &&
+                        details.every(d => String(d.statut || '').toUpperCase() === 'TRANSFERE_AB10');
+
+                    if (allTransferred) {
+                        const { error: errPick } = await supabase
+                            .from('picking')
+                            .update({ statut: 'TERMINE' })
+                            .eq('id', pickingId);
+                        if (errPick) throw errPick;
+                    }
+                }
+
+                // 8. Commandes / suivi : EN_AB10 uniquement si toutes leurs lignes sont terminées.
+                for (const document of documentVentes) {
+                    const { data: detailsDoc, error: errDetailsDoc } = await supabase
+                        .from('picking_details')
+                        .select('id, statut')
+                        .eq('document_vente', document);
+                    if (errDetailsDoc) throw errDetailsDoc;
+
+                    const allDocumentTransferred = (detailsDoc || []).length > 0 &&
+                        detailsDoc.every(d => String(d.statut || '').toUpperCase() === 'TRANSFERE_AB10');
+
+                    if (allDocumentTransferred) {
+                        const { error: errCmd } = await supabase
+                            .from('commandes_excel')
+                            .update({ statut: 'EN_AB10' })
+                            .eq('document_vente', document);
+                        if (errCmd) throw errCmd;
+
+                        const { error: errSuiviUpdate } = await supabase
+                            .from('suivi_commandes_lancer')
+                            .update({ statut: 'EN_AB10' })
+                            .eq('document_vente', document);
+                        if (errSuiviUpdate) throw errSuiviUpdate;
+                    }
+                }
+
+                // 9. PDF + Excel : TOUTES les lignes sélectionnées, y compris les quantités 0.
+                await downloadReservationFiles(pdfRows, reservationNumber, orderMeta);
+
+                const zeroCount = zeroRows.length;
+                const positiveCount = processedRows.length;
+                let message = `Traitement réussi !\n\nRéservation : ${reservationNumber}\nCommandes : ${documentVentes.length}\nLignes dans PDF/Excel : ${pdfRows.length}\nLignes transférées vers AB10 : ${positiveCount}`;
+
+                if (zeroCount > 0) {
+                    message += `\nLignes avec quantité 0 traitées sans mouvement : ${zeroCount}\n\nElles restent dans l'historique mais ne réapparaissent plus dans la liste à traiter.`;
+                }
+
+                message += '\n\nLe PDF et le fichier Excel ont été téléchargés automatiquement :\n' + reservationNumber + '.pdf\n' + reservationNumber + '.xlsx';
+                alert(message);
+
+                await loadData();
+
+            } catch (err) {
+                console.error('Erreur lors du traitement:', err);
+                alert('Une erreur est survenue lors de l’exécution : ' + (err.message || err));
+            }
+        };
+
+        window.exportToExcel = function() {
+            if (!allExportData || allExportData.length === 0) {
+                alert('Aucune donnée à exporter.');
+                return;
+            }
+
+            const dataToExport = allExportData.map(item => ({
+                'Document Vente': item.document_vente,
+                'Article': item.article,
+                'Désignation': item.designation_article,
+                'Lot': item.lot,
+                'Magasin': item.magasin,
+                'Emplacement': item.emplacement,
+                'Quantité Commandée': item.quantite_commandee,
+                'Quantité Préparée': item.quantite_preparee,
+                'Statut Détail': item.statut,
+                'Statut Picking': item.picking ? item.picking.statut : 'NON_ASSOCIE'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'PickingDetails');
+            XLSX.writeFile(workbook, `Picking_Details_${currentDateFilter || new Date().toISOString().slice(0,10)}.xlsx`);
+        };
+
+        // Export PDF manuel conservé pour compatibilité avec les appels existants.
+        window.exportToPDF = async function() {
+            if (!allExportData || allExportData.length === 0) {
+                alert('Aucune donnée à exporter.');
+                return;
+            }
+            const reservationNumber = generateReservationNumber();
+            const docs = [...new Set(allExportData.map(i => i.document_vente).filter(Boolean))];
+            const meta = await fetchReservationOrderMeta(docs);
+            downloadReservationPDF(allExportData, reservationNumber, meta);
+        };
+
+        setInterval(() => {
+            const clock = document.getElementById("liveClock");
+            if (clock) clock.innerText = new Date().toLocaleTimeString('fr-FR');
+        }, 1000);
+
+        // Même comportement que produits.html :
+        // si le module est injecté après DOMContentLoaded, on initialise tout de suite.
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initializeReservationsPage, { once: true });
+        } else {
+            initializeReservationsPage();
+        }
+
+        window.SMTGReservations = {
+            reload: loadData,
+            refresh: loadData
+        };
+
+        })();
+    </script>
+
+</body>
+</html>

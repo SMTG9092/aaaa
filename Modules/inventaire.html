@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Inventaires, Entrées & Nettoyage - SoufStock Enterprise ERP/WMS</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            100: '#f1f5f9'
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            400: '#34d399',
+                            300: '#6ee7b7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-screen p-4 select-none shrink-0">
+        <div class="flex items-center gap-3 px-2 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <i class="fas fa-snowflake text-lg"></i>
+            </div>
+            <div>
+                <span class="font-bold text-base tracking-wide block text-slate-100">SoufStock</span>
+                <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Enterprise ERP</span>
+            </div>
+        </div>
+        
+        <nav id="sidebarNav" class="flex-1 overflow-y-auto pr-1">
+            <!-- Dynamic Sidebar -->
+        </nav>
+
+        <div class="pt-4 mt-auto border-t border-slate-800/80">
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 mb-2">
+                <span id="sidebarUserName" class="block text-xs font-bold text-slate-200 truncate uppercase">YAHYA SOUFIANE</span>
+                <span class="block text-[10px] text-emerald-400 font-medium mt-0.5">Administrateur</span>
+            </div>
+            <button id="logoutBtn" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl py-2 px-3 text-xs font-semibold transition flex items-center justify-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col h-screen min-w-0 overflow-hidden relative">
+        
+        <!-- HEADER -->
+        <header class="h-20 bg-slate-900/40 border-b border-slate-800/80 px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Gestion des Inventaires, Entrées & Nettoyage</h1>
+                    <div class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span>Accueil</span>
+                        <span>/</span>
+                        <strong class="text-slate-300">Inventaire & Stock</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl">
+                <div class="text-right">
+                    <span id="currentDate" class="text-xs font-medium text-slate-300 block">Mercredi 29 juillet 2026</span>
+                    <span id="currentTime" class="text-[10px] text-emerald-400 font-mono block">13:40:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="max-w-6xl mx-auto flex flex-col gap-6">
+                
+                <!-- ROW 1: ENTRÉE DE STOCK & AJUSTEMENT MANUEL -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- ENTRÉE DE STOCK / RÉCEPTION (AVEC LOT) -->
+                    <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl mb-4">
+                                <i class="fas fa-cart-plus"></i>
+                            </div>
+                            <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wide">Entrée / Réception de Stock</h2>
+                            <p class="text-xs text-slate-400 mt-1">Ajouter des quantités entrantes par article et par Lot.</p>
+                            
+                            <div class="flex flex-col gap-3 mt-4">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Magasin de Destination :</label>
+                                    <input type="text" id="entryMagasin" placeholder="Ex: PRINCIPAL" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Code Article :</label>
+                                    <input type="text" id="entryArticle" placeholder="Ex: ART-00123" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Numéro de Lot :</label>
+                                    <input type="text" id="entryLot" placeholder="Ex: LOT-2026A (ou STANDARD)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Quantité à Ajouter :</label>
+                                    <input type="number" step="0.001" id="entryQty" placeholder="0.000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-emerald-400 font-mono font-bold uppercase focus:outline-none focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="triggerStockEntry()" class="w-full mt-6 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-plus-circle"></i> Valider l'entrée de stock
+                        </button>
+                    </div>
+
+                    <!-- AJUSTEMENT / INVENTAIRE MANUEL (AVEC LOT) -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xl mb-4">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <h2 class="text-sm font-bold text-slate-100 uppercase tracking-wide">Ajustement / Inventaire Manuel</h2>
+                            <p class="text-xs text-slate-400 mt-1">Fixer directement la quantité réelle par article et par Lot.</p>
+                            
+                            <div class="flex flex-col gap-3 mt-4">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Magasin :</label>
+                                    <input type="text" id="manMagasin" placeholder="Ex: PRINCIPAL" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Code Article :</label>
+                                    <input type="text" id="manArticle" placeholder="Ex: ART-00123" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Numéro de Lot :</label>
+                                    <input type="text" id="manLot" placeholder="Ex: LOT-2026A (ou STANDARD)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Nouvelle Quantité Réelle :</label>
+                                    <input type="number" step="0.001" id="manQty" placeholder="0.000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-blue-400 font-mono font-bold uppercase focus:outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="triggerManualInventaire()" class="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> Valider l'ajustement
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- ROW 2: SUPPRESSION & VIDAGE DE MAGASIN -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- SUPPRIMER UN ARTICLE D'UN MAGASIN -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl mb-4">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                            <h2 class="text-sm font-bold text-slate-100 uppercase tracking-wide">Supprimer un Article du Magasin</h2>
+                            <p class="text-xs text-slate-400 mt-1">Retirer définitivement un article (et tous ses lots) d'un magasin précis.</p>
+                            
+                            <div class="flex flex-col gap-3 mt-4">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Magasin :</label>
+                                    <input type="text" id="delMagasin" placeholder="Ex: PRINCIPAL" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-amber-500">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Code Article à Supprimer :</label>
+                                    <input type="text" id="delArticle" placeholder="Ex: ART-00123" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-amber-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="triggerDeleteArticle()" class="w-full mt-6 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-eraser"></i> Supprimer l'article
+                        </button>
+                    </div>
+
+                    <!-- VIDER UN MAGASIN ENTIER -->
+                    <div class="bg-slate-900 border border-red-500/30 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-xl mb-4">
+                                <i class="fas fa-radiation"></i>
+                            </div>
+                            <h2 class="text-sm font-bold text-red-400 uppercase tracking-wide">Vider un Magasin Entier</h2>
+                            <p class="text-xs text-slate-400 mt-1">Attention : Efface tous les articles et les stocks du magasin choisi.</p>
+                            
+                            <div class="flex flex-col gap-3 mt-4">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Nom du Magasin à Vider :</label>
+                                    <input type="text" id="clearMagasinName" placeholder="EX: PRINCIPAL" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-red-500 font-mono">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="triggerViderMagasin()" class="w-full mt-6 bg-red-500 hover:bg-red-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-bomb"></i> Vider le Magasin
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- CUSTOM MODAL DIALOG -->
+    <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl flex flex-col items-center text-center animate-in fade-in zoom-in duration-200">
+            <div id="modalIconContainer" class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl mb-4">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 id="modalTitle" class="text-base font-bold text-slate-100">Confirmation</h3>
+            <p id="modalMessage" class="text-xs text-slate-400 mt-2 leading-relaxed">...</p>
+            <div class="flex items-center gap-3 w-full mt-6">
+                <button id="modalCancelBtn" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition cursor-pointer">
+                    Annuler
+                </button>
+                <button id="modalConfirmBtn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg">
+                    Confirmer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import Navigation from '../assets/js/core/navigation.js';
+        import supabase from '../assets/js/core/supabase.js';
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await Navigation.init();
+
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "login.html";
+                });
+            }
+        });
+
+        // 1. ENTRÉE DE STOCK AVEC LOT
+        window.triggerStockEntry = function() {
+            const mag = document.getElementById("entryMagasin").value.trim().toUpperCase();
+            const art = document.getElementById("entryArticle").value.trim().toUpperCase();
+            const lot = document.getElementById("entryLot").value.trim().toUpperCase() || 'STANDARD';
+            const qtyToAdd = parseFloat(document.getElementById("entryQty").value);
+
+            if (!mag || !art || isNaN(qtyToAdd) || qtyToAdd <= 0) {
+                showCustomAlert("Attention", "Veuillez remplir le magasin, l'article et une quantité valide supérieure à 0.", "warning");
+                return;
+            }
+
+            openModal(
+                "Confirmation d'entrée",
+                `Voulez-vous ajouter [ +${qtyToAdd} ] pour l'article [ ${art} ] (Lot: ${lot}) dans le magasin [ ${mag} ] ?`,
+                async () => {
+                    // Vérifier si la ligne avec ce lot exact existe
+                    const { data: existing, error: fetchErr } = await supabase
+                        .from('stock')
+                        .select('quantite')
+                        .eq('magasin', mag)
+                        .eq('article', art)
+                        .eq('lot', lot)
+                        .maybeSingle();
+
+                    if (fetchErr) throw fetchErr;
+
+                    if (existing) {
+                        const newTotal = parseFloat(existing.quantite) + qtyToAdd;
+                        const { error: updateErr } = await supabase.from('stock')
+                            .update({ quantite: newTotal, updated_at: new Date().toISOString() })
+                            .eq('magasin', mag)
+                            .eq('article', art)
+                            .eq('lot', lot);
+                        if (updateErr) throw updateErr;
+                    } else {
+                        const { error: insertErr } = await supabase.from('stock')
+                            .insert([{ magasin: mag, article: art, lot: lot, quantite: qtyToAdd, updated_at: new Date().toISOString() }]);
+                        if (insertErr) throw insertErr;
+                    }
+
+                    showCustomAlert("Succès", "Entrée de stock enregistrée avec succès !", "success");
+                    document.getElementById("entryMagasin").value = "";
+                    document.getElementById("entryArticle").value = "";
+                    document.getElementById("entryLot").value = "";
+                    document.getElementById("entryQty").value = "";
+                }
+            );
+        }
+
+        // 2. AJUSTEMENT MANUEL AVEC LOT
+        window.triggerManualInventaire = function() {
+            const mag = document.getElementById("manMagasin").value.trim().toUpperCase();
+            const art = document.getElementById("manArticle").value.trim().toUpperCase();
+            const lot = document.getElementById("manLot").value.trim().toUpperCase() || 'STANDARD';
+            const qty = parseFloat(document.getElementById("manQty").value);
+
+            if (!mag || !art || isNaN(qty)) {
+                showCustomAlert("Attention", "Veuillez remplir tous les champs obligatoires (Magasin, Article, Quantité).", "warning");
+                return;
+            }
+
+            openModal(
+                "Confirmation d'ajustement",
+                `Voulez-vous définir la quantité de l'article [ ${art} ] (Lot: ${lot}) à [ ${qty} ] dans le magasin [ ${mag} ] ?`,
+                async () => {
+                    const { data: existing } = await supabase.from('stock').select('article').eq('magasin', mag).eq('article', art).eq('lot', lot).maybeSingle();
+                    
+                    if (existing) {
+                        const { error } = await supabase.from('stock').update({ quantite: qty, updated_at: new Date().toISOString() }).eq('magasin', mag).eq('article', art).eq('lot', lot);
+                        if (error) throw error;
+                    } else {
+                        const { error } = await supabase.from('stock').insert([{ magasin: mag, article: art, lot: lot, quantite: qty }]);
+                        if (error) throw error;
+                    }
+
+                    showCustomAlert("Succès", "Quantité mise à jour avec succès !", "success");
+                    document.getElementById("manMagasin").value = "";
+                    document.getElementById("manArticle").value = "";
+                    document.getElementById("manLot").value = "";
+                    document.getElementById("manQty").value = "";
+                }
+            );
+        }
+
+        // 3. SUPPRIMER UN ARTICLE
+        window.triggerDeleteArticle = function() {
+            const mag = document.getElementById("delMagasin").value.trim().toUpperCase();
+            const art = document.getElementById("delArticle").value.trim().toUpperCase();
+
+            if (!mag || !art) {
+                showCustomAlert("Attention", "Veuillez spécifier le magasin et le code article à supprimer.", "warning");
+                return;
+            }
+
+            openModal(
+                "Confirmation de suppression",
+                `ATTENTION : Voulez-vous vraiment supprimer l'article [ ${art} ] (tous lots confondus) du magasin [ ${mag} ] ?`,
+                async () => {
+                    const { error } = await supabase.from('stock').delete().eq('magasin', mag).eq('article', art);
+                    if (error) throw error;
+                    showCustomAlert("Succès", `L'article ${art} a été retiré du magasin ${mag}.`, "success");
+                    document.getElementById("delMagasin").value = "";
+                    document.getElementById("delArticle").value = "";
+                }
+            );
+        }
+
+        // 4. VIDER UN MAGASIN
+        window.triggerViderMagasin = function() {
+            const mag = document.getElementById("clearMagasinName").value.trim().toUpperCase();
+
+            if (!mag) {
+                showCustomAlert("Attention", "Veuillez entrer le nom du magasin à vider.", "warning");
+                return;
+            }
+
+            openModal(
+                "ALERTE ROUGE : Vider le magasin",
+                `Êtes-vous absolument sûr de vouloir SUPPRIMER TOUT LE STOCK du magasin [ ${mag} ] ?`,
+                async () => {
+                    const { error } = await supabase.from('stock').delete().eq('magasin', mag);
+                    if (error) throw error;
+                    showCustomAlert("Succès", `Le magasin ${mag} a été complètement vidé.`, "success");
+                    document.getElementById("clearMagasinName").value = "";
+                }
+            );
+        }
+
+        function openModal(title, message, callback) {
+            const modal = document.getElementById("customModal");
+            document.getElementById("modalTitle").textContent = title;
+            document.getElementById("modalMessage").textContent = message;
+            
+            const iconContainer = document.getElementById("modalIconContainer");
+            iconContainer.className = "w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl mb-4";
+            iconContainer.innerHTML = `<i class="fas fa-exclamation-triangle"></i>`;
+
+            document.getElementById("modalCancelBtn").classList.remove("hidden");
+            const confirmBtn = document.getElementById("modalConfirmBtn");
+            confirmBtn.textContent = "Confirmer";
+            
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            const cancelBtn = document.getElementById("modalCancelBtn");
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+            modal.classList.remove("hidden");
+
+            newCancelBtn.addEventListener("click", () => {
+                modal.classList.add("hidden");
+            });
+
+            newConfirmBtn.addEventListener("click", async () => {
+                modal.classList.add("hidden");
+                try {
+                    await callback();
+                } catch (err) {
+                    console.error("Erreur:", err);
+                    showCustomAlert("Erreur", "Erreur lors de l'exécution : " + (err.message || JSON.stringify(err)), "error");
+                }
+            });
+        }
+
+        function showCustomAlert(title, message, type = 'info') {
+            const modal = document.getElementById("customModal");
+            document.getElementById("modalTitle").textContent = title;
+            document.getElementById("modalMessage").textContent = message;
+            
+            const iconContainer = document.getElementById("modalIconContainer");
+            if (type === 'error') {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-2xl mb-4";
+                iconContainer.innerHTML = `<i class="fas fa-times-circle"></i>`;
+            } else if (type === 'warning') {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl mb-4";
+                iconContainer.innerHTML = `<i class="fas fa-exclamation-triangle"></i>`;
+            } else {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl mb-4";
+                iconContainer.innerHTML = `<i class="fas fa-info-circle"></i>`;
+            }
+
+            document.getElementById("modalCancelBtn").classList.add("hidden");
+            const confirmBtn = document.getElementById("modalConfirmBtn");
+            confirmBtn.textContent = "OK";
+            
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            modal.classList.remove("hidden");
+            newConfirmBtn.addEventListener("click", () => {
+                modal.classList.add("hidden");
+                document.getElementById("modalCancelBtn").classList.remove("hidden");
+            });
+        }
+    </script>
+</body>
+</html>

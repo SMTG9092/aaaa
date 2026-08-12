@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock par article / lot - SMTG</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        #main-screen-content {
+            font-family: "Inter", Arial, sans-serif;
+            background: #f4f7f5;
+            color: #101828;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        .ab10-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 18px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .ab10-header {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .ab10-title {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .ab10-title-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #eaf7ef;
+            color: #087f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .ab10-title h1 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 700;
+            color: #101828;
+        }
+
+        .ab10-title p {
+            margin: 3px 0 0;
+            color: #667085;
+            font-size: 11px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            height: 36px;
+            border: 0;
+            border-radius: 9px;
+            padding: 0 13px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .btn-refresh {
+            background: #f2f6f3;
+            color: #087f3e;
+            border: 1px solid #e2ebe5;
+        }
+
+        .btn-refresh:hover {
+            background: #e8f3eb;
+        }
+
+        .btn-excel {
+            background: #eef9f2;
+            color: #087f3e;
+            border: 1px solid #d8efdf;
+        }
+
+        .btn-excel:hover {
+            background: #e0f3e6;
+        }
+
+        .btn-pdf {
+            background: #fff3f2;
+            color: #d92d20;
+            border: 1px solid #f5d6d3;
+        }
+
+        .btn-pdf:hover {
+            background: #ffe8e6;
+        }
+
+        /* =========================
+           FILTERS
+        ========================= */
+
+        .filters-card {
+            margin-top: 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 13px 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            color: #667085;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .filter-control {
+            height: 36px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #344054;
+            padding: 0 10px;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .filter-control:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, .08);
+        }
+
+        .filter-search {
+            position: relative;
+            width: 290px;
+            max-width: 100%;
+        }
+
+        .filter-search i {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #98a2b3;
+            font-size: 12px;
+        }
+
+        .filter-search input {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            padding: 0 10px 0 32px;
+            outline: none;
+            font-size: 11px;
+        }
+
+        .filter-search input:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, .08);
+        }
+
+        .filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* =========================
+           STATS
+        ========================= */
+
+        .stats-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #667085;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: #eaf7ef;
+            color: #087f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-value {
+            margin-top: 9px;
+            font-size: 21px;
+            font-weight: 700;
+            color: #101828;
+        }
+
+        .stat-subtitle {
+            margin-top: 3px;
+            font-size: 10px;
+            color: #667085;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .products-container {
+            margin-top: 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            padding: 13px 15px;
+            border-bottom: 1px solid #eaecf0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .table-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #344054;
+        }
+
+        .table-title i {
+            color: #087f3e;
+        }
+
+        .result-count {
+            color: #667085;
+            font-size: 10px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1180px;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            height: 42px;
+            padding: 0 12px;
+            background: #f8faf9;
+            border-bottom: 1px solid #eaecf0;
+            color: #667085;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .035em;
+            font-weight: 700;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #f0f2f4;
+            font-size: 10px;
+            color: #344054;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #fafcfb;
+        }
+
+        .date-cell {
+            white-space: nowrap;
+            color: #667085;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .type-entree {
+            color: #087f3e;
+            background: #eaf7ef;
+            border-color: #d4eddd;
+        }
+
+        .type-consommation {
+            color: #d92d20;
+            background: #fff0ef;
+            border-color: #f7d5d2;
+        }
+
+        .type-transfert {
+            color: #175cd3;
+            background: #eef4ff;
+            border-color: #d8e4ff;
+        }
+
+        .type-other {
+            color: #667085;
+            background: #f2f4f7;
+            border-color: #e4e7ec;
+        }
+
+        .article-code {
+            color: #087f3e;
+            font-weight: 700;
+        }
+
+        .designation {
+            margin-top: 3px;
+            color: #667085;
+            font-size: 9px;
+            max-width: 280px;
+        }
+
+        .lot {
+            color: #475467;
+            font-family: "Inter", monospace;
+        }
+
+        .flow {
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        .flow-entree {
+            color: #087f3e;
+        }
+
+        .flow-consommation {
+            color: #d92d20;
+        }
+
+        .flow-transfert {
+            color: #175cd3;
+        }
+
+        .quantity {
+            text-align: right;
+            white-space: nowrap;
+            font-weight: 700;
+            color: #175cd3;
+        }
+
+        .unit {
+            color: #98a2b3;
+            font-size: 8px;
+            margin-left: 3px;
+        }
+
+        .user {
+            color: #344054;
+            white-space: nowrap;
+        }
+
+        .comment {
+            max-width: 220px;
+            color: #667085;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+            color: #98a2b3;
+        }
+
+        .empty-state i {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state h3 {
+            margin: 0;
+            color: #475467;
+            font-size: 13px;
+        }
+
+        .empty-state p {
+            margin: 5px 0 0;
+            font-size: 10px;
+        }
+
+        .error-state {
+            padding: 45px 20px;
+            text-align: center;
+            color: #d92d20;
+        }
+
+        /* =========================
+           PAGINATION
+        ========================= */
+
+        .products-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 15px;
+            border-top: 1px solid #eaecf0;
+            background: #ffffff;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            font-size: 10px;
+            color: #667085;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 9px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #087f3e;
+            color: #087f3e;
+            background: #f4fbf6;
+        }
+
+        .pagination-btn.active {
+            background: #087f3e;
+            border-color: #087f3e;
+            color: #ffffff;
+        }
+
+        .pagination-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .pagination-ellipsis {
+            min-width: 24px;
+            text-align: center;
+            color: #98a2b3;
+            font-size: 12px;
+        }
+
+        .pagination-size {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 10px;
+            color: #667085;
+        }
+
+        .pagination-size select {
+            height: 32px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            padding: 0 8px;
+            font-size: 10px;
+            outline: none;
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            min-width: 290px;
+            max-width: 420px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: #101828;
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, .20);
+            font-size: 11px;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: .2s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #087f3e;
+        }
+
+        .toast.error {
+            border-left: 4px solid #d92d20;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ab10-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .filters-card {
+                align-items: stretch;
+            }
+
+            .filter-left,
+            .filter-actions {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .ab10-page {
+                padding: 10px;
+            }
+
+            .products-pagination {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pagination-info,
+            .pagination-controls,
+            .pagination-size {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ab10-title h1 {
+                font-size: 18px;
+            }
+        }
+    
+        .ab10-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 18px;
+            background: #f4f7f5;
+        }
+
+        .ab10-header {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .ab10-title {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .ab10-title-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #eaf7ef;
+            color: #087f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .ab10-title h1 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 700;
+            color: #101828;
+        }
+
+        .ab10-title p {
+            margin: 3px 0 0;
+            color: #667085;
+            font-size: 11px;
+        }
+
+        .ab10-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .ab10-filters {
+            margin-top: 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 13px 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ab10-filter-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .ab10-filter-label {
+            color: #667085;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .ab10-filter {
+            height: 36px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #344054;
+            padding: 0 10px;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .ab10-filter:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8,127,62,.08);
+        }
+
+        .ab10-search {
+            position: relative;
+            width: 190px;
+            max-width: 100%;
+        }
+
+        .ab10-search i {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #98a2b3;
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        .ab10-search input {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            padding: 0 10px 0 32px;
+            outline: none;
+            font-size: 11px;
+            color: #344054;
+            background: #fff;
+        }
+
+        .ab10-search input:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8,127,62,.08);
+        }
+
+        .ab10-stat-blue .stat-icon {
+            background: #eef4ff;
+            color: #175cd3;
+        }
+
+        .ab10-stat-blue .stat-value {
+            color: #175cd3;
+        }
+
+        .ab10-stat-amber .stat-icon {
+            background: #fff7e8;
+            color: #b54708;
+        }
+
+        .ab10-stat-amber .stat-value {
+            color: #b54708;
+        }
+
+        .ab10-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .ab10-status-en {
+            color: #087f3e;
+            background: #eaf7ef;
+            border-color: #d4eddd;
+        }
+
+        .ab10-status-pret {
+            color: #087f3e;
+            background: #eaf7ef;
+            border-color: #d4eddd;
+        }
+
+        .ab10-status-exp {
+            color: #175cd3;
+            background: #eef4ff;
+            border-color: #d8e4ff;
+        }
+
+        .ab10-status-retour {
+            color: #b54708;
+            background: #fff7e8;
+            border-color: #f5dfb6;
+        }
+
+        .ab10-status-annule {
+            color: #d92d20;
+            background: #fff0ef;
+            border-color: #f7d5d2;
+        }
+
+        .ab10-article {
+            color: #087f3e;
+            font-weight: 700;
+        }
+
+        .ab10-designation {
+            margin-top: 3px;
+            color: #667085;
+            font-size: 9px;
+            max-width: 300px;
+        }
+
+        .ab10-doc {
+            color: #087f3e;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .ab10-client {
+            color: #344054;
+            font-weight: 600;
+        }
+
+        .ab10-lot {
+            color: #475467;
+            font-family: monospace;
+        }
+
+        .ab10-palette {
+            color: #b54708;
+            font-family: monospace;
+            display: block;
+        }
+
+        .ab10-chariot {
+            color: #667085;
+            font-size: 9px;
+            font-family: monospace;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .ab10-magasin {
+            color: #344054;
+        }
+
+        .ab10-quantity {
+            text-align: right;
+            white-space: nowrap;
+            font-weight: 700;
+            color: #175cd3;
+            font-family: monospace;
+        }
+
+        .ab10-unit {
+            color: #98a2b3;
+            font-size: 8px;
+            margin-left: 3px;
+            font-family: Inter, Arial, sans-serif;
+        }
+
+        .ab10-action {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #087f3e;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ab10-action:hover {
+            border-color: #087f3e;
+            background: #f4fbf6;
+        }
+
+        .ab10-no-action {
+            color: #98a2b3;
+            font-size: 10px;
+        }
+
+        .ab10-loading,
+        .ab10-error,
+        .ab10-empty {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .ab10-loading {
+            color: #98a2b3;
+        }
+
+        .ab10-loading i {
+            color: #087f3e;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .ab10-empty {
+            color: #98a2b3;
+        }
+
+        .ab10-empty i {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .ab10-empty h3,
+        .ab10-error h3 {
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .ab10-empty h3 {
+            color: #475467;
+        }
+
+        .ab10-empty p,
+        .ab10-error p {
+            margin: 5px 0 0;
+            font-size: 10px;
+        }
+
+        .ab10-error {
+            color: #d92d20;
+        }
+
+        .ab10-refresh {
+            background: #f2f6f3;
+            color: #087f3e;
+            border: 1px solid #e2ebe5;
+        }
+
+        .ab10-refresh:hover {
+            background: #e8f3eb;
+        }
+
+        @media (max-width: 1100px) {
+            .ab10-search { width: 170px; }
+        }
+
+        @media (max-width: 900px) {
+            .ab10-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .ab10-filters {
+                align-items: flex-start;
+            }
+
+            .ab10-search {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+<main>
+    <div class="ab10-page">
+
+        <!-- =====================================================
+             HEADER PAGE
+        ====================================================== -->
+        <div class="ab10-header">
+            <div class="ab10-title">
+                <div class="ab10-title-icon">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+
+                <div>
+                    <h1>Suivi des Stocks en Zone AB10</h1>
+                    <p>Gestion des articles, palettes, chariots et statuts d'expédition</p>
+                </div>
+            </div>
+
+            <div class="ab10-header-actions">
+                <button
+                    type="button"
+                    class="btn ab10-refresh"
+                    onclick="refreshAB10()"
+                    title="Actualiser"
+                >
+                    <i class="fa-solid fa-rotate"></i>
+                    Actualiser
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-excel"
+                    data-permission="Imprimer"
+                    onclick="exportToExcel()"
+                    title="Exporter Excel"
+                >
+                    <i class="fa-solid fa-file-excel"></i>
+                    Excel
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-pdf"
+                    data-permission="Imprimer"
+                    onclick="exportToPDF()"
+                    title="Exporter PDF"
+                >
+                    <i class="fa-solid fa-file-pdf"></i>
+                    PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- =====================================================
+             FILTRES
+        ====================================================== -->
+        <div class="ab10-filters">
+
+            <div class="ab10-filter-left">
+
+                <span class="ab10-filter-label">
+                    <i class="fa-solid fa-filter"></i>
+                    Filtres
+                </span>
+
+                <select id="statutFilter" class="ab10-filter">
+                    <option value="">Tous les statuts</option>
+                    <option value="EN_AB10">EN_AB10</option>
+                    <option value="PRET_EXPEDITION">PRET_EXPEDITION</option>
+                    <option value="EXPEDIE">EXPEDIE</option>
+                    <option value="RETOUR_STOCK">RETOUR_STOCK</option>
+                    <option value="ANNULE">ANNULE</option>
+                </select>
+
+                <div class="ab10-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input
+                        type="text"
+                        id="searchDocInput"
+                        placeholder="Doc Vente / Client..."
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="ab10-search">
+                    <i class="fa-solid fa-barcode"></i>
+                    <input
+                        type="text"
+                        id="searchArticleInput"
+                        placeholder="Article / Palette..."
+                        autocomplete="off"
+                    >
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-refresh"
+                onclick="resetAB10Filters()"
+            >
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+                Réinitialiser
+            </button>
+
+        </div>
+
+        <!-- =====================================================
+             STATISTIQUES
+        ====================================================== -->
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Quantité totale en AB10</span>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                </div>
+
+                <div id="totalQtyBadge" class="stat-value">
+                    0.000
+                </div>
+
+                <div class="stat-subtitle">
+                    Somme des quantités selon les filtres
+                </div>
+            </div>
+
+            <div class="stat-card ab10-stat-blue">
+                <div class="stat-top">
+                    <span class="stat-label">Total lignes AB10</span>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                </div>
+
+                <div id="totalLinesBadge" class="stat-value">
+                    0
+                </div>
+
+                <div class="stat-subtitle">
+                    Nombre d'enregistrements affichés
+                </div>
+            </div>
+
+            <div class="stat-card ab10-stat-amber">
+                <div class="stat-top">
+                    <span class="stat-label">Palettes / chariots actifs</span>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-pallet"></i>
+                    </div>
+                </div>
+
+                <div id="totalPalettesBadge" class="stat-value">
+                    0
+                </div>
+
+                <div class="stat-subtitle">
+                    Palettes et chariots présents selon les filtres
+                </div>
+            </div>
+
+        </div>
+
+        <!-- =====================================================
+             TABLE
+        ====================================================== -->
+        <div class="products-container">
+
+            <div class="table-toolbar">
+                <div class="table-title">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Suivi des Stocks en Zone AB10</span>
+                </div>
+
+                <span id="resultCount" class="result-count">
+                    0 entrée
+                </span>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Doc Vente</th>
+                            <th>Client</th>
+                            <th>Article & Désignation</th>
+                            <th>Lot</th>
+                            <th>Palette / Chariot</th>
+                            <th>Mag. Origine</th>
+                            <th style="text-align:right">Quantité</th>
+                            <th style="text-align:center">Statut</th>
+                            <th style="text-align:center">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="ab10TableBody">
+                        <tr>
+                            <td colspan="9" class="ab10-loading">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <h3>Chargement des données AB10...</h3>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- =================================================
+                 PAGINATION
+            ================================================== -->
+            <div class="products-pagination">
+
+                <div id="paginationInfo" class="pagination-info">
+                    Affichage de 0 à 0 sur 0 entrées
+                </div>
+
+                <div class="pagination-controls">
+
+                    <button
+                        type="button"
+                        id="prevPageBtn"
+                        onclick="changePage(-1)"
+                        class="pagination-btn"
+                    >
+                        <i class="fa-solid fa-chevron-left"></i>
+                        Précédent
+                    </button>
+
+                    <span
+                        id="pageIndicator"
+                        class="pagination-btn active"
+                    >
+                        Page 1 / 1
+                    </span>
+
+                    <button
+                        type="button"
+                        id="nextPageBtn"
+                        onclick="changePage(1)"
+                        class="pagination-btn"
+                    >
+                        Suivant
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</main>
+
+<script type="module">
+import supabase from '../assets/js/core/supabase.js';
+        import { canAction } from '../assets/js/core/permissions.js';
+
+        let currentPage = 1;
+        const pageSize = 50;
+        let totalRecords = 0;
+        let currentSearchDoc = "";
+        let currentSearchArticle = "";
+        let currentStatut = "";
+        let allExportData = [];
+
+        window.changePage = async function(direction) {
+            currentPage += direction;
+            await loadAB10Data();
+        }
+
+        async function initAB10Page() {
+            await waitForPermissions();
+            applyActionPermissions();
+            await loadAB10Data();
+
+            const searchDocInput = document.getElementById("searchDocInput");
+            const searchArticleInput = document.getElementById("searchArticleInput");
+            const statutFilter = document.getElementById("statutFilter");
+
+            let timeout;
+            if (searchDocInput) {
+                searchDocInput.addEventListener("input", (e) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(async () => {
+                        currentSearchDoc = e.target.value.trim();
+                        currentPage = 1;
+                        await loadAB10Data();
+                    }, 300);
+                });
+            }
+
+            if (searchArticleInput) {
+                searchArticleInput.addEventListener("input", (e) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(async () => {
+                        currentSearchArticle = e.target.value.trim();
+                        currentPage = 1;
+                        await loadAB10Data();
+                    }, 300);
+                });
+            }
+
+            if (statutFilter) {
+                statutFilter.addEventListener("change", async (e) => {
+                    currentStatut = e.target.value;
+                    currentPage = 1;
+                    await loadAB10Data();
+                });
+            }
+
+        }
+
+        /* =========================================================
+           PERMISSIONS ACTIONS
+           - Page: ab10 (pages.url = Modules/ab10.html)
+           - Imprimer -> Excel / PDF
+           - Modifier -> changement du statut
+        ========================================================= */
+        async function waitForPermissions(timeout = 10000) {
+            const started = Date.now();
+
+            while (!window.permissionsLoaded) {
+                if (Date.now() - started >= timeout) {
+                    return false;
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            return true;
+        }
+
+        function isAdmin() {
+            const role = String(window.currentUserRoleCode || '')
+                .trim()
+                .toUpperCase();
+
+            return role === 'ADMIN' ||
+                   role === 'ADMINISTRATEUR' ||
+                   role === 'ADMINISTRATOR';
+        }
+
+        function hasAction(action) {
+            if (isAdmin()) return true;
+
+            try {
+                return !!canAction(action, 'ab10');
+            } catch (error) {
+                console.error('[AB10 PERMISSIONS]', error);
+                return false;
+            }
+        }
+
+        function applyActionPermissions() {
+            const canPrint = hasAction('Imprimer');
+            const canEdit = hasAction('Modifier');
+
+            document.querySelectorAll('[data-permission="Imprimer"]')
+                .forEach(btn => {
+                    btn.style.display = canPrint ? 'inline-flex' : 'none';
+                });
+
+            document.querySelectorAll('[data-permission="Modifier"]')
+                .forEach(btn => {
+                    btn.style.display = canEdit ? 'inline-flex' : 'none';
+                });
+        }
+
+        function applyFilters(query) {
+            if (currentSearchDoc !== "") {
+                query = query.or(`document_vente.ilike.%${currentSearchDoc}%,client.ilike.%${currentSearchDoc}%`);
+            }
+            if (currentSearchArticle !== "") {
+                query = query.or(`article.ilike.%${currentSearchArticle}%,numero_palette.ilike.%${currentSearchArticle}%,numero_chariot.ilike.%${currentSearchArticle}%`);
+            }
+            if (currentStatut !== "") {
+                query = query.eq('statut', currentStatut);
+            }
+            return query;
+        }
+
+        async function loadAB10Data() {
+            const tbody = document.getElementById("ab10TableBody");
+
+            try {
+                let query = supabase.from('ab10_stock').select('*', { count: 'exact' });
+                query = applyFilters(query);
+
+                const start = (currentPage - 1) * pageSize;
+                const end = start + pageSize - 1;
+                query = query.range(start, end).order('date_entree', { ascending: false });
+
+                const { data, count, error } = await query;
+
+                if (error) {
+                    console.error("Erreur AB10:", error);
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur chargement des données.</td></tr>`;
+                    return;
+                }
+
+                totalRecords = count || 0;
+                const resultCount = document.getElementById("resultCount");
+                if (resultCount) {
+                    resultCount.textContent = `${totalRecords.toLocaleString()} ${totalRecords === 1 ? 'entrée' : 'entrées'}`;
+                }
+                renderTable(data || []);
+                applyActionPermissions();
+                updatePagination();
+                await fetchGlobalStats();
+
+            } catch (err) {
+                console.error("Erreur technique:", err);
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-400 text-xs">Erreur de connexion.</td></tr>`;
+            }
+        }
+
+        async function fetchGlobalStats() {
+            try {
+                let q = supabase.from('ab10_stock').select('*');
+                q = applyFilters(q);
+                const { data, error } = await q.limit(10000);
+                if (error || !data) return;
+
+                allExportData = data;
+                let totalQty = 0;
+                let palettesSet = new Set();
+
+                data.forEach(item => {
+                    totalQty += Number(item.quantite || 0);
+                    if (item.numero_palette) palettesSet.add(item.numero_palette);
+                    if (item.numero_chariot) palettesSet.add(item.numero_chariot);
+                });
+
+                document.getElementById("totalQtyBadge").textContent = totalQty.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+                document.getElementById("totalLinesBadge").textContent = data.length.toLocaleString();
+                document.getElementById("totalPalettesBadge").textContent = palettesSet.size.toLocaleString();
+
+            } catch (err) {
+                console.error("Erreur stats:", err);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById("ab10TableBody");
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 text-xs"><i class="fas fa-folder-open mr-2"></i> Aucun enregistrement trouvé en AB10.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            data.forEach(item => {
+                const badgeColor =
+                    item.statut === 'EXPEDIE' ? 'ab10-status-exp' :
+                    item.statut === 'PRET_EXPEDITION' ? 'ab10-status-pret' :
+                    item.statut === 'RETOUR_STOCK' ? 'ab10-status-retour' :
+                    item.statut === 'ANNULE' ? 'ab10-status-annule' :
+                    'ab10-status-en';
+
+                html += `
+                    <tr class="hover:bg-slate-800/35 transition">
+                        <td class="ab10-doc">${item.document_vente || '-'}</td>
+                        <td class="ab10-client">${item.client || '-'}</td>
+                        <td><span class="ab10-article">${item.article || ''}</span><span class="ab10-designation">${item.designation_article || ''}</span></td>
+                        <td class="ab10-lot">${item.lot || '-'}</td>
+                        <td><span class="ab10-palette"><i class="fa-solid fa-pallet"></i> ${item.numero_palette || '-'}</span><span class="ab10-chariot">Chariot: ${item.numero_chariot || '-'}</span></td>
+                        <td class="ab10-magasin">${item.magasin_origine || '-'}</td>
+                        <td class="ab10-quantity">${Number(item.quantite || 0).toLocaleString()} <span class="ab10-unit">${item.unite || 'KG'}</span></td>
+                        <td style="text-align:center"><span class="ab10-status ${badgeColor}">${item.statut || 'EN_AB10'}</span></td>
+                        <td style="text-align:center"><button data-permission="Modifier" onclick="updateStatut('${item.id}', '${item.statut}')" class="ab10-action" title="Modifier le statut"><i class="fa-solid fa-pen-to-square"></i></button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startItem = totalRecords === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+            const endItem = Math.min(currentPage * pageSize, totalRecords);
+
+            document.getElementById("paginationInfo").textContent = `Affichage de ${startItem} à ${endItem} sur ${totalRecords} entrées`;
+            document.getElementById("pageIndicator").textContent = `Page ${currentPage} / ${totalPages}`;
+            document.getElementById("prevPageBtn").disabled = currentPage <= 1;
+            document.getElementById("nextPageBtn").disabled = currentPage >= totalPages;
+        }
+
+        window.updateStatut = async function(id, currentStatut) {
+            if (!hasAction('Modifier')) {
+                alert("Vous n'avez pas la permission : Modifier.");
+                return;
+            }
+
+            const newStatut = prompt("Entrez le nouveau statut (EN_AB10, PRET_EXPEDITION, EXPEDIE, RETOUR_STOCK, ANNULE) :", currentStatut);
+            if (!newStatut) return;
+            const upperStatut = newStatut.trim().toUpperCase();
+
+            const validStatuses = ['EN_AB10', 'PRET_EXPEDITION', 'EXPEDIE', 'RETOUR_STOCK', 'ANNULE'];
+            if (!validStatuses.includes(upperStatut)) {
+                alert("Statut invalide !");
+                return;
+            }
+
+            const { error } = await supabase.from('ab10_stock').update({ statut: upperStatut, updated_at: new Date().toISOString() }).eq('id', id);
+            if (error) {
+                alert("Erreur lors de la mise à jour: " + error.message);
+            } else {
+                await loadAB10Data();
+            }
+        }
+
+        window.exportToExcel = function() {
+            if (!hasAction('Imprimer')) {
+                alert("Vous n'avez pas la permission : Imprimer.");
+                return;
+            }
+
+            if (!allExportData || allExportData.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+            const dataToExport = allExportData.map(item => ({
+                "Doc Vente": item.document_vente,
+                "Client": item.client,
+                "Article": item.article,
+                "Désignation": item.designation_article,
+                "Lot": item.lot,
+                "Palette": item.numero_palette,
+                "Chariot": item.numero_chariot,
+                "Mag. Origine": item.magasin_origine,
+                "Quantité": Number(item.quantite),
+                "Unité": item.unite,
+                "Statut": item.statut
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "AB10 Stock");
+            XLSX.writeFile(workbook, `AB10_Stock_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        window.exportToPDF = function() {
+            if (!hasAction('Imprimer')) {
+                alert("Vous n'avez pas la permission : Imprimer.");
+                return;
+            }
+
+            if (!allExportData || allExportData.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+
+            doc.setFontSize(16);
+            doc.text("SoufStock Enterprise - Suivi AB10 Stock", 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Date d'export : ${new Date().toLocaleDateString('fr-FR')}`, 14, 22);
+
+            const columns = ["Doc Vente", "Client", "Article", "Lot", "Palette", "Mag. Origine", "Quantité", "Statut"];
+            const rows = allExportData.map(item => [
+                item.document_vente || '',
+                item.client || '',
+                item.article || '',
+                item.lot || '',
+                item.numero_palette || '',
+                item.magasin_origine || '',
+                Number(item.quantite || 0).toLocaleString(),
+                item.statut || ''
+            ]);
+
+            doc.autoTable({
+                head: [columns],
+                body: rows,
+                startY: 28,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 3 },
+                headStyles: { fillColor: [15, 23, 42] }
+            });
+
+            doc.save(`AB10_Stock_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        window.resetAB10Filters = async function() {
+            currentSearchDoc = "";
+            currentSearchArticle = "";
+            currentStatut = "";
+            currentPage = 1;
+
+            const searchDocInput = document.getElementById("searchDocInput");
+            const searchArticleInput = document.getElementById("searchArticleInput");
+            const statutFilter = document.getElementById("statutFilter");
+
+            if (searchDocInput) searchDocInput.value = "";
+            if (searchArticleInput) searchArticleInput.value = "";
+            if (statutFilter) statutFilter.value = "";
+
+            await loadAB10Data();
+        };
+
+        window.refreshAB10 = async function() {
+            currentPage = 1;
+            await loadAB10Data();
+        };
+
+        /* =========================================================
+           INITIALISATION
+           Important : cette page est chargée par dashboard.html
+           après DOMContentLoaded, donc on initialise directement.
+        ========================================================= */
+        initAB10Page().catch(error => {
+            console.error('[AB10] Initialisation impossible:', error);
+        });
+
+</script>
+</body>
+</html>

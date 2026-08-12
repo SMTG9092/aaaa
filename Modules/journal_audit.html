@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal d'Audit - SoufStock WMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
+                        emerald: { 600: '#059669', 500: '#10b981', 400: '#34d399' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-slate-900/60 border-b border-slate-800 px-6 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <i class="fas fa-history"></i>
+            </div>
+            <div>
+                <span class="font-bold text-sm block">SoufStock <span class="text-emerald-400">WMS</span></span>
+                <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Journal d'Audit & Modifications / Suppressions</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="commandes.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-slate-700 cursor-pointer">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-xs">
+                <span id="liveClock" class="text-emerald-400">--:--:--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <main class="flex-1 p-6 overflow-hidden flex flex-col gap-5">
+        
+        <!-- TOP CONTROLS & TABS -->
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4 shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button onclick="changerOnglet('modifications')" id="tabBtnMod" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-emerald-600 text-white cursor-pointer flex items-center gap-2">
+                        <i class="fas fa-pen-to-square"></i> Modifications (<span id="countMod">0</span>)
+                    </button>
+                    <button onclick="changerOnglet('suppressions')" id="tabBtnSup" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200 cursor-pointer flex items-center gap-2">
+                        <i class="fas fa-trash-can"></i> Suppressions (<span id="countSup">0</span>)
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 flex-wrap flex-1 justify-end">
+                <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl">
+                    <span class="text-[11px] text-slate-400 uppercase font-bold"><i class="fas fa-calendar mr-1"></i> Date :</span>
+                    <input type="date" id="inputDateFilter" class="bg-transparent text-xs text-slate-200 focus:outline-none font-mono">
+                </div>
+
+                <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl max-w-xs flex-1">
+                    <i class="fas fa-magnifying-glass text-slate-400 text-xs"></i>
+                    <input type="text" id="inputSearch" placeholder="N° de commande ou article..." class="bg-transparent text-xs text-slate-200 focus:outline-none font-mono w-full uppercase">
+                </div>
+                
+                <button onclick="chargerDonnees()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow cursor-pointer">
+                    <i class="fas fa-rotate"></i> Actualiser
+                </button>
+            </div>
+        </div>
+
+        <!-- TABLES CONTAINER -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl flex-1 flex flex-col">
+            
+            <!-- SECTION MODIFICATIONS -->
+            <div id="sectionModifications" class="flex-1 flex flex-col overflow-hidden">
+                <div class="p-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
+                    <span class="text-slate-400 uppercase tracking-wider font-bold"><i class="fas fa-pen-to-square text-sky-400 mr-2"></i> Historique des Modifications</span>
+                </div>
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="sticky top-0 bg-slate-950 text-slate-400 uppercase text-[10px] z-10 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">N° Commande</th>
+                                <th class="p-3.5">Article / Ligne</th>
+                                <th class="p-3.5">Type Action</th>
+                                <th class="p-3.5">Détails (Ancienne ➔ Nouvelle)</th>
+                                <th class="p-3.5">Utilisateur</th>
+                                <th class="p-3.5 text-center">Date de Trakia (Action)</th>
+                                <th class="p-3.5 text-center">Date de Livraison</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableModBody" class="divide-y divide-slate-800/50 font-mono">
+                            <tr><td colspan="7" class="p-12 text-center text-slate-500">Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION SUPPRESSIONS -->
+            <div id="sectionSuppressions" class="flex-1 flex flex-col overflow-hidden hidden">
+                <div class="p-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
+                    <span class="text-slate-400 uppercase tracking-wider font-bold"><i class="fas fa-trash-can text-rose-400 mr-2"></i> Historique des Commandes Supprimées</span>
+                </div>
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="sticky top-0 bg-slate-950 text-slate-400 uppercase text-[10px] z-10 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">N° Commande</th>
+                                <th class="p-3.5">Article / Ligne</th>
+                                <th class="p-3.5">Client / Réceptionnaire</th>
+                                <th class="p-3.5">Motif Suppression</th>
+                                <th class="p-3.5">Utilisateur</th>
+                                <th class="p-3.5 text-center">Date de Trakia (Suppression)</th>
+                                <th class="p-3.5 text-center">Date de Livraison</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableSupBody" class="divide-y divide-slate-800/50 font-mono">
+                            <tr><td colspan="7" class="p-12 text-center text-slate-500">Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SCRIPT -->
+    <script type="module">
+        import supabase from '../assets/js/core/supabase.js';
+
+        let ongletActif = 'modifications';
+        const inputSearch = document.getElementById('inputSearch');
+        const inputDateFilter = document.getElementById('inputDateFilter');
+
+        inputDateFilter.value = new Date().toISOString().split('T')[0];
+
+        window.changerOnglet = function(onglet) {
+            ongletActif = onglet;
+            const btnMod = document.getElementById('tabBtnMod');
+            const btnSup = document.getElementById('tabBtnSup');
+            const secMod = document.getElementById('sectionModifications');
+            const secSup = document.getElementById('sectionSuppressions');
+
+            if (onglet === 'modifications') {
+                btnMod.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-emerald-600 text-white cursor-pointer flex items-center gap-2";
+                btnSup.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200 cursor-pointer flex items-center gap-2";
+                secMod.classList.remove('hidden');
+                secSup.classList.add('hidden');
+            } else {
+                btnSup.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-emerald-600 text-white cursor-pointer flex items-center gap-2";
+                btnMod.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200 cursor-pointer flex items-center gap-2";
+                secSup.classList.remove('hidden');
+                secMod.classList.add('hidden');
+            }
+            chargerDonnees();
+        };
+
+        inputSearch.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') chargerDonnees();
+        });
+        inputDateFilter.change?.() || inputDateFilter.addEventListener('change', () => chargerDonnees());
+
+        window.chargerDonnees = async function() {
+            const searchTerm = inputSearch.value.trim().toUpperCase();
+            const selectedDate = inputDateFilter.value;
+
+            const { count: totalMod } = await supabase.from('modifications_commandes').select('*', { count: 'exact', head: true });
+            const { count: totalSup } = await supabase.from('commandes_supprimees').select('*', { count: 'exact', head: true });
+            
+            document.getElementById('countMod').textContent = totalMod || 0;
+            document.getElementById('countSup').textContent = totalSup || 0;
+
+            const aujourdHui = new Date().toISOString().split('T')[0];
+
+            if (ongletActif === 'modifications') {
+                const tbody = document.getElementById('tableModBody');
+                tbody.innerHTML = `<tr><td colspan="7" class="p-12 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Chargement...</td></tr>`;
+
+                let query = supabase.from('modifications_commandes').select('*, user_profiles(email, nom_complet)').order('date_action', { ascending: false }).limit(100);
+                
+                if (searchTerm) {
+                    query = query.or(`document_vente.ilike.%${searchTerm}%,article.ilike.%${searchTerm}%`);
+                }
+
+                if (selectedDate) {
+                    const startOfDay = `${selectedDate} 00:00:00`;
+                    const endOfDay = `${selectedDate} 23:59:59`;
+                    query = query.gte('date_action', startOfDay).lte('date_action', endOfDay);
+                }
+
+                const { data, error } = await query;
+                if (error || !data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-12 text-center text-slate-500">Aucune modification trouvée pour cette sélection.</td></tr>`;
+                    return;
+                }
+
+                let html = "";
+                for (const m of data) {
+                    const { data: cmdData } = await supabase.from('commandes_excel').select('date_livraison').eq('document_vente', m.document_vente).maybeSingle();
+                    const dateLivraisonRaw = cmdData?.date_livraison;
+                    const dateLivraisonStr = dateLivraisonRaw ? new Date(dateLivraisonRaw).toLocaleDateString('fr-FR') : '-';
+                    
+                    let isLate = false;
+                    if (dateLivraisonRaw) {
+                        const dLiv = dateLivraisonRaw.split('T')[0];
+                        if (dLiv < aujourdHui) {
+                            isLate = true;
+                        }
+                    }
+
+                    const detailText = m.champ_modifie ? `${m.champ_modifie}: [${m.ancienne_valeur || 'vide'} ➔ ${m.nouvelle_valeur || 'vide'}]` : (m.commentaire || '-');
+                    const dateLivStyle = isLate ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-1 rounded font-bold' : 'text-emerald-400 font-bold';
+
+                    // Afficher le nom complet s'il existe, sinon l'email, sinon 'Système'
+                    const userInfo = m.user_profiles?.nom_complet || m.user_profiles?.email || 'Système';
+
+                    html += `
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-3.5 font-bold text-amber-400">${m.document_vente}</td>
+                            <td class="p-3.5 text-sky-400">${m.article || '-'} <span class="text-[10px] text-slate-500">(L.${m.ligne_commande || '-'})</span></td>
+                            <td class="p-3.5 text-slate-200 font-bold">${m.type_action}</td>
+                            <td class="p-3.5 text-slate-300 text-[11px] truncate max-w-xs" title="${detailText}">${detailText}</td>
+                            <td class="p-3.5 text-slate-300 text-[11px] font-sans font-semibold">${userInfo}</td>
+                            <td class="p-3.5 text-center text-slate-300 font-mono text-[11px]">${m.date_action ? new Date(m.date_action).toLocaleString('fr-FR') : '-'}</td>
+                            <td class="p-3.5 text-center font-mono text-[11px]"><span class="${dateLivStyle}">${dateLivraisonStr} ${isLate ? '<i class="fas fa-triangle-exclamation ml-1"></i>' : ''}</span></td>
+                        </tr>
+                    `;
+                }
+                tbody.innerHTML = html;
+
+            } else {
+                const tbody = document.getElementById('tableSupBody');
+                tbody.innerHTML = `<tr><td colspan="7" class="p-12 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Chargement...</td></tr>`;
+
+                let query = supabase.from('commandes_supprimees').select('*, user_profiles!fk_cmdsup_user(email, nom_complet)').order('date_suppression', { ascending: false }).limit(100);
+                
+                if (searchTerm) {
+                    query = query.or(`document_vente.ilike.%${searchTerm}%,article.ilike.%${searchTerm}%`);
+                }
+
+                if (selectedDate) {
+                    const startOfDay = `${selectedDate} 00:00:00`;
+                    const endOfDay = `${selectedDate} 23:59:59`;
+                    query = query.gte('date_suppression', startOfDay).lte('date_suppression', endOfDay);
+                }
+
+                const { data, error } = await query;
+                if (error || !data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-12 text-center text-slate-500">Aucune suppression trouvée pour cette sélection.</td></tr>`;
+                    return;
+                }
+
+                let html = "";
+                data.forEach(s => {
+                    const dateLivraisonRaw = s.date_livraison;
+                    const dateLivraisonStr = dateLivraisonRaw ? new Date(dateLivraisonRaw).toLocaleDateString('fr-FR') : '-';
+                    const dateSuppression = s.date_suppression || s.created_at;
+
+                    let isLate = false;
+                    if (dateLivraisonRaw) {
+                        const dLiv = dateLivraisonRaw.split('T')[0];
+                        if (dLiv < aujourdHui) {
+                            isLate = true;
+                        }
+                    }
+
+                    const dateLivStyle = isLate ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-1 rounded font-bold' : 'text-emerald-400 font-bold';
+                    const userInfo = s.user_profiles?.nom_complet || s.user_profiles?.email || s.deleted_by || 'Système';
+
+                    html += `
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-3.5 font-bold text-amber-400">${s.document_vente}</td>
+                            <td class="p-3.5 text-sky-400">${s.article || '-'} <span class="text-[10px] text-slate-500">(L.${s.ligne_commande || '-'})</span></td>
+                            <td class="p-3.5 text-slate-200">${s.client || s.nom_receptionnaire || '-'}</td>
+                            <td class="p-3.5 text-rose-400 font-bold">${s.motif_suppression}</td>
+                            <td class="p-3.5 text-slate-300 text-[11px] font-sans font-semibold">${userInfo}</td>
+                            <td class="p-3.5 text-center text-slate-300 font-mono text-[11px]">${dateSuppression ? new Date(dateSuppression).toLocaleString('fr-FR') : '-'}</td>
+                            <td class="p-3.5 text-center font-mono text-[11px]"><span class="${dateLivStyle}">${dateLivraisonStr} ${isLate ? '<i class="fas fa-triangle-exclamation ml-1"></i>' : ''}</span></td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            }
+        };
+
+        chargerDonnees();
+
+        setInterval(() => {
+            document.getElementById("liveClock").innerText = new Date().toLocaleTimeString('fr-FR');
+        }, 1000);
+    </script>
+</body>
+</html>

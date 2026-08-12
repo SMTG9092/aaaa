@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Import Engine & Delta Enterprise - SoufStock ERP/WMS</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155', 400: '#94a3b8', 300: '#cbd5e1', 100: '#f1f5f9' },
+                        emerald: { 600: '#059669', 500: '#10b981', 400: '#34d399', 300: '#6ee7b7' },
+                        amber: { 500: '#f59e0b', 400: '#fbbf24' },
+                        rose: { 500: '#f43f5e', 400: '#fb7185' },
+                        sky: { 500: '#0ea5e9', 400: '#38bdf8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-slate-900/60 border-b border-slate-800/80 px-6 flex items-center justify-between shrink-0">
+        <!-- Logo / Brand link to commandes.html -->
+        <a href="../commandes.html" class="flex items-center gap-4 group cursor-pointer focus:outline-none" title="Retour aux Commandes">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500/20 transition">
+                <i class="fas fa-snowflake text-base"></i>
+            </div>
+            <div>
+                <span class="font-bold text-sm tracking-wide block text-slate-100 group-hover:text-emerald-400 transition">SoufStock <span class="text-emerald-400 font-normal">WMS</span></span>
+                <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Smart Import & Delta Database Engine 100%</span>
+            </div>
+        </a>
+        <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl">
+            <div class="text-right">
+                <span id="currentDate" class="text-[11px] font-medium text-slate-300 block">Chargement...</span>
+                <span id="currentTime" class="text-[10px] text-emerald-400 font-mono block">00:00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-[380px] bg-slate-900/50 border-r border-slate-800/80 flex flex-col p-5 gap-5 overflow-y-auto shrink-0">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                    <i class="fas fa-file-arrow-up text-emerald-400"></i> Panneau d'Importation
+                </h2>
+                <button id="btnReset" class="text-[10px] text-slate-400 hover:text-slate-200 underline cursor-pointer">Tout réinitialiser</button>
+            </div>
+
+            <!-- INPUT KG -->
+            <input type="file" id="fileKgInput" accept=".xlsx, .xls, .csv" class="hidden">
+            <div id="dropZoneKg" class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between group hover:border-emerald-500/50 transition cursor-pointer">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
+                            <i class="fas fa-weight-scale"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-100">Fichier Référence (KG)</h3>
+                            <p class="text-[10px] text-slate-400">Commandes SAP en KG</p>
+                        </div>
+                    </div>
+                    <span id="badgeKg" class="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full font-mono">En attente</span>
+                </div>
+                <div class="border border-dashed border-slate-800 rounded-lg p-3 text-center bg-slate-950/40 my-2 group-hover:border-emerald-500/30 transition">
+                    <p class="text-[11px] text-slate-300">Sélectionner le fichier KG</p>
+                    <p id="fileKgName" class="text-[10px] text-emerald-400 font-mono mt-1 hidden font-bold">Aucun</p>
+                </div>
+                <button type="button" class="w-full bg-slate-800 group-hover:bg-emerald-600 text-slate-200 group-hover:text-white py-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-2 mt-2 pointer-events-none">
+                    <i class="fas fa-folder-open"></i> Parcourir KG
+                </button>
+            </div>
+
+            <!-- INPUT PIECES -->
+            <input type="file" id="filePiecesInput" accept=".xlsx, .xls, .csv" class="hidden">
+            <div id="dropZonePieces" class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col justify-between group hover:border-emerald-500/50 transition cursor-pointer">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
+                            <i class="fas fa-boxes-stacked"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-100">Fichier Pièces</h3>
+                            <p class="text-[10px] text-slate-400">Extraction précise Nb Pièces</p>
+                        </div>
+                    </div>
+                    <span id="badgePieces" class="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full font-mono">En attente</span>
+                </div>
+                <div class="border border-dashed border-slate-800 rounded-lg p-3 text-center bg-slate-950/40 my-2 group-hover:border-emerald-500/30 transition">
+                    <p class="text-[11px] text-slate-300">Sélectionner le fichier Pièces</p>
+                    <p id="filePiecesName" class="text-[10px] text-emerald-400 font-mono mt-1 hidden font-bold">Aucun</p>
+                </div>
+                <button type="button" class="w-full bg-slate-800 group-hover:bg-emerald-600 text-slate-200 group-hover:text-white py-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-2 mt-2 pointer-events-none">
+                    <i class="fas fa-folder-open"></i> Parcourir Pièces
+                </button>
+            </div>
+
+            <!-- ACTIONS -->
+            <div id="actionContainer" class="hidden flex flex-col gap-2 mt-auto pt-4 border-t border-slate-800">
+                <button id="btnAnalyze" class="w-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                    <i class="fas fa-network-wired"></i> Lancer le Matching & Delta DB
+                </button>
+                <button id="btnSave" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                    <i class="fas fa-save"></i> Enregistrer & Synchroniser
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 p-6 overflow-y-auto flex flex-col gap-6 bg-slate-950">
+            
+            <div id="welcomeState" class="flex-1 flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-slate-800/80 rounded-2xl bg-slate-900/20">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl mb-4">
+                    <i class="fas fa-database animate-pulse"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-200">Prêt pour l'analyse synchronisée Supabase</h3>
+                <p class="text-xs text-slate-400 max-w-md mt-1">Importez vos fichiers KG et Pièces pour trier et fusionner les données par Document de Vente et Poste.</p>
+            </div>
+
+            <!-- PREVIEW SECTION -->
+            <div id="previewSection" class="hidden flex flex-col gap-6">
+                
+                <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-md">
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fas fa-table text-emerald-400"></i> Résultat Trié (Doc Vente & Poste)
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Lignes valides : <span id="rowCount" class="font-bold text-slate-200">0</span> | Suppressions : <span id="deletedCount" class="font-bold text-rose-400">0</span> | Modifications : <span id="modifiedCount" class="font-bold text-amber-400">0</span></p>
+                    </div>
+                </div>
+
+                <!-- RAPPORT STATS -->
+                <div id="analysisReportBox" class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3 shadow-lg">
+                    <h4 class="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                        <i class="fas fa-shield-halved"></i> Rapport Delta et Horodatage Complet
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block text-[9px]">Total Lignes Fichiers</span>
+                            <span id="anaTotal" class="text-slate-100 font-bold text-sm">0</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block text-[9px]">Suppressions Détectées</span>
+                            <span id="anaDeleted" class="text-rose-400 font-bold text-sm">0</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block text-[9px]">Modifications Détectées</span>
+                            <span id="anaModified" class="text-amber-400 font-bold text-sm">0</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-slate-400 block text-[9px]">Total Pièces Rapprochées</span>
+                            <span id="anaSumPieces" class="text-sky-400 font-bold text-sm">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLEAU -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl flex-1 flex flex-col">
+                    <div class="overflow-x-auto max-h-[550px]">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="sticky top-0 bg-slate-950 z-10 text-slate-400 uppercase text-[10px]">
+                                <tr class="border-b border-slate-800">
+                                    <th class="p-3">Doc Vente</th>
+                                    <th class="p-3">Poste</th>
+                                    <th class="p-3">Article</th>
+                                    <th class="p-3">Désignation</th>
+                                    <th class="p-3">Itinéraire</th>
+                                    <th class="p-3">Heure</th>
+                                    <th class="p-3 text-right">Qte (KG)</th>
+                                    <th class="p-3 text-right text-emerald-400 font-bold">Nb Pièces</th>
+                                    <th class="p-3">Statut DB</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewBody" class="divide-y divide-slate-800/50 font-mono"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- PRO MAX CUSTOM MODAL -->
+    <div id="proModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 w-[440px] rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center transform scale-95 transition-transform duration-300" id="proModalBox">
+            <div id="modalIconContainer" class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl mb-4 shadow-inner">
+                <i id="modalIcon" class="fas fa-check-circle"></i>
+            </div>
+            <h3 id="modalTitle" class="text-base font-bold text-slate-100 mb-1">Succès de Synchronisation</h3>
+            <p id="modalMessage" class="text-xs text-slate-400 mb-6 leading-relaxed font-mono whitespace-pre-line"></p>
+            <button id="modalCloseBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg">
+                <i class="fas fa-check"></i> OK, Compris
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT APPLICATION MODULE -->
+    <script type="module">
+        import supabase from '../assets/js/core/supabase.js';
+
+        let kgDataRaw = [];
+        let piecesDataRaw = [];
+        let finalMatchedData = [];
+        let detectedDeletions = [];
+        let detectedModifications = [];
+        let currentFileName = '';
+
+        function showProModal(title, message, type = 'success') {
+            const modal = document.getElementById("proModal");
+            const box = document.getElementById("proModalBox");
+            const titleEl = document.getElementById("modalTitle");
+            const msgEl = document.getElementById("modalMessage");
+            const iconEl = document.getElementById("modalIcon");
+            const iconContainer = document.getElementById("modalIconContainer");
+
+            titleEl.textContent = title;
+            msgEl.textContent = message;
+
+            if (type === 'error') {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 text-2xl mb-4 shadow-inner";
+                iconEl.className = "fas fa-triangle-exclamation";
+            } else {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl mb-4 shadow-inner";
+                iconEl.className = "fas fa-check-circle";
+            }
+
+            modal.classList.remove("hidden");
+            setTimeout(() => {
+                modal.classList.remove("opacity-0");
+                box.classList.remove("scale-95");
+                box.classList.add("scale-100");
+            }, 10);
+        }
+
+        function hideProModal() {
+            const modal = document.getElementById("proModal");
+            const box = document.getElementById("proModalBox");
+            modal.classList.add("opacity-0");
+            box.classList.remove("scale-100");
+            box.classList.add("scale-95");
+            setTimeout(() => {
+                modal.classList.add("hidden");
+            }, 300);
+        }
+
+        document.getElementById("modalCloseBtn").addEventListener("click", hideProModal);
+
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById("currentDate").innerText = now.toLocaleDateString('fr-FR', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById("currentTime").innerText = now.toTimeString().split(' ')[0];
+        }, 1000);
+
+        document.getElementById("dropZoneKg").addEventListener("click", () => document.getElementById("fileKgInput").click());
+        document.getElementById("dropZonePieces").addEventListener("click", () => document.getElementById("filePiecesInput").click());
+
+        document.getElementById("fileKgInput").addEventListener("change", (e) => handleFile(e, 'KG'));
+        document.getElementById("filePiecesInput").addEventListener("change", (e) => handleFile(e, 'PIECES'));
+
+        document.getElementById("btnReset").addEventListener("click", resetAll);
+        document.getElementById("btnAnalyze").addEventListener("click", performMatchingAndDelta);
+        document.getElementById("btnSave").addEventListener("click", saveToSupabaseWithDelta);
+
+        function getColumnValue(row, possibleNames) {
+            const keys = Object.keys(row);
+            for (let name of possibleNames) {
+                const foundKey = keys.find(k => k.trim().toLowerCase() === name.trim().toLowerCase());
+                if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+                    return row[foundKey];
+                }
+            }
+            return '';
+        }
+
+        function parseExcelDate(val) {
+            if (!val) return null;
+            if (typeof val === 'number') {
+                const date = new Date((val - (25567 + 2))*86400*1000);
+                return !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : null;
+            }
+            const str = String(val).trim();
+            if (str.includes('/')) {
+                const parts = str.split('/');
+                if (parts.length === 3) {
+                    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                }
+            }
+            const d = new Date(str);
+            return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : null;
+        }
+
+        function parseExcelTime(val) {
+            if (val === undefined || val === null || val === '') return null;
+            if (typeof val === 'number') {
+                const totalSeconds = Math.round(val * 86400);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+            const str = String(val).trim();
+            if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(str)) {
+                return str.length === 5 ? `${str}:00` : str;
+            }
+            return null;
+        }
+
+        function handleFile(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (type === 'KG') {
+                currentFileName = file.name;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rawJson = XLSX.utils.sheet_to_json(worksheet);
+
+                    const parsed = rawJson.map(row => ({
+                        document_vente: String(getColumnValue(row, ['Document de vente', 'NUCOMD', 'Doc Vente', 'Commande', 'Vbeln'])).trim(),
+                        Poste: parseInt(getColumnValue(row, ['Poste', 'POS', 'Ligne de commande', 'Posnr']) || 0),
+                        article: String(getColumnValue(row, ['Article', 'Code Article', 'ART', 'Matnr'])).trim(),
+                        designation_article: String(getColumnValue(row, ["Description d'article", 'DESIGNATION', 'Designation Article', 'Arktx'])).trim(),
+                        quantite_commandee: parseFloat(getColumnValue(row, ['Quantité commandée (poste)', 'QT COMD', 'Quantite', 'QTE', 'Kwmeng']) || 0),
+                        nombre_pieces: parseInt(getColumnValue(row, ['Nombre de pièces', 'NB PIECES', 'Pieces', 'Nombre pieces', 'Nbre pieces']) || 0),
+                        nom_receptionnaire: String(getColumnValue(row, ['Client', 'Nom Réceptionnaire', 'RECEPTIONNAIRE'])).trim(),
+                        unite: String(getColumnValue(row, ['Unité', 'UNITE']) || 'KG').trim(),
+                        itineraire: String(getColumnValue(row, ['Description Itinéraire', 'Itinéraire', 'ITINERAIRE', 'ZONE DISTRIBUTION']) || '').trim(),
+                        date_creation: parseExcelDate(getColumnValue(row, ['Date de création', 'DATE CREATION'])),
+                        date_livraison: parseExcelDate(getColumnValue(row, ['Date de livraison', 'DATE LIVRAISON'])),
+                        heure_livraison: parseExcelTime(getColumnValue(row, ['Heure', 'HEURE', 'Heure livraison']))
+                    })).filter(item => item.document_vente && item.article);
+
+                    if (type === 'KG') {
+                        kgDataRaw = parsed;
+                        document.getElementById("fileKgName").textContent = `${file.name} (${parsed.length} lignes)`;
+                        document.getElementById("fileKgName").classList.remove("hidden");
+                        const badge = document.getElementById("badgeKg");
+                        badge.className = "text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono font-bold";
+                        badge.textContent = "KG = OK";
+                    } else {
+                        piecesDataRaw = parsed;
+                        document.getElementById("filePiecesName").textContent = `${file.name} (${parsed.length} lignes)`;
+                        document.getElementById("filePiecesName").classList.remove("hidden");
+                        const badge = document.getElementById("badgePieces");
+                        badge.className = "text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono font-bold";
+                        badge.textContent = "Pieces = OK";
+                    }
+
+                    if (kgDataRaw.length > 0 && piecesDataRaw.length > 0) {
+                        document.getElementById("actionContainer").classList.remove("hidden");
+                        performMatchingAndDelta();
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    showProModal("Erreur de Lecture", "Erreur critique lors de la lecture du fichier Excel.", "error");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function performMatchingAndDelta() {
+            if (kgDataRaw.length === 0 || piecesDataRaw.length === 0) return;
+
+            const piecesMapExact = new Map();
+            const piecesMapArticle = new Map();
+
+            piecesDataRaw.forEach(p => {
+                const exactKey = `${p.document_vente}_${p.Poste}_${p.article}`.toLowerCase();
+                piecesMapExact.set(exactKey, p.nombre_pieces);
+                if (p.article && p.nombre_pieces > 0) {
+                    piecesMapArticle.set(p.article.toLowerCase(), p.nombre_pieces);
+                }
+            });
+
+            let matchedCount = 0;
+            finalMatchedData = kgDataRaw.map(kg => {
+                const exactKey = `${kg.document_vente}_${kg.Poste}_${kg.article}`.toLowerCase();
+                let matchedPieces = 0;
+
+                if (piecesMapExact.has(exactKey)) {
+                    matchedPieces = piecesMapExact.get(exactKey);
+                } else if (kg.nombre_pieces > 0) {
+                    matchedPieces = kg.nombre_pieces;
+                } else if (piecesMapArticle.has(kg.article.toLowerCase())) {
+                    matchedPieces = piecesMapArticle.get(kg.article.toLowerCase());
+                }
+
+                if (matchedPieces > 0) matchedCount++;
+
+                return {
+                    ...kg,
+                    nombre_pieces: matchedPieces
+                };
+            });
+
+            finalMatchedData.sort((a, b) => {
+                const docComp = a.document_vente.localeCompare(b.document_vente, undefined, { numeric: true, sensitivity: 'base' });
+                if (docComp !== 0) return docComp;
+                return (a.Poste || 0) - (b.Poste || 0);
+            });
+
+            detectedDeletions = [];
+            detectedModifications = [];
+            const nowIso = new Date().toISOString();
+
+            try {
+                const { data: existingRows, error } = await supabase
+                    .from('commandes_excel')
+                    .select('document_vente, Poste, article, quantite_commandee, nombre_pieces, designation_article, nom_receptionnaire, unite, itineraire, statut');
+
+                if (!error && existingRows && existingRows.length > 0) {
+                    const newSet = new Set(finalMatchedData.map(d => `${d.document_vente}_${d.Poste}_${d.article}`.toLowerCase()));
+                    const newMap = new Map(finalMatchedData.map(d => [`${d.document_vente}_${d.Poste}_${d.article}`.toLowerCase(), d]));
+
+                    existingRows.forEach(ex => {
+                        const exKey = `${ex.document_vente}_${ex.Poste}_${ex.article}`.toLowerCase();
+                        if (!newSet.has(exKey)) {
+                            detectedDeletions.push({
+                                document_vente: ex.document_vente,
+                                ligne_commande: ex.Poste,
+                                client: ex.nom_receptionnaire,
+                                article: ex.article,
+                                designation_article: ex.designation_article,
+                                quantite: ex.quantite_commandee,
+                                unite: ex.unite,
+                                itineraire: ex.itineraire,
+                                motif_suppression: 'SUPPRIMEE_DEPUIS_SAP',
+                                origine_suppression: 'SAP',
+                                statut: 'EN_ATTENTE',
+                                ancienne_ligne: ex,
+                                date_suppression: nowIso
+                            });
+                        } else {
+                            const incoming = newMap.get(exKey);
+                            if (incoming) {
+                                if (Number(incoming.quantite_commandee) !== Number(ex.quantite_commandee)) {
+                                    detectedModifications.push({
+                                        document_vente: ex.document_vente,
+                                        ligne_commande: ex.Poste,
+                                        article: ex.article,
+                                        designation_article: ex.designation_article,
+                                        type_action: 'MODIFICATION_QUANTITE',
+                                        champ_modifie: 'quantite_commandee',
+                                        ancienne_valeur: String(ex.quantite_commandee),
+                                        nouvelle_valeur: String(incoming.quantite_commandee),
+                                        ancienne_ligne: ex,
+                                        nouvelle_ligne: incoming,
+                                        statut_avant: ex.statut,
+                                        statut_apres: 'MODIFIE',
+                                        date_action: nowIso
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (dbErr) {
+                console.warn("Base de données en attente ou injoignable :", dbErr);
+            }
+
+            document.getElementById("rowCount").textContent = finalMatchedData.length;
+            document.getElementById("deletedCount").textContent = detectedDeletions.length;
+            document.getElementById("modifiedCount").textContent = detectedModifications.length;
+
+            document.getElementById("welcomeState").classList.add("hidden");
+            document.getElementById("previewSection").classList.remove("hidden");
+
+            document.getElementById("anaTotal").textContent = finalMatchedData.length;
+            document.getElementById("anaDeleted").textContent = detectedDeletions.length;
+            document.getElementById("anaModified").textContent = detectedModifications.length;
+            document.getElementById("anaSumPieces").textContent = finalMatchedData.reduce((acc, curr) => acc + (curr.nombre_pieces || 0), 0);
+
+            renderPreview(finalMatchedData.slice(0, 100));
+        }
+
+        function renderPreview(data) {
+            let html = "";
+            data.forEach(item => {
+                const piecesClass = item.nombre_pieces > 0 ? 'text-emerald-400 font-bold' : 'text-rose-400';
+                html += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="p-3 text-emerald-400 font-bold">${item.document_vente}</td>
+                        <td class="p-3 text-amber-400">${item.Poste || '-'}</td>
+                        <td class="p-3 text-sky-400">${item.article}</td>
+                        <td class="p-3 text-slate-200">${item.designation_article || '-'}</td>
+                        <td class="p-3 text-slate-300">${item.itineraire || '-'}</td>
+                        <td class="p-3 text-sky-300">${item.heure_livraison || '-'}</td>
+                        <td class="p-3 text-right font-bold text-slate-100">${item.quantite_commandee.toFixed(2)} KG</td>
+                        <td class="p-3 text-right ${piecesClass}">${item.nombre_pieces} Pcs</td>
+                        <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Validé & Prêt</span></td>
+                    </tr>
+                `;
+            });
+            document.getElementById("previewBody").innerHTML = html;
+        }
+
+        async function saveToSupabaseWithDelta() {
+            if (finalMatchedData.length === 0) return;
+
+            const btn = document.getElementById("btnSave");
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Synchronisation en cours...`;
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    throw new Error("Aucun utilisateur authentifié. Veuillez vous connecter.");
+                }
+
+                const totalQty = finalMatchedData.reduce((acc, curr) => acc + (curr.quantite_commandee || 0), 0);
+                
+                const { data: histData, error: histErr } = await supabase.from('historique_imports').insert([{
+                    type_import: 'COMMANDES_KG',
+                    mode_import: 'SYNCHRONISATION',
+                    nom_fichier: currentFileName || 'import_commandes.xlsx',
+                    utilisateur: user.id,
+                    total_lignes: finalMatchedData.length,
+                    nouvelles_lignes: finalMatchedData.length,
+                    lignes_modifiees: detectedModifications.length,
+                    lignes_supprimees: detectedDeletions.length,
+                    total_quantite: totalQty,
+                    statut: 'SUCCESS'
+                }]).select().single();
+
+                if (histErr) throw histErr;
+                const importId = histData.id;
+
+                if (detectedDeletions.length > 0) {
+                    const deletionsWithId = detectedDeletions.map(d => ({ ...d, historique_import_id: importId, utilisateur: user.id }));
+                    const { error: delErr } = await supabase.from('commandes_supprimees').insert(deletionsWithId);
+                    if (delErr) throw delErr;
+                }
+
+                if (detectedModifications.length > 0) {
+                    const modificationsWithId = detectedModifications.map(m => ({ ...m, historique_import_id: importId, utilisateur: user.id }));
+                    const { error: modErr } = await supabase.from('modifications_commandes').insert(modificationsWithId);
+                    if (modErr) throw modErr;
+                }
+
+                const batchSize = 500;
+                for (let i = 0; i < finalMatchedData.length; i += batchSize) {
+                    const chunk = finalMatchedData.slice(i, i + batchSize).map(item => ({
+                        document_vente: item.document_vente,
+                        Poste: item.Poste,
+                        article: item.article,
+                        designation_article: item.designation_article,
+                        quantite_commandee: item.quantite_commandee,
+                        nombre_pieces: item.nombre_pieces,
+                        nom_receptionnaire: item.nom_receptionnaire,
+                        unite: item.unite,
+                        itineraire: item.itineraire,
+                        date_creation: item.date_creation,
+                        date_livraison: item.date_livraison,
+                        heure_livraison: item.heure_livraison,
+                        historique_import_id: importId,
+                        est_modifie: detectedModifications.some(m => m.document_vente === item.document_vente && m.ligne_commande === item.Poste)
+                    }));
+                    
+                    const { error } = await supabase.from('commandes_excel').upsert(chunk, { 
+                        onConflict: 'document_vente,Poste',
+                        ignoreDuplicates: false 
+                    });
+                    if (error) throw error;
+                }
+
+                showProModal(
+                    "Synchronisation Réussie",
+                    `Succès total ! Données synchronisées sans doublons :\n• ${finalMatchedData.length} lignes traitées\n• ${detectedDeletions.length} suppressions\n• ${detectedModifications.length} modifications`,
+                    "success"
+                );
+                resetAll();
+            } catch (err) {
+                console.error(err);
+                showProModal("Erreur Supabase", `Erreur d'insertion : ${err.message || JSON.stringify(err)}`, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-save"></i> Enregistrer & Synchroniser`;
+            }
+        }
+
+        function resetAll() {
+            kgDataRaw = [];
+            piecesDataRaw = [];
+            finalMatchedData = [];
+            detectedDeletions = [];
+            detectedModifications = [];
+            currentFileName = '';
+            document.getElementById("welcomeState").classList.remove("hidden");
+            document.getElementById("previewSection").classList.add("hidden");
+            document.getElementById("actionContainer").classList.add("hidden");
+            document.getElementById("fileKgInput").value = "";
+            document.getElementById("filePiecesInput").value = "";
+            document.getElementById("fileKgName").classList.add("hidden");
+            document.getElementById("filePiecesName").classList.add("hidden");
+            
+            ['badgeKg', 'badgePieces'].forEach(id => {
+                const b = document.getElementById(id);
+                b.className = "text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full font-mono";
+                b.textContent = "En attente";
+            });
+        }
+    </script>
+</body>
+</html>

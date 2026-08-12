@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Produits - SMTG</title>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: #f4f7f5;
+            color: #101828;
+        }
+
+        button,
+        input {
+            font-family: inherit;
+        }
+
+        .products-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 18px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .products-header {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 16px;
+        }
+
+        .products-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .products-title-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #087f3e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .products-title h1 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 700;
+            color: #087f3e;
+        }
+
+        .products-title p {
+            margin: 4px 0 0;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-refresh {
+            background: #eef5f0;
+            color: #087f3e;
+        }
+
+        .btn-primary {
+            background: #087f3e;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #fee4e2;
+            color: #b42318;
+        }
+
+        .btn-secondary {
+            background: #eef2f6;
+            color: #344054;
+        }
+
+        /* =========================
+           KPI
+        ========================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 15px;
+            min-height: 92px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            color: #667085;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-icon {
+            width: 29px;
+            height: 29px;
+            border-radius: 9px;
+            background: #eaf7ef;
+            color: #087f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-value {
+            margin-top: 10px;
+            font-size: 21px;
+            font-weight: 700;
+            color: #101828;
+        }
+
+        .stat-subtitle {
+            margin-top: 4px;
+            font-size: 10px;
+            color: #667085;
+        }
+
+        /* =========================
+           TABLE CONTAINER
+        ========================= */
+
+        .products-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            padding: 13px 15px;
+            border-bottom: 1px solid #eaecf0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .search-box {
+            width: 370px;
+            max-width: 100%;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #98a2b3;
+            font-size: 13px;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 38px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            padding: 0 12px 0 34px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .search-box input:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, 0.08);
+        }
+
+        .result-count {
+            font-size: 11px;
+            color: #667085;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #f8faf9;
+            color: #475467;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #eaecf0;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f2f4;
+            font-size: 12px;
+            color: #344054;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #fafdfb;
+        }
+
+        .article-code {
+            font-weight: 700;
+            color: #087f3e;
+        }
+
+        .designation {
+            font-weight: 500;
+            color: #101828;
+        }
+
+        .dlc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: #eef5f0;
+            color: #087f3e;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .no-dlc {
+            background: #f2f4f7;
+            color: #667085;
+        }
+
+        .date-cell {
+            color: #667085;
+            font-size: 11px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-edit {
+            background: #eef4ff;
+            color: #175cd3;
+        }
+
+        .action-delete {
+            background: #fef3f2;
+            color: #d92d20;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+            color: #98a2b3;
+        }
+
+        .empty-state i {
+            font-size: 30px;
+            margin-bottom: 12px;
+            color: #98a2b3;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 5px;
+            font-size: 13px;
+            color: #667085;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 11px;
+        }
+
+        .loading-state {
+            padding: 50px;
+            text-align: center;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .loading-state i {
+            margin-right: 7px;
+        }
+
+        .error-state {
+            padding: 45px 20px;
+            text-align: center;
+            color: #d92d20;
+        }
+
+        .error-state i {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .error-state strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .error-state span {
+            font-size: 11px;
+        }
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(16, 24, 40, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid #eaecf0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 16px;
+            color: #101828;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f2f4f7;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #667085;
+        }
+
+        .modal-body {
+            padding: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #344054;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 0 11px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .form-group input:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, 0.08);
+        }
+
+        .form-help {
+            margin-top: 5px;
+            color: #98a2b3;
+            font-size: 10px;
+        }
+
+        .modal-footer {
+            padding: 13px 18px;
+            border-top: 1px solid #eaecf0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast-container {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 420px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+            display: flex;
+            gap: 9px;
+            align-items: flex-start;
+            animation: toastIn 0.25s ease;
+        }
+
+        .toast.success {
+            background: #087f3e;
+        }
+
+        .toast.error {
+            background: #d92d20;
+        }
+
+        .toast.warning {
+            background: #b54708;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1000px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .products-page {
+                padding: 10px;
+            }
+
+            .products-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+    
+        /* =========================
+           PAGINATION PRODUITS
+        ========================= */
+
+        .products-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 15px;
+            border-top: 1px solid #eaecf0;
+            background: #ffffff;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            font-size: 11px;
+            color: #667085;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 9px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #087f3e;
+            color: #087f3e;
+            background: #f4fbf6;
+        }
+
+        .pagination-btn.active {
+            background: #087f3e;
+            border-color: #087f3e;
+            color: #ffffff;
+        }
+
+        .pagination-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .pagination-ellipsis {
+            min-width: 24px;
+            text-align: center;
+            color: #98a2b3;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .pagination-size {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            color: #667085;
+        }
+
+        .pagination-size select {
+            height: 32px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            padding: 0 8px;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .pagination-size select:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, .08);
+        }
+
+        @media (max-width: 700px) {
+            .products-pagination {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pagination-info,
+            .pagination-controls,
+            .pagination-size {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+</style>
+</head>
+
+<body>
+
+<div class="products-page">
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="products-header">
+
+        <div class="products-title">
+
+            <div class="products-title-icon">
+                <i class="fa-solid fa-box"></i>
+            </div>
+
+            <div>
+                <h1>Produits</h1>
+                <p>Gestion des articles et paramètres DLC</p>
+            </div>
+
+        </div>
+
+        <div class="header-actions">
+
+            <button
+                type="button"
+                class="btn btn-refresh"
+                id="btnRefresh"
+            >
+                <i class="fa-solid fa-rotate"></i>
+                Actualiser
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                id="btnNewProduct"
+            >
+                <i class="fa-solid fa-plus"></i>
+                Nouveau produit
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         STATISTICS
+    ========================= -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Total produits
+                </span>
+
+                <span class="stat-icon">
+                    <i class="fa-solid fa-box"></i>
+                </span>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="totalProducts"
+            >
+                0
+            </div>
+
+            <div class="stat-subtitle">
+                Produits enregistrés
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Articles actifs
+                </span>
+
+                <span class="stat-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </span>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="activeProducts"
+            >
+                0
+            </div>
+
+            <div class="stat-subtitle">
+                Articles disponibles
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    DLC renseignées
+                </span>
+
+                <span class="stat-icon">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </span>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="productsWithDlc"
+            >
+                0
+            </div>
+
+            <div class="stat-subtitle">
+                Produits avec DLC
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Dernier ajout
+                </span>
+
+                <span class="stat-icon">
+                    <i class="fa-solid fa-clock"></i>
+                </span>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="lastAdded"
+            >
+                —
+            </div>
+
+            <div class="stat-subtitle">
+                Date du dernier produit
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         PRODUCTS TABLE
+    ========================= -->
+
+    <div class="products-container">
+
+        <div class="table-toolbar">
+
+            <div class="search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Rechercher par article ou désignation..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div
+                class="result-count"
+                id="resultCount"
+            >
+                0 produit
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Article
+                        </th>
+
+                        <th>
+                            Désignation
+                        </th>
+
+                        <th>
+                            Jour DLC
+                        </th>
+
+                        <th>
+                            Créé le
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="productsTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="loading-state"
+                        >
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            Chargement des articles...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- =========================
+             PAGINATION
+        ========================= -->
+
+        <div class="products-pagination" id="productsPagination">
+
+            <div class="pagination-info" id="paginationInfo">
+                0 produit
+            </div>
+
+            <div class="pagination-controls" id="paginationControls"></div>
+
+            <div class="pagination-size">
+
+                <span>Par page</span>
+
+                <select id="pageSizeSelect">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     MODAL ADD / EDIT
+========================= -->
+
+<div
+    class="modal-overlay"
+    id="productModal"
+>
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Nouveau produit
+            </h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                id="btnCloseModal"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <form id="productForm">
+
+            <div class="modal-body">
+
+                <div class="form-group">
+
+                    <label for="articleInput">
+                        Article *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="articleInput"
+                        maxlength="255"
+                        required
+                        autocomplete="off"
+                    >
+
+                    <div class="form-help">
+                        Code article unique.
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="designationInput">
+                        Désignation *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="designationInput"
+                        required
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="dlcInput">
+                        Jour DLC *
+                    </label>
+
+                    <input
+                        type="number"
+                        id="dlcInput"
+                        min="0"
+                        step="1"
+                        value="360"
+                        required
+                    >
+
+                    <div class="form-help">
+                        Nombre de jours de durée limite de vente.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btnCancelModal"
+                >
+                    Annuler
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="btnSaveProduct"
+                >
+                    <i class="fa-solid fa-check"></i>
+                    Enregistrer
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     TOAST
+========================= -->
+
+<div
+    class="toast-container"
+    id="toastContainer"
+></div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    /* =========================================================
+       CONFIGURATION
+       IMPORTANT:
+       La table réelle est public.articles
+       ========================================================= */
+
+    const TABLE_NAME = "articles";
+
+
+    /* =========================================================
+       STATE
+       ========================================================= */
+
+    let allProducts = [];
+    let filteredProducts = [];
+    let editingProductId = null;
+
+    // Pagination côté interface.
+    // Les données restent les données réelles de public.articles.
+    let currentPage = 1;
+    let pageSize = 20;
+
+
+    /* =========================================================
+       DOM
+       ========================================================= */
+
+    const tableBody =
+        document.getElementById("productsTableBody");
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const resultCount =
+        document.getElementById("resultCount");
+
+    const totalProducts =
+        document.getElementById("totalProducts");
+
+    const activeProducts =
+        document.getElementById("activeProducts");
+
+    const productsWithDlc =
+        document.getElementById("productsWithDlc");
+
+    const lastAdded =
+        document.getElementById("lastAdded");
+
+    const modal =
+        document.getElementById("productModal");
+
+    const modalTitle =
+        document.getElementById("modalTitle");
+
+    const productForm =
+        document.getElementById("productForm");
+
+    const articleInput =
+        document.getElementById("articleInput");
+
+    const designationInput =
+        document.getElementById("designationInput");
+
+    const dlcInput =
+        document.getElementById("dlcInput");
+
+    const paginationInfo =
+        document.getElementById("paginationInfo");
+
+    const paginationControls =
+        document.getElementById("paginationControls");
+
+    const pageSizeSelect =
+        document.getElementById("pageSizeSelect");
+
+
+    /* =========================================================
+       SUPABASE CLIENT
+       ========================================================= */
+
+    let supabaseClient = null;
+    let supabasePromise = null;
+
+    let permissionsModule = null;
+
+    async function getPermissionsModule() {
+        if (permissionsModule) return permissionsModule;
+
+        try {
+            const moduleUrl = new URL(
+                "assets/js/core/permissions.js",
+                document.baseURI
+            ).href;
+
+            permissionsModule = await import(moduleUrl);
+
+            if (!window.permissionsLoaded) {
+                await new Promise(resolve => {
+                    const timer = setTimeout(resolve, 5000);
+                    window.addEventListener(
+                        "permissionsLoaded",
+                        () => {
+                            clearTimeout(timer);
+                            resolve();
+                        },
+                        { once: true }
+                    );
+                });
+            }
+
+            if (typeof permissionsModule.loadPermissions === "function") {
+                await permissionsModule.loadPermissions();
+            }
+
+            return permissionsModule;
+        } catch (error) {
+            console.error("[SMTG PRODUITS] Erreur permissions.js:", error);
+            permissionsModule = null;
+            return null;
+        }
+    }
+
+    function hasPagePermission() {
+        if (!permissionsModule || typeof permissionsModule.canPage !== "function") {
+            return false;
+        }
+
+        return (
+            permissionsModule.canPage("produits") ||
+            permissionsModule.canPage("prod_list") ||
+            permissionsModule.canPage("Modules/produits.html")
+        );
+    }
+
+    function hasActionPermission(action) {
+        if (!permissionsModule || typeof permissionsModule.canAction !== "function") {
+            return false;
+        }
+
+        return permissionsModule.canAction(action, "produits");
+    }
+
+    async function ensureActionPermission(action) {
+        if (!permissionsModule) {
+            await getPermissionsModule();
+        }
+
+        if (!hasActionPermission(action)) {
+            showToast(`Vous n'avez pas la permission : ${action}.`, "warning");
+            return false;
+        }
+
+        return true;
+    }
+
+    function applyPagePermissions() {
+        const btnNew = document.getElementById("btnNewProduct");
+        const saveButton = document.getElementById("btnSaveProduct");
+
+        const canAdd = hasActionPermission("Ajouter");
+        const canEdit = hasActionPermission("Modifier");
+        const canDelete = hasActionPermission("Supprimer");
+
+        if (btnNew) {
+            btnNew.style.display = canAdd ? "inline-flex" : "none";
+        }
+
+        document.querySelectorAll('[data-action="edit"]').forEach(button => {
+            button.style.display = canEdit ? "flex" : "none";
+        });
+
+        document.querySelectorAll('[data-action="delete"]').forEach(button => {
+            button.style.display = canDelete ? "flex" : "none";
+        });
+
+        if (saveButton) {
+            const allowed = editingProductId ? canEdit : canAdd;
+            saveButton.style.display = allowed ? "inline-flex" : "none";
+        }
+    }
+
+    function showPermissionDenied() {
+        const page = document.querySelector(".products-page");
+        if (!page) return;
+
+        page.innerHTML = `
+            <div style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:30px;">
+                <div style="width:100%;max-width:650px;background:#fff;border:1px solid #fecdca;border-radius:16px;padding:45px 30px;text-align:center;box-shadow:0 8px 30px rgba(16,24,40,.08);">
+                    <div style="width:58px;height:58px;margin:0 auto 18px;border-radius:15px;background:#fff0ee;color:#d92d20;display:flex;align-items:center;justify-content:center;font-size:25px;">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h2 style="margin:0 0 8px;color:#101828;font-size:20px;">Accès refusé</h2>
+                    <p style="margin:0;color:#667085;font-size:13px;">
+                        Vous n'avez pas les permissions nécessaires pour accéder à cette page.
+                    </p>
+                </div>
+            </div>
+        `;
+
+        document.title = "Accès refusé - SMTG";
+    }
+
+
+    async function getSupabaseClient() {
+
+        /*
+         * On utilise directement le Singleton officiel:
+         * assets/js/core/supabase.js
+         *
+         * C'est important parce que produits.html peut être injecté
+         * dynamiquement dans dashboard.html. Dans ce cas, un
+         * <script type="module"> placé dans le HTML injecté peut
+         * ne pas être exécuté comme prévu. Dynamic import() est donc
+         * utilisé directement par le controller.
+         */
+
+        if (
+            supabaseClient &&
+            typeof supabaseClient.from === "function"
+        ) {
+            return supabaseClient;
+        }
+
+        if (supabasePromise) {
+            return supabasePromise;
+        }
+
+        supabasePromise = (async () => {
+
+            try {
+
+                /* Compatibilité avec un client déjà initialisé */
+                const existingClients = [
+                    window.supabaseClient,
+                    window.smtgSupabase,
+                    window.SMTG?.supabase,
+                    window.app?.supabase
+                ];
+
+                const existing = existingClients.find(
+                    client =>
+                        client &&
+                        typeof client.from === "function"
+                );
+
+                if (existing) {
+                    supabaseClient = existing;
+                    return supabaseClient;
+                }
+
+                /* Chargement réel du Singleton */
+                const moduleUrl = new URL(
+                    "assets/js/core/supabase.js",
+                    document.baseURI
+                ).href;
+
+                const module = await import(moduleUrl);
+
+                if (
+                    !module ||
+                    !module.default ||
+                    typeof module.default.from !== "function"
+                ) {
+                    throw new Error(
+                        "Le Singleton Supabase n'a pas retourné un client valide."
+                    );
+                }
+
+                supabaseClient = module.default;
+
+                /* Expose le Singleton pour les autres controllers */
+                window.supabaseClient = supabaseClient;
+                window.smtgSupabase = supabaseClient;
+
+                return supabaseClient;
+
+            } catch (error) {
+
+                console.error(
+                    "[SMTG PRODUITS] Impossible de charger assets/js/core/supabase.js:",
+                    error
+                );
+
+                supabasePromise = null;
+                throw error;
+            }
+
+        })();
+
+        return supabasePromise;
+    }
+
+
+    /* =========================================================
+       WAIT FOR SUPABASE
+       ========================================================= */
+
+    async function waitForSupabase() {
+
+        try {
+            return await getSupabaseClient();
+        } catch (error) {
+            console.error(
+                "[SMTG PRODUITS] Supabase indisponible:",
+                error
+            );
+            return null;
+        }
+    }
+
+
+    /* =========================================================
+       TOAST
+       ========================================================= */
+
+    function showToast(
+        message,
+        type = "success"
+    ) {
+
+        const container =
+            document.getElementById("toastContainer");
+
+        const toast =
+            document.createElement("div");
+
+        toast.className =
+            "toast " + type;
+
+        let icon = "fa-circle-check";
+
+        if (type === "error") {
+            icon = "fa-circle-exclamation";
+        }
+
+        if (type === "warning") {
+            icon = "fa-triangle-exclamation";
+        }
+
+        toast.innerHTML = `
+            <i class="fa-solid ${icon}"></i>
+            <span>${escapeHtml(message)}</span>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+
+            toast.style.opacity = "0";
+
+            toast.style.transform =
+                "translateY(10px)";
+
+            setTimeout(() => {
+                toast.remove();
+            }, 250);
+
+        }, 3500);
+    }
+
+
+    /* =========================================================
+       ESCAPE HTML
+       ========================================================= */
+
+    function escapeHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    /* =========================================================
+       FORMAT DATE
+       ========================================================= */
+
+    function formatDate(value) {
+
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleDateString(
+            "fr-FR",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+    }
+
+
+    /* =========================================================
+       FORMAT NUMBER
+       ========================================================= */
+
+    function formatNumber(value) {
+
+        return Number(value || 0)
+            .toLocaleString("fr-FR");
+    }
+
+
+    /* =========================================================
+       LOAD PRODUCTS
+       ========================================================= */
+
+    async function loadProducts() {
+
+        setLoading();
+
+        try {
+
+            const supabase =
+                await waitForSupabase();
+
+            if (!supabase) {
+
+                throw new Error(
+                    "Supabase n'est pas initialisé."
+                );
+            }
+
+
+            console.log(
+                "[SMTG PRODUITS] Chargement depuis public.articles..."
+            );
+
+
+            /*
+             * IMPORTANT:
+             * table réelle = articles
+             *
+             * Colonnes réelles:
+             * id
+             * article
+             * designation
+             * date_limite_vente
+             * created_at
+             */
+
+            const {
+                data,
+                error
+            } = await supabase
+                .from(TABLE_NAME)
+                .select(
+                    "id, article, designation, date_limite_vente, created_at"
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+            if (error) {
+
+                console.error(
+                    "[SMTG PRODUITS] Erreur Supabase:",
+                    error
+                );
+
+                throw error;
+            }
+
+
+            allProducts =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+
+            console.log(
+                "[SMTG PRODUITS] Articles reçus:",
+                allProducts.length
+            );
+
+
+            updateStatistics();
+
+            applySearch();
+
+
+        } catch (error) {
+
+            console.error(
+                "[SMTG PRODUITS] Erreur chargement:",
+                error
+            );
+
+            showError(
+                error.message ||
+                "Erreur lors du chargement des articles."
+            );
+
+            showToast(
+                "Erreur lors du chargement des produits : " +
+                (error.message || "Erreur inconnue"),
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       LOADING
+       ========================================================= */
+
+    function setLoading() {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    <div class="loading-state">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        Chargement des articles...
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+
+    /* =========================================================
+       ERROR
+       ========================================================= */
+
+    function showError(message) {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    <div class="error-state">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+
+                        <strong>
+                            Erreur lors du chargement des produits.
+                        </strong>
+
+                        <span>
+                            ${escapeHtml(message)}
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        resultCount.textContent =
+            "0 produit";
+    }
+
+
+    /* =========================================================
+       STATISTICS
+       ========================================================= */
+
+    function updateStatistics() {
+
+        const total =
+            allProducts.length;
+
+
+        /*
+         * Dans ta table articles il n'y a pas de colonne actif.
+         * Donc "Articles actifs" = articles existants.
+         */
+
+        const active =
+            allProducts.length;
+
+
+        const withDlc =
+            allProducts.filter(product => {
+
+                const dlc =
+                    Number(product.date_limite_vente);
+
+                return (
+                    Number.isFinite(dlc) &&
+                    dlc > 0
+                );
+
+            }).length;
+
+
+        totalProducts.textContent =
+            formatNumber(total);
+
+        activeProducts.textContent =
+            formatNumber(active);
+
+        productsWithDlc.textContent =
+            formatNumber(withDlc);
+
+
+        if (allProducts.length > 0) {
+
+            const latest =
+                allProducts[0];
+
+            lastAdded.textContent =
+                formatDate(latest.created_at);
+
+        } else {
+
+            lastAdded.textContent =
+                "—";
+        }
+    }
+
+
+    /* =========================================================
+       SEARCH
+       ========================================================= */
+
+    function applySearch() {
+
+        const search =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+
+        if (!search) {
+
+            filteredProducts =
+                [...allProducts];
+
+        } else {
+
+            filteredProducts =
+                allProducts.filter(product => {
+
+                    const article =
+                        String(
+                            product.article || ""
+                        ).toLowerCase();
+
+                    const designation =
+                        String(
+                            product.designation || ""
+                        ).toLowerCase();
+
+                    return (
+                        article.includes(search) ||
+                        designation.includes(search)
+                    );
+                });
+        }
+
+
+        currentPage = 1;
+
+        renderProducts();
+    }
+
+
+    /* =========================================================
+       RENDER
+       ========================================================= */
+
+    function renderProducts() {
+
+        const count =
+            filteredProducts.length;
+
+        resultCount.textContent =
+            count === 1
+                ? "1 produit"
+                : `${formatNumber(count)} produits`;
+
+        if (count === 0) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+
+                            <i class="fa-solid fa-box-open"></i>
+
+                            <h3>
+                                Aucun produit trouvé
+                            </h3>
+
+                            <p>
+                                Aucun article ne correspond à votre recherche.
+                            </p>
+
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            renderPagination();
+            return;
+        }
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(count / pageSize)
+            );
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        const startIndex =
+            (currentPage - 1) * pageSize;
+
+        const endIndex =
+            Math.min(
+                startIndex + pageSize,
+                count
+            );
+
+        const pageProducts =
+            filteredProducts.slice(
+                startIndex,
+                endIndex
+            );
+
+        tableBody.innerHTML =
+            pageProducts
+                .map(renderProductRow)
+                .join("");
+
+        applyPagePermissions();
+
+        renderPagination();
+    }
+
+
+    /* =========================================================
+       PAGINATION
+    ========================================================= */
+
+    function renderPagination() {
+
+        if (
+            !paginationInfo ||
+            !paginationControls
+        ) {
+            return;
+        }
+
+        const count =
+            filteredProducts.length;
+
+        if (count === 0) {
+
+            paginationInfo.textContent =
+                "0 produit";
+
+            paginationControls.innerHTML =
+                "";
+
+            return;
+        }
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(count / pageSize)
+            );
+
+        const startItem =
+            ((currentPage - 1) * pageSize) + 1;
+
+        const endItem =
+            Math.min(
+                currentPage * pageSize,
+                count
+            );
+
+        paginationInfo.textContent =
+            `Affichage ${formatNumber(startItem)}–${formatNumber(endItem)} sur ${formatNumber(count)} produits`;
+
+        paginationControls.innerHTML =
+            "";
+
+        paginationControls.appendChild(
+            createPaginationButton(
+                "‹",
+                currentPage - 1,
+                currentPage === 1,
+                false,
+                "Page précédente"
+            )
+        );
+
+        getPaginationPages(
+            currentPage,
+            totalPages
+        ).forEach(page => {
+
+            if (page === "...") {
+
+                const span =
+                    document.createElement("span");
+
+                span.className =
+                    "pagination-ellipsis";
+
+                span.textContent =
+                    "…";
+
+                paginationControls.appendChild(
+                    span
+                );
+
+                return;
+            }
+
+            paginationControls.appendChild(
+                createPaginationButton(
+                    String(page),
+                    page,
+                    false,
+                    page === currentPage,
+                    `Aller à la page ${page}`
+                )
+            );
+        });
+
+        paginationControls.appendChild(
+            createPaginationButton(
+                "›",
+                currentPage + 1,
+                currentPage === totalPages,
+                false,
+                "Page suivante"
+            )
+        );
+    }
+
+
+    function getPaginationPages(
+        current,
+        total
+    ) {
+
+        if (total <= 7) {
+
+            return Array.from(
+                {
+                    length: total
+                },
+                (_, index) => index + 1
+            );
+        }
+
+        if (current <= 4) {
+
+            return [
+                1,
+                2,
+                3,
+                4,
+                5,
+                "...",
+                total
+            ];
+        }
+
+        if (current >= total - 3) {
+
+            return [
+                1,
+                "...",
+                total - 4,
+                total - 3,
+                total - 2,
+                total - 1,
+                total
+            ];
+        }
+
+        return [
+            1,
+            "...",
+            current - 1,
+            current,
+            current + 1,
+            "...",
+            total
+        ];
+    }
+
+
+    function createPaginationButton(
+        label,
+        targetPage,
+        disabled = false,
+        active = false,
+        title = ""
+    ) {
+
+        const button =
+            document.createElement("button");
+
+        button.type =
+            "button";
+
+        button.className =
+            "pagination-btn";
+
+        if (active) {
+            button.classList.add("active");
+        }
+
+        button.textContent =
+            label;
+
+        button.title =
+            title;
+
+        button.disabled =
+            disabled;
+
+        if (!disabled) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    goToPage(
+                        targetPage
+                    );
+
+                }
+            );
+        }
+
+        return button;
+    }
+
+
+    function goToPage(page) {
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    filteredProducts.length /
+                    pageSize
+                )
+            );
+
+        currentPage =
+            Math.max(
+                1,
+                Math.min(
+                    Number(page),
+                    totalPages
+                )
+            );
+
+        renderProducts();
+
+        const tableContainer =
+            document.querySelector(
+                ".products-container"
+            );
+
+        if (tableContainer) {
+
+            tableContainer.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }
+
+
+
+
+    /* =========================================================
+       PRODUCT ROW
+       ========================================================= */
+
+    function renderProductRow(product) {
+
+        const id =
+            escapeHtml(product.id);
+
+        const article =
+            escapeHtml(product.article);
+
+        const designation =
+            escapeHtml(product.designation);
+
+        const dlc =
+            Number(product.date_limite_vente);
+
+
+        let dlcHtml = `
+            <span class="dlc-badge no-dlc">
+                <i class="fa-solid fa-minus"></i>
+                Non renseignée
+            </span>
+        `;
+
+
+        if (
+            Number.isFinite(dlc) &&
+            dlc > 0
+        ) {
+
+            dlcHtml = `
+                <span class="dlc-badge">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    ${formatNumber(dlc)} jours
+                </span>
+            `;
+        }
+
+
+        return `
+            <tr>
+
+                <td>
+                    <span class="article-code">
+                        ${article}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="designation">
+                        ${designation}
+                    </span>
+                </td>
+
+                <td>
+                    ${dlcHtml}
+                </td>
+
+                <td>
+                    <span class="date-cell">
+                        ${formatDate(product.created_at)}
+                    </span>
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            type="button"
+                            class="action-btn action-edit"
+                            title="Modifier"
+                            data-action="edit"
+                            data-id="${id}"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="action-btn action-delete"
+                            title="Supprimer"
+                            data-action="delete"
+                            data-id="${id}"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+        `;
+    }
+
+
+    /* =========================================================
+       OPEN NEW PRODUCT MODAL
+       ========================================================= */
+
+    async function openNewProductModal() {
+
+        if (!await ensureActionPermission("Ajouter")) {
+            return;
+        }
+
+        editingProductId = null;
+
+        modalTitle.textContent =
+            "Nouveau produit";
+
+        articleInput.value =
+            "";
+
+        designationInput.value =
+            "";
+
+        dlcInput.value =
+            "360";
+
+        modal.classList.add("show");
+
+        setTimeout(() => {
+            articleInput.focus();
+        }, 100);
+    }
+
+
+    /* =========================================================
+       OPEN EDIT MODAL
+       ========================================================= */
+
+    async function openEditModal(id) {
+
+        if (!await ensureActionPermission("Modifier")) {
+            return;
+        }
+
+        const product =
+            allProducts.find(
+                item =>
+                    String(item.id) === String(id)
+            );
+
+
+        if (!product) {
+
+            showToast(
+                "Produit introuvable.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        editingProductId =
+            product.id;
+
+
+        modalTitle.textContent =
+            "Modifier le produit";
+
+
+        articleInput.value =
+            product.article || "";
+
+
+        designationInput.value =
+            product.designation || "";
+
+
+        dlcInput.value =
+            Number.isFinite(
+                Number(product.date_limite_vente)
+            )
+                ? product.date_limite_vente
+                : 0;
+
+
+        modal.classList.add("show");
+
+        setTimeout(() => {
+            articleInput.focus();
+        }, 100);
+    }
+
+
+    /* =========================================================
+       CLOSE MODAL
+       ========================================================= */
+
+    function closeModal() {
+
+        modal.classList.remove("show");
+
+        editingProductId =
+            null;
+    }
+
+
+    /* =========================================================
+       SAVE PRODUCT
+       ========================================================= */
+
+    async function saveProduct(event) {
+
+        event.preventDefault();
+
+        const requiredAction =
+            editingProductId ? "Modifier" : "Ajouter";
+
+        if (!await ensureActionPermission(requiredAction)) {
+            return;
+        }
+
+
+        const article =
+            articleInput.value.trim();
+
+
+        const designation =
+            designationInput.value.trim();
+
+
+        const dlc =
+            Number(dlcInput.value);
+
+
+        if (!article) {
+
+            showToast(
+                "Veuillez saisir le code article.",
+                "warning"
+            );
+
+            articleInput.focus();
+
+            return;
+        }
+
+
+        if (!designation) {
+
+            showToast(
+                "Veuillez saisir la désignation.",
+                "warning"
+            );
+
+            designationInput.focus();
+
+            return;
+        }
+
+
+        if (
+            !Number.isFinite(dlc) ||
+            dlc < 0
+        ) {
+
+            showToast(
+                "Le nombre de jours DLC est invalide.",
+                "warning"
+            );
+
+            dlcInput.focus();
+
+            return;
+        }
+
+
+        const supabase =
+            await waitForSupabase();
+
+
+        if (!supabase) {
+
+            showToast(
+                "Supabase n'est pas initialisé.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const saveButton =
+            document.getElementById(
+                "btnSaveProduct"
+            );
+
+
+        saveButton.disabled =
+            true;
+
+
+        saveButton.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            Enregistrement...
+        `;
+
+
+        try {
+
+            /* ================================================
+               MODIFICATION
+            ================================================= */
+
+            if (editingProductId) {
+
+                const {
+                    error
+                } = await supabase
+                    .from(TABLE_NAME)
+                    .update({
+                        article:
+                            article,
+
+                        designation:
+                            designation,
+
+                        date_limite_vente:
+                            dlc
+                    })
+                    .eq(
+                        "id",
+                        editingProductId
+                    );
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                showToast(
+                    "Produit modifié avec succès."
+                );
+
+            }
+
+            /* ================================================
+               AJOUT
+            ================================================= */
+
+            else {
+
+                const {
+                    error
+                } = await supabase
+                    .from(TABLE_NAME)
+                    .insert({
+                        article:
+                            article,
+
+                        designation:
+                            designation,
+
+                        date_limite_vente:
+                            dlc
+                    });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                showToast(
+                    "Produit ajouté avec succès."
+                );
+            }
+
+
+            closeModal();
+
+            await loadProducts();
+
+
+        } catch (error) {
+
+            console.error(
+                "[SMTG PRODUITS] Erreur sauvegarde:",
+                error
+            );
+
+
+            let message =
+                error.message ||
+                "Erreur lors de l'enregistrement.";
+
+
+            /*
+             * Gestion du doublon article
+             */
+
+            if (
+                error.code === "23505" ||
+                message.toLowerCase().includes("duplicate")
+            ) {
+
+                message =
+                    "Cet article existe déjà dans la base de données.";
+            }
+
+
+            showToast(
+                message,
+                "error"
+            );
+
+
+        } finally {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.innerHTML = `
+                <i class="fa-solid fa-check"></i>
+                Enregistrer
+            `;
+        }
+    }
+
+
+    /* =========================================================
+       DELETE PRODUCT
+       ========================================================= */
+
+    async function deleteProduct(id) {
+
+        if (!await ensureActionPermission("Supprimer")) {
+            return;
+        }
+
+        const product =
+            allProducts.find(
+                item =>
+                    String(item.id) === String(id)
+            );
+
+
+        if (!product) {
+
+            showToast(
+                "Produit introuvable.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const confirmed =
+            window.confirm(
+                `Voulez-vous vraiment supprimer l'article "${product.article}" ?`
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        const supabase =
+            await waitForSupabase();
+
+
+        if (!supabase) {
+
+            showToast(
+                "Supabase n'est pas initialisé.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        try {
+
+            const {
+                error
+            } = await supabase
+                .from(TABLE_NAME)
+                .delete()
+                .eq(
+                    "id",
+                    id
+                );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            showToast(
+                "Produit supprimé avec succès."
+            );
+
+
+            await loadProducts();
+
+
+        } catch (error) {
+
+            console.error(
+                "[SMTG PRODUITS] Erreur suppression:",
+                error
+            );
+
+
+            showToast(
+                error.message ||
+                "Erreur lors de la suppression.",
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       TABLE ACTIONS
+    ========================================================= */
+
+    tableBody.addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    "[data-action]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            const action =
+                button.dataset.action;
+
+
+            const id =
+                button.dataset.id;
+
+
+            if (action === "edit") {
+
+                openEditModal(id);
+
+            }
+
+
+            if (action === "delete") {
+
+                deleteProduct(id);
+
+            }
+
+        }
+    );
+
+
+    /* =========================================================
+       EVENTS
+    ========================================================= */
+
+    searchInput.addEventListener(
+        "input",
+        applySearch
+    );
+
+
+    document
+        .getElementById("btnRefresh")
+        .addEventListener(
+            "click",
+            async function () {
+
+                currentPage = 1;
+
+                await loadProducts();
+
+            }
+        );
+
+
+    document
+        .getElementById("btnNewProduct")
+        .addEventListener(
+            "click",
+            openNewProductModal
+        );
+
+
+    document
+        .getElementById("btnCloseModal")
+        .addEventListener(
+            "click",
+            closeModal
+        );
+
+
+    document
+        .getElementById("btnCancelModal")
+        .addEventListener(
+            "click",
+            closeModal
+        );
+
+
+    if (pageSizeSelect) {
+
+        pageSizeSelect.addEventListener(
+            "change",
+            function () {
+
+                const newSize =
+                    Number(
+                        pageSizeSelect.value
+                    );
+
+                if (
+                    Number.isFinite(newSize) &&
+                    newSize > 0
+                ) {
+
+                    pageSize =
+                        newSize;
+
+                    currentPage =
+                        1;
+
+                    renderProducts();
+                }
+
+            }
+        );
+    }
+
+
+    productForm.addEventListener(
+        "submit",
+        saveProduct
+    );
+
+
+    /* =========================================================
+       CLOSE MODAL OUTSIDE
+    ========================================================= */
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target === modal
+            ) {
+                closeModal();
+            }
+        }
+    );
+
+
+    /* =========================================================
+       ESC CLOSE
+    ========================================================= */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                modal.classList.contains("show")
+            ) {
+
+                closeModal();
+            }
+        }
+    );
+
+
+    /* =========================================================
+       INITIALIZE
+    ========================================================= */
+
+    async function initializeProductsPage() {
+
+        console.log(
+            "[SMTG PRODUITS] Initialisation..."
+        );
+
+        await getPermissionsModule();
+
+        if (!hasPagePermission()) {
+            showPermissionDenied();
+            return;
+        }
+
+        applyPagePermissions();
+
+        await loadProducts();
+
+        applyPagePermissions();
+    }
+
+    /*
+     * إذا الصفحة كتتحمل مباشرة
+     */
+
+    if (
+        document.readyState === "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeProductsPage
+        );
+
+    } else {
+
+        initializeProductsPage();
+
+    }
+
+
+    /* =========================================================
+       GLOBAL API
+       باش dashboard أو أي controller يقدر يrefresh
+    ========================================================= */
+
+    window.SMTGProducts = {
+
+        reload:
+            loadProducts,
+
+        refresh:
+            loadProducts,
+
+        getProducts:
+            () => [...allProducts],
+
+        openNew:
+            openNewProductModal
+
+    };
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard Admin - SMTG</title>
+
+    <!-- FontAwesome pour les icônes -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #0b1118;
+            --bg-card: #131b26;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --text-main: #fff;
+            --text-muted: #8a99ad;
+            --accent-green: #10b981;
+            --accent-green-bg: rgba(16, 185, 129, 0.15);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .card-smg {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        /* =====================================================
+           BOUTON ACTUALISER
+           ===================================================== */
+
+        #refreshBtn {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #10b981;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        #refreshBtn:hover {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: rgba(16, 185, 129, 0.7);
+        }
+
+        #refreshBtn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        #refreshBtn.refreshing i {
+            animation: refreshSpin 0.8s linear infinite;
+        }
+
+        @keyframes refreshSpin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main style="width: 100%; box-sizing: border-box;">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div style="
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    ">
+
+        <div>
+
+            <h1 style="
+                font-size: 20px;
+                font-weight: 700;
+                color: #fff;
+                margin: 0 0 4px 0;
+            ">
+                Tableau de bord Administrateur
+            </h1>
+
+            <p style="
+                font-size: 11px;
+                color: #8a99ad;
+                margin: 0;
+            ">
+                Accueil &bull; Tableau de bord &bull; Administration générale SMTG
+            </p>
+
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+
+            <!--
+                IMPORTANT :
+                Pas de window.location.reload()
+                
+                Le controller admin-dashboard-controller.js
+                s'occupe maintenant du rafraîchissement.
+            -->
+
+            <button
+                id="refreshBtn"
+                type="button"
+            >
+                <i class="fas fa-sync-alt"></i>
+                Actualiser
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOP STATS GRID - 6 CARDS
+         ===================================================== -->
+
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    ">
+
+        <!-- =================================================
+             UTILISATEURS
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            ">
+
+                <span style="
+                    font-size: 10px;
+                    color: #8a99ad;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                ">
+                    Utilisateurs
+                </span>
+
+                <div style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                    background: rgba(16,185,129,0.15);
+                    color: #10b981;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                ">
+                    <i class="fas fa-users"></i>
+                </div>
+
+            </div>
+
+            <div
+                style="
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #fff;
+                "
+                id="totalUsersVal"
+            >
+                0
+            </div>
+
+            <div style="
+                font-size: 9px;
+                color: #8a99ad;
+                margin-top: 4px;
+            ">
+                Total utilisateurs en BDD
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RÔLES
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            ">
+
+                <span style="
+                    font-size: 10px;
+                    color: #8a99ad;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                ">
+                    Rôles
+                </span>
+
+                <div style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                    background: rgba(16,185,129,0.15);
+                    color: #10b981;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                ">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+
+            </div>
+
+            <div
+                style="
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #fff;
+                "
+                id="totalRolesVal"
+            >
+                0
+            </div>
+
+            <div style="
+                font-size: 9px;
+                color: #8a99ad;
+                margin-top: 4px;
+            ">
+                Total rôles
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PAGES
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            ">
+
+                <span style="
+                    font-size: 10px;
+                    color: #8a99ad;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                ">
+                    Pages
+                </span>
+
+                <div style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                    background: rgba(16,185,129,0.15);
+                    color: #10b981;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                ">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+
+            </div>
+
+            <div
+                style="
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #fff;
+                "
+                id="totalPagesVal"
+            >
+                0
+            </div>
+
+            <div style="
+                font-size: 9px;
+                color: #8a99ad;
+                margin-top: 4px;
+            ">
+                Pages disponibles
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MODULES
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            ">
+
+                <span style="
+                    font-size: 10px;
+                    color: #8a99ad;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                ">
+                    Modules
+                </span>
+
+                <div style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                    background: rgba(16,185,129,0.15);
+                    color: #10b981;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                ">
+                    <i class="fas fa-cubes"></i>
+                </div>
+
+            </div>
+
+            <div
+                style="
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #fff;
+                "
+                id="totalModulesVal"
+            >
+                0
+            </div>
+
+            <div style="
+                font-size: 9px;
+                color: #8a99ad;
+                margin-top: 4px;
+            ">
+                Modules système
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PERMISSIONS
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            ">
+
+                <span style="
+                    font-size: 10px;
+                    color: #8a99ad;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                ">
+                    Permissions
+                </span>
+
+                <div style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                    background: rgba(16,185,129,0.15);
+                    color: #10b981;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                ">
+                    <i class="fas fa-lock"></i>
+                </div>
+
+            </div>
+
+            <div
+                style="
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #fff;
+                "
+                id="totalPermissionsVal"
+            >
+                0
+            </div>
+
+            <div style="
+                font-size: 9px;
+                color: #8a99ad;
+                margin-top: 4px;
+            ">
+                Total permissions
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CONNEXIONS
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            ">
+
+                <span style="
+                    font-size: 10px;
+                    color: #8a99ad;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                ">
+                    Connexions
+                </span>
+
+                <div style="
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                    background: rgba(16,185,129,0.15);
+                    color: #10b981;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                ">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+
+            </div>
+
+            <div
+                style="
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #fff;
+                "
+                id="totalConnectionsVal"
+            >
+                0
+            </div>
+
+            <div style="
+                font-size: 9px;
+                color: #10b981;
+                margin-top: 4px;
+            ">
+                <i class="fas fa-arrow-up"></i>
+                Actifs en BDD
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MIDDLE ROW
+         CHARTS + DERNIÈRES CONNEXIONS
+         ===================================================== -->
+
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    ">
+
+
+        <!-- =================================================
+             UTILISATEURS PAR RÔLE
+             ================================================= -->
+
+        <div
+            class="card-smg"
+            style="
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            "
+        >
+
+            <h3 style="
+                font-size: 12px;
+                color: #fff;
+                margin: 0 0 10px 0;
+                font-weight: 600;
+            ">
+                Utilisateurs par rôle
+            </h3>
+
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                height: 180px;
+                flex-wrap: wrap;
+            ">
+
+                <div style="
+                    width: 140px;
+                    height: 140px;
+                    position: relative;
+                ">
+                    <canvas id="stockEmplacementDonut"></canvas>
+                </div>
+
+                <div
+                    id="usersRoleLegend"
+                    style="
+                        font-size: 10px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                        max-width: 190px;
+                        overflow: hidden;
+                    "
+                >
+                    <div style="font-size:9px;color:#8a99ad;">
+                        Chargement des utilisateurs...
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIVITÉ DES CONNEXIONS
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            ">
+
+                <h3 style="
+                    font-size: 12px;
+                    color: #fff;
+                    margin: 0;
+                    font-weight: 600;
+                ">
+                    Activité des connexions (7 derniers jours)
+                </h3>
+
+            </div>
+
+            <div style="
+                height: 180px;
+                position: relative;
+            ">
+                <canvas id="mouvements7DaysChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             DERNIÈRES CONNEXIONS
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            ">
+
+                <h3 style="
+                    font-size: 12px;
+                    color: #fff;
+                    margin: 0;
+                    font-weight: 600;
+                ">
+                    Dernières connexions
+                </h3>
+
+                <a
+                    href="#"
+                    style="
+                        font-size: 9px;
+                        color: #10b981;
+                        text-decoration: none;
+                    "
+                >
+                    Voir tout
+                </a>
+
+            </div>
+
+            <div
+                id="lastLoginsContainer"
+                style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                "
+            >
+
+                <div style="
+                    font-size: 10px;
+                    color: #8a99ad;
+                    text-align: center;
+                    padding: 10px;
+                ">
+                    Chargement des connexions...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SYSTEM LOGS + QUICK ACTIONS
+         ===================================================== -->
+
+    <div style="
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 15px;
+        flex-wrap: wrap;
+    ">
+
+
+        <!-- =================================================
+             JOURNAUX SYSTÈME
+             ================================================= -->
+
+        <div class="card-smg">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            ">
+
+                <h3 style="
+                    font-size: 12px;
+                    color: #fff;
+                    margin: 0;
+                    font-weight: 600;
+                ">
+                    Journaux système récents (Notifications BDD)
+                </h3>
+
+                <a
+                    href="#"
+                    style="
+                        font-size: 9px;
+                        color: #10b981;
+                        text-decoration: none;
+                    "
+                >
+                    Voir tout
+                </a>
+
+            </div>
+
+
+            <table style="
+                width: 100%;
+                font-size: 9px;
+                border-collapse: collapse;
+                color: #8a99ad;
+            ">
+
+                <thead>
+
+                    <tr style="
+                        border-bottom: 1px solid rgba(255,255,255,0.06);
+                        text-align: left;
+                    ">
+
+                        <th style="
+                            padding: 4px;
+                            color: #fff;
+                        ">
+                            Niveau
+                        </th>
+
+                        <th style="
+                            padding: 4px;
+                            color: #fff;
+                        ">
+                            Message
+                        </th>
+
+                        <th style="
+                            padding: 4px;
+                            color: #fff;
+                        ">
+                            Utilisateur
+                        </th>
+
+                        <th style="
+                            padding: 4px;
+                            color: #fff;
+                            text-align: right;
+                        ">
+                            IP
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="systemLogsTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            style="
+                                text-align: center;
+                                padding: 10px;
+                                color: #8a99ad;
+                            "
+                        >
+                            Chargement des journaux...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS RAPIDES
+             ================================================= -->
+
+        <div
+            class="card-smg"
+            style="
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            "
+        >
+
+            <h3 style="
+                font-size: 12px;
+                color: #fff;
+                margin: 0 0 10px 0;
+                font-weight: 600;
+            ">
+                Actions rapides
+            </h3>
+
+
+            <div style="
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            ">
+
+
+                <!-- Ajouter utilisateur -->
+
+                <button style="
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    color: #10b981;
+                    padding: 8px 10px;
+                    border-radius: 6px;
+                    font-size: 10px;
+                    text-align: left;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                ">
+
+                    <i class="fas fa-user-plus"></i>
+
+                    Ajouter un utilisateur
+
+                </button>
+
+
+                <!-- Gestion rôles -->
+
+                <button style="
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    color: #3b82f6;
+                    padding: 8px 10px;
+                    border-radius: 6px;
+                    font-size: 10px;
+                    text-align: left;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                ">
+
+                    <i class="fas fa-shield-alt"></i>
+
+                    Gérer les rôles & permissions
+
+                </button>
+
+
+                <!-- Backup -->
+
+                <button style="
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    color: #f59e0b;
+                    padding: 8px 10px;
+                    border-radius: 6px;
+                    font-size: 10px;
+                    text-align: left;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                ">
+
+                    <i class="fas fa-database"></i>
+
+                    Lancer une sauvegarde manuelle
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     CHART.JS
+     ========================================================= -->
+
+<!-- =========================================================
+     ADMIN DASHBOARD CONTROLLER
+     Chart.js et toutes les données sont gérés par le controller.
+     ========================================================= -->
+
+<script
+    type="module"
+    src="/assets/js/core/admin-dashboard-controller.js"
+></script>
+
+</body>
+</html>

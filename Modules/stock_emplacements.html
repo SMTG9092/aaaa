@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi du Stock par Emplacement - SoufStock Enterprise ERP/WMS</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SheetJS pour Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- jsPDF pour Export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            100: '#f1f5f9'
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            400: '#34d399',
+                            300: '#6ee7b7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col min-w-0">
+        
+        <!-- HEADER -->
+        <header class="h-20 bg-slate-900/40 border-b border-slate-800/80 px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-6">
+                <!-- زر الرجوع السريع إلى index-stock.html -->
+                <a href="../index-stock.html" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm group">
+                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                    <span>Retour au Hub</span>
+                </a>
+
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Consultation du Stock par Emplacement</h1>
+                    <div class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span>Accueil</span>
+                        <span>/</span>
+                        <strong class="text-slate-300">Affichage du Stock Actuel</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl">
+                <div class="text-right">
+                    <span id="currentDate" class="text-xs font-medium text-slate-300 block capitalize">Chargement...</span>
+                    <span id="currentTime" class="text-[10px] text-emerald-400 font-mono block">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="w-full px-4 flex flex-col gap-6">
+                
+                <!-- TOP HEADER & ACTION BUTTONS BAR -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-emerald-400"></i> Suivi par Emplacement
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">
+                            Analyse détaillée et traçabilité des emplacements physiques.
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <button onclick="exportStockToExcel()" class="bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-file-excel"></i> <span>Excel</span>
+                        </button>
+                        
+                        <button onclick="exportStockToPDF()" class="bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 border border-sky-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-file-pdf"></i> <span>PDF</span>
+                        </button>
+
+                        <button onclick="window.print()" class="bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-print"></i> <span>Imprimer</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STAT CARDS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Lignes de Stock Actuelles</span>
+                            <span id="statTotalLignes" class="text-xl font-bold font-mono text-slate-100 mt-1 block">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Quantité Totale</span>
+                            <span id="statTotalQuantite" class="text-xl font-bold font-mono text-slate-100 mt-1 block">0.00</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-lg">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Articles Uniques</span>
+                            <span id="statArticlesUniques" class="text-xl font-bold font-mono text-slate-100 mt-1 block">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-lg">
+                            <i class="fas fa-barcode"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILTER BAR -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-1">Filtrer par Magasin :</label>
+                        <select id="filterMagasin" onchange="loadStock()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500 cursor-pointer">
+                            <option value="">-- Tous les Magasins --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-1">Recherche Article / Désignation :</label>
+                        <input type="text" id="searchArticle" oninput="loadStock()" placeholder="Ex: 220000433" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-1">Recherche Lot :</label>
+                        <input type="text" id="searchLot" oninput="loadStock()" placeholder="Ex: 26123" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-1">Recherche Emplacement :</label>
+                        <input type="text" id="searchEmp" oninput="loadStock()" placeholder="Ex: A408-A-01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- TABLE -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-950/60 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800 font-semibold">
+                                    <th class="py-4 px-4">Magasin</th>
+                                    <th class="py-4 px-4">Emplacement</th>
+                                    <th class="py-4 px-4">Article</th>
+                                    <th class="py-4 px-4">Désignation</th>
+                                    <th class="py-4 px-4">Lot</th>
+                                    <th class="py-4 px-4">DLC</th>
+                                    <th class="py-4 px-4 text-right">Quantité</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTableBody" class="divide-y divide-slate-800/60 text-xs text-slate-300">
+                                <tr>
+                                    <td colspan="7" class="text-center py-10 text-slate-400">
+                                        <i class="fas fa-spinner fa-spin mr-2 text-emerald-500 text-base"></i> Chargement des données...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import supabase from '../assets/js/core/supabase.js';
+
+        let allExportData = [];
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            initLiveClock();
+            await loadMagasinsDropdowns();
+            await loadStock();
+        });
+
+        // دالة لتحديث الوقت والتاريخ الحي باللغة الفرنسية
+        function initLiveClock() {
+            const updateClock = () => {
+                const now = new Date();
+                
+                // تنسيق التاريخ (مثال: mardi 28 juillet 2026)
+                const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('fr-FR', optionsDate);
+                
+                // تنسيق الوقت (HH:MM:SS)
+                const timeStr = now.toTimeString().split(' ')[0];
+
+                const dateEl = document.getElementById("currentDate");
+                const timeEl = document.getElementById("currentTime");
+
+                if (dateEl) dateEl.innerText = dateStr;
+                if (timeEl) timeEl.innerText = timeStr;
+            };
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        async function loadMagasinsDropdowns() {
+            try {
+                const { data, error } = await supabase.from('magasins').select('code_magasin, libelle_magasin').eq('statut', 'ACTIF');
+                if (error) {
+                    console.error("Erreur chargement magasins:", error);
+                    return;
+                }
+
+                const filterSelect = document.getElementById("filterMagasin");
+                let filterHtml = '<option value="">-- Tous les Magasins --</option>';
+
+                data.forEach(mag => {
+                    filterHtml += `<option value="${mag.code_magasin}">${mag.code_magasin} - ${mag.libelle_magasin}</option>`;
+                });
+
+                filterSelect.innerHTML = filterHtml;
+            } catch (err) {
+                console.error("Erreur technique magasins:", err);
+            }
+        }
+
+        window.loadStock = async function() {
+            const selectedMag = document.getElementById("filterMagasin").value;
+            const searchArt = document.getElementById("searchArticle").value.trim().toUpperCase();
+            const searchLot = document.getElementById("searchLot").value.trim().toUpperCase();
+            const searchEmp = document.getElementById("searchEmp").value.trim().toUpperCase();
+
+            let query = supabase.from('stock_emplacements').select('*').order('created_at', { ascending: false });
+
+            if (selectedMag) query = query.eq('magasin', selectedMag);
+            if (searchArt) query = query.or(`article.ilike.%${searchArt}%,designation_article.ilike.%${searchArt}%`);
+            if (searchLot) query = query.ilike('lot', `%${searchLot}%`);
+            if (searchEmp) query = query.ilike('emplacement', `%${searchEmp}%`);
+
+            const { data, error } = await query;
+            const tbody = document.getElementById("stockTableBody");
+
+            if (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-red-400"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur de chargement du stock.</td></tr>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500"><i class="fas fa-folder-open mr-2"></i> Aucun stock trouvé.</td></tr>`;
+                document.getElementById("statTotalLignes").innerText = "0";
+                document.getElementById("statTotalQuantite").innerText = "0.00";
+                document.getElementById("statArticlesUniques").innerText = "0";
+                allExportData = [];
+                return;
+            }
+
+            allExportData = data;
+
+            let totalQty = 0;
+            let uniqueArticles = new Set();
+
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const qty = Number(item.quantite) || 0;
+                totalQty += qty;
+                if (item.article) uniqueArticles.add(item.article);
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/35 transition">
+                        <td class="py-4 px-4 font-bold text-emerald-400 font-mono">${item.magasin || ''}</td>
+                        <td class="py-4 px-4 font-semibold text-slate-100 font-mono"><i class="fas fa-map-pin mr-1 text-sky-400 opacity-70"></i>${item.emplacement || ''}</td>
+                        <td class="py-4 px-4 font-bold font-mono text-blue-400">${item.article || ''}</td>
+                        <td class="py-4 px-4 text-slate-200 font-medium">${item.designation_article || ''}</td>
+                        <td class="py-4 px-4 font-mono text-slate-300">${item.lot || ''}</td>
+                        <td class="py-4 px-4 font-mono text-slate-400">${item.dlc || '-'}</td>
+                        <td class="py-4 px-4 text-right font-mono font-bold text-emerald-400">${qty.toLocaleString()} ${item.unite || ''}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("statTotalLignes").innerText = data.length.toLocaleString();
+            document.getElementById("statTotalQuantite").innerText = totalQty.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("statArticlesUniques").innerText = uniqueArticles.size.toLocaleString();
+        }
+
+        window.exportStockToExcel = function() {
+            if (!allExportData || allExportData.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+
+            const exportData = allExportData.map(item => ({
+                "Magasin": item.magasin || '',
+                "Emplacement": item.emplacement || '',
+                "Article": item.article || '',
+                "Désignation": item.designation_article || '',
+                "Lot": item.lot || '',
+                "DLC": item.dlc || '',
+                "Quantité": Number(item.quantite || 0),
+                "Unité": item.unite || ''
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Stock Emplacements");
+            XLSX.writeFile(workbook, `Stock_Emplacements_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        window.exportStockToPDF = function() {
+            if (!allExportData || allExportData.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text("SoufStock Enterprise - Stock par Emplacements", 14, 15);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Date d'export : ${new Date().toLocaleDateString('fr-FR')}`, 14, 22);
+
+            const tableColumn = ["Magasin", "Emplacement", "Article", "Désignation", "Lot", "DLC", "Quantité"];
+            const tableRows = [];
+
+            allExportData.forEach(item => {
+                tableRows.push([
+                    item.magasin || '',
+                    item.emplacement || '',
+                    item.article || '',
+                    item.designation_article || '',
+                    item.lot || '',
+                    item.dlc || '-',
+                    `${Number(item.quantite || 0).toLocaleString()} ${item.unite || ''}`
+                ]);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 28,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 3 },
+                headStyles: { fillColor: [15, 23, 42] }
+            });
+
+            doc.save(`Stock_Emplacements_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+    </script>
+</body>
+</html>

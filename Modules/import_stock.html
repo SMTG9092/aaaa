@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importation & Entrée Stock Excel - SoufStock Enterprise ERP/WMS</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- SheetJS (XLSX) Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            100: '#f1f5f9'
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            400: '#34d399',
+                            300: '#6ee7b7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-screen p-4 select-none shrink-0">
+        <div class="flex items-center gap-3 px-2 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <i class="fas fa-snowflake text-lg"></i>
+            </div>
+            <div>
+                <span class="font-bold text-base tracking-wide block text-slate-100">SoufStock</span>
+                <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Enterprise ERP</span>
+            </div>
+        </div>
+        
+        <nav id="sidebarNav" class="flex-1 overflow-y-auto pr-1">
+            <!-- Dynamic Sidebar -->
+        </nav>
+
+        <div class="pt-4 mt-auto border-t border-slate-800/80">
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 mb-2">
+                <span id="sidebarUserName" class="block text-xs font-bold text-slate-200 truncate uppercase">...</span>
+                <span id="sidebarUserRole" class="block text-[10px] text-emerald-400 font-medium mt-0.5">Chargement...</span>
+            </div>
+            <button id="logoutBtn" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl py-2 px-3 text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col h-screen min-w-0 overflow-hidden relative">
+        
+        <!-- HEADER -->
+        <header class="h-20 bg-slate-900/40 border-b border-slate-800/80 px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Importation & Entrée Stock Excel</h1>
+                    <div class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span>Accueil</span>
+                        <span>/</span>
+                        <strong class="text-slate-300">Gestion Stock Excel</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl">
+                <div class="text-right">
+                    <span id="currentDate" class="text-xs font-medium text-slate-300 block">Chargement...</span>
+                    <span id="currentTime" class="text-[10px] text-emerald-400 font-mono block">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="max-w-6xl mx-auto flex flex-col gap-6">
+                
+                <!-- UPLOAD & MODE CARD -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl flex flex-col items-center justify-center text-center relative">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl mb-4">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-100">Glissez-déposez votre fichier Excel</h2>
+                    <p class="text-xs text-slate-400 mt-1 max-w-md">
+                        Sélectionnez un fichier de données pour l'intégrer au système[cite: 5].
+                    </p>
+
+                    <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="hidden">
+                    
+                    <div class="flex items-center gap-4 mt-6">
+                        <button onclick="document.getElementById('excelFile').click()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs transition flex items-center gap-2 shadow-lg cursor-pointer">
+                            <i class="fas fa-folder-open"></i> Choisir le fichier Excel
+                        </button>
+                    </div>
+
+                    <span id="fileNameDisplay" class="text-xs text-emerald-400 font-mono mt-3 block"></span>
+
+                    <!-- OPTIONS DE TRAITEMENT -->
+                    <div id="importOptionsBox" class="hidden w-full max-w-xl mt-6 p-5 bg-slate-950/60 border border-slate-800 rounded-xl text-left flex flex-col gap-4">
+                        <span class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Mode d'opération :</span>
+                        
+                        <div class="flex flex-col gap-3">
+                            <!-- Option 1: Remplacer Tout (Réservé Admin) -->
+                            <label id="replaceOptionContainer" class="flex items-center gap-3 text-xs text-slate-300 cursor-pointer select-none">
+                                <input type="radio" name="operationMode" value="replace" class="accent-emerald-500" checked>
+                                <span><strong class="text-slate-100">Remplacer tout le stock</strong> (Supprimer l'ancien et insérer le nouveau fichier)[cite: 5]</span>
+                            </label>
+
+                            <!-- Option 2: Ajouter au Stock (Entrée) (Accessible par tous) -->
+                            <label class="flex items-center gap-3 text-xs text-slate-300 cursor-pointer select-none">
+                                <input type="radio" name="operationMode" value="add_stock" class="accent-emerald-500">
+                                <span><strong class="text-slate-100">Ajouter / Entrée de stock</strong> (Cumuler les quantités avec le stock existant sans supprimer)[cite: 5]</span>
+                            </label>
+                        </div>
+
+                        <button id="processBtn" onclick="confirmOperation()" class="w-full mt-3 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt"></i> Exécuter l'opération
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STATS CARDS -->
+                <div id="statsContainer" class="grid grid-cols-1 md:grid-cols-4 gap-4 hidden">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                        <span class="text-[10px] uppercase font-bold text-slate-400">Total Quantité</span>
+                        <span id="statQty" class="text-xl font-mono font-bold text-emerald-400 mt-2">0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                        <span class="text-[10px] uppercase font-bold text-slate-400">Nombre de Lignes</span>
+                        <span id="statLines" class="text-xl font-mono font-bold text-sky-400 mt-2">0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                        <span class="text-[10px] uppercase font-bold text-slate-400">Articles Uniques</span>
+                        <span id="statArticles" class="text-xl font-mono font-bold text-indigo-400 mt-2">0</span>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                        <span class="text-[10px] uppercase font-bold text-slate-400">Lots Uniques</span>
+                        <span id="statLots" class="text-xl font-mono font-bold text-amber-400 mt-2">0</span>
+                    </div>
+                </div>
+
+                <!-- PREVIEW TABLE -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+                    <div class="p-4 bg-slate-950/40 border-b border-slate-800 flex items-center justify-between">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                            <i class="fas fa-table text-emerald-400"></i> Aperçu des données (Premières lignes valides)
+                        </h3>
+                        <span id="rowCountBadge" class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">0 lignes détectées</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-950/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800 font-semibold sticky top-0">
+                                    <th class="p-3">Magasin</th>
+                                    <th class="p-3">Article</th>
+                                    <th class="p-3">Désignation</th>
+                                    <th class="p-3">Lot</th>
+                                    <th class="p-3 text-center">Quantité Libre</th>
+                                    <th class="p-3">Unité</th>
+                                    <th class="p-3 text-center">Contrôle Qualité</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody" class="divide-y divide-slate-800/50">
+                                <tr>
+                                    <td colspan="7" class="p-8 text-center text-slate-500">Aucun fichier sélectionné.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- CUSTOM MODAL DIALOG -->
+    <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl flex flex-col items-center text-center animate-in fade-in zoom-in duration-200">
+            <div id="modalIconContainer" class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl mb-4">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 id="modalTitle" class="text-base font-bold text-slate-100">Confirmation</h3>
+            <p id="modalMessage" class="text-xs text-slate-400 mt-2 leading-relaxed">...</p>
+            <div class="flex items-center gap-3 w-full mt-6">
+                <button id="modalCancelBtn" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition cursor-pointer">
+                    Annuler
+                </button>
+                <button id="modalConfirmBtn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg">
+                    Confirmer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import Navigation from '../assets/js/core/navigation.js';
+        import supabase from '../assets/js/core/supabase.js';
+
+        let parsedExcelData = [];
+        let isUserAdmin = false; // متغير لتخزين حالة الصلاحية
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await Navigation.init();
+            initLiveClock();
+            await checkUserRoleAndPermissions();
+
+            const fileInput = document.getElementById("excelFile");
+            fileInput.addEventListener("change", handleFileSelect);
+
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "login.html";
+                });
+            }
+        });
+
+        // تشغيل الساعة والتاريخ الحي
+        function initLiveClock() {
+            const updateClock = () => {
+                const now = new Date();
+                const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('fr-FR', optionsDate);
+                const timeStr = now.toTimeString().split(' ')[0];
+
+                const dateEl = document.getElementById("currentDate");
+                const timeEl = document.getElementById("currentTime");
+
+                if (dateEl) dateEl.innerText = dateStr;
+                if (timeEl) timeEl.innerText = timeStr;
+            };
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        // التحقق من صلاحية المستخدم الحالي (Admin أم لا)
+        async function checkUserRoleAndPermissions() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+
+                // جلب بيانات الملف الشخصي للمستخدم لمعرفة دوره
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role, full_name, nom, prenom')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (profile) {
+                    const fullName = profile.full_name || `${profile.prenom || ''} ${profile.nom || ''}`.trim() || user.email;
+                    const role = (profile.role || '').toLowerCase();
+
+                    document.getElementById("sidebarUserName").textContent = fullName;
+                    
+                    // التحقق هل هو Admin
+                    if (role === 'admin' || role === 'administrateur') {
+                        isUserAdmin = true;
+                        document.getElementById("sidebarUserRole").textContent = "Administrateur";
+                    } else {
+                        isUserAdmin = false;
+                        document.getElementById("sidebarUserRole").textContent = "Utilisateur";
+                        
+                        // إخفاء خيار Remplacer تماماً إذا لم يكن أدمن
+                        const replaceContainer = document.getElementById("replaceOptionContainer");
+                        if (replaceContainer) {
+                            replaceContainer.classList.add("hidden");
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Erreur vérification rôle:", err);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById("fileNameDisplay").textContent = `Fichier sélectionné : ${file.name}`;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                    
+                    if (jsonRows.length === 0) {
+                        showCustomAlert("Erreur", "Le fichier Excel est vide.", "error");
+                        return;
+                    }
+
+                    const validRows = jsonRows.filter(row => {
+                        const article = String(row.Article || row.article || '').trim();
+                        const magasin = String(row.Magasin || row.magasin || '').trim();
+                        
+                        if (!article || !magasin || article.toLowerCase().includes('total') || magasin.toLowerCase().includes('total')) {
+                            return false;
+                        }
+                        return true;
+                    });
+
+                    if (validRows.length === 0) {
+                        showCustomAlert("Attention", "Aucune ligne valide trouvée dans le fichier.", "warning");
+                        return;
+                    }
+
+                    parsedExcelData = validRows;
+                    renderPreview(validRows.slice(0, 50));
+                    calculateAndDisplayStats(validRows);
+
+                    document.getElementById("importOptionsBox").classList.remove("hidden");
+                    document.getElementById("statsContainer").classList.remove("hidden");
+                    document.getElementById("rowCountBadge").textContent = `${validRows.length} lignes valides détectées`;
+
+                    // إذا لم يكن أدمن، نقوم بضبط الاختيار الإفتراضي تلقائياً على add_stock
+                    if (!isUserAdmin) {
+                        const addStockRadio = document.querySelector('input[name="operationMode"][value="add_stock"]');
+                        if (addStockRadio) addStockRadio.checked = true;
+                    }
+
+                } catch (err) {
+                    console.error("Erreur lecture Excel:", err);
+                    showCustomAlert("Erreur", "Erreur lors de la lecture du fichier Excel.", "error");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function calculateAndDisplayStats(rows) {
+            let totalQty = 0;
+            const articlesSet = new Set();
+            const lotsSet = new Set();
+
+            rows.forEach(row => {
+                totalQty += parseFloat(row['À utilisation libre'] || row.quantite || 0);
+                const art = String(row.Article || row.article || '').trim().replace(/\.0$/, '');
+                const lot = String(row.Lot || row.lot || '').trim();
+                if (art) articlesSet.add(art);
+                if (lot) lotsSet.add(lot);
+            });
+
+            document.getElementById("statQty").textContent = totalQty.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+            document.getElementById("statLines").textContent = rows.length.toLocaleString();
+            document.getElementById("statArticles").textContent = articlesSet.size.toLocaleString();
+            document.getElementById("statLots").textContent = lotsSet.size.toLocaleString();
+        }
+
+        function renderPreview(rows) {
+            const tbody = document.getElementById("previewTableBody");
+            let html = "";
+
+            rows.forEach(row => {
+                const magasin = String(row.Magasin || row.magasin || '').trim();
+                const article = String(row.Article || row.article || '').trim().replace(/\.0$/, '');
+                const designation = String(row['Désignation article'] || row.designation_article || '').trim();
+                const lot = String(row.Lot || row.lot || 'STANDARD').trim();
+                const quantite = parseFloat(row['À utilisation libre'] || row.quantite || 0);
+                const unite = String(row['Unité quantité base'] || row.unite || 'KG').trim();
+                const controleQualite = parseFloat(row['Contrôle qualité'] || 0);
+
+                html += `
+                    <tr class="hover:bg-slate-800/35 transition">
+                        <td class="p-3 font-semibold text-slate-300">${magasin}</td>
+                        <td class="p-3 font-mono text-emerald-400 font-semibold">${article}</td>
+                        <td class="p-3 text-slate-300">${designation}</td>
+                        <td class="p-3 font-mono text-sky-400">${lot}</td>
+                        <td class="p-3 text-center font-bold text-slate-100">${quantite.toLocaleString()}</td>
+                        <td class="p-3 text-slate-400">${unite}</td>
+                        <td class="p-3 text-center text-amber-400 font-mono">${controleQualite}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        window.confirmOperation = function() {
+            if (parsedExcelData.length === 0) {
+                showCustomAlert("Attention", "Aucune donnée à traiter.", "warning");
+                return;
+            }
+
+            const opMode = document.querySelector('input[name="operationMode"]:checked').value;
+
+            // حماية إضافية من الواجهة البرمجية: منع غير الأدمن من اختيار replace
+            if (opMode === 'replace' && !isUserAdmin) {
+                showCustomAlert("Accès refusé", "Vous n'avez pas les privilèges Administrateur pour effectuer un remplacement total du stock.", "error");
+                return;
+            }
+
+            let message = "";
+            if (opMode === 'replace') {
+                message = "ATTENTION : Le mode 'Remplacer' va supprimer tout l'ancien stock et insérer le nouveau fichier à 100%. Continuer ?";
+            } else if (opMode === 'add_stock') {
+                message = "Voulez-vous procéder à l'ajout (entrée) des quantités de ce fichier Excel au stock existant ?";
+            }
+
+            const modal = document.getElementById("customModal");
+            document.getElementById("modalTitle").textContent = "Confirmation d'opération";
+            document.getElementById("modalMessage").textContent = message;
+            
+            const confirmBtn = document.getElementById("modalConfirmBtn");
+            const cancelBtn = document.getElementById("modalCancelBtn");
+
+            modal.classList.remove("hidden");
+
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+            newCancelBtn.addEventListener("click", () => {
+                modal.classList.add("hidden");
+            });
+
+            newConfirmBtn.addEventListener("click", () => {
+                modal.classList.add("hidden");
+                executeOperation(opMode);
+            });
+        }
+
+        function showCustomAlert(title, message, type = 'info') {
+            const modal = document.getElementById("customModal");
+            document.getElementById("modalTitle").textContent = title;
+            document.getElementById("modalMessage").textContent = message;
+            
+            const iconContainer = document.getElementById("modalIconContainer");
+            if (type === 'error') {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-2xl mb-4";
+                iconContainer.innerHTML = `<i class="fas fa-times-circle"></i>`;
+            } else if (type === 'warning') {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl mb-4";
+                iconContainer.innerHTML = `<i class="fas fa-exclamation-triangle"></i>`;
+            } else {
+                iconContainer.className = "w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl mb-4";
+                iconContainer.innerHTML = `<i class="fas fa-info-circle"></i>`;
+            }
+
+            document.getElementById("modalCancelBtn").classList.add("hidden");
+            const confirmBtn = document.getElementById("modalConfirmBtn");
+            confirmBtn.textContent = "OK";
+            
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+            modal.classList.remove("hidden");
+            newConfirmBtn.addEventListener("click", () => {
+                modal.classList.add("hidden");
+                document.getElementById("modalCancelBtn").classList.remove("hidden");
+                newConfirmBtn.textContent = "Confirmer";
+            });
+        }
+
+        async function executeOperation(opMode) {
+            const processBtn = document.getElementById("processBtn");
+            processBtn.disabled = true;
+            processBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Traitement en cours...`;
+
+            try {
+                if (opMode === 'replace') {
+                    // التحقق مرة أخرى داخل التنفيذ الأمني
+                    if (!isUserAdmin) throw new Error("Action non autorisée.");
+
+                    const { error: deleteErr } = await supabase.from('stock').delete().neq('id', 0);
+                    if (deleteErr) throw deleteErr;
+
+                    const stockPayload = parsedExcelData.map(row => ({
+                        division: String(row.Division || row.division || '').trim() || null,
+                        magasin: String(row.Magasin || row.magasin || 'PRINCIPAL').trim(),
+                        emplacement: null,
+                        article: String(row.Article || row.article || '').trim().replace(/\.0$/, ''),
+                        designation_article: String(row['Désignation article'] || row.designation_article || 'SANS DESIGNATION').trim(),
+                        lot: String(row.Lot || row.lot || 'STANDARD').trim(),
+                        quantite: parseFloat(row['À utilisation libre'] || row.quantite || 0),
+                        unite: String(row['Unité quantité base'] || row.unite || 'KG').trim(),
+                        type_article: String(row["Type d'article"] || row.type_article || '').trim() || null,
+                        groupe_article: String(row["Groupe d'articles"] || row.groupe_article || '').trim() || null,
+                        controle_qualite: parseFloat(row['Contrôle qualité'] || 0),
+                        statut: 'DISPONIBLE',
+                        updated_at: new Date().toISOString()
+                    }));
+
+                    const batchSize = 500;
+                    for (let i = 0; i < stockPayload.length; i += batchSize) {
+                        const batch = stockPayload.slice(i, i + batchSize);
+                        const { error: upsertErr } = await supabase.from('stock').upsert(batch, { onConflict: 'article,lot,magasin,emplacement' });
+                        if (upsertErr) throw upsertErr;
+                    }
+
+                } else if (opMode === 'add_stock') {
+                    // عملية الإضافة Cumul للمخزون الحالي
+                    for (let row of parsedExcelData) {
+                        const mag = String(row.Magasin || row.magasin || 'PRINCIPAL').trim().toUpperCase();
+                        const art = String(row.Article || row.article || '').trim().replace(/\.0$/, '');
+                        const lot = String(row.Lot || row.lot || 'STANDARD').trim().toUpperCase();
+                        const addQty = parseFloat(row['À utilisation libre'] || row.quantite || 0);
+                        const designation = String(row['Désignation article'] || row.designation_article || 'SANS DESIGNATION').trim();
+                        const unite = String(row['Unité quantité base'] || row.unite || 'KG').trim();
+
+                        if (art) {
+                            const { data: existing, error: fetchErr } = await supabase
+                                .from('stock')
+                                .select('*')
+                                .eq('magasin', mag)
+                                .eq('article', art)
+                                .eq('lot', lot)
+                                .maybeSingle();
+
+                            if (fetchErr) throw fetchErr;
+
+                            if (existing) {
+                                const newTotal = Number(existing.quantite) + addQty;
+                                await supabase.from('stock')
+                                    .update({ quantite: newTotal, updated_at: new Date().toISOString() })
+                                    .eq('id', existing.id);
+                            } else {
+                                await supabase.from('stock').insert([{
+                                    division: String(row.Division || row.division || '').trim() || null,
+                                    magasin: mag,
+                                    article: art,
+                                    designation_article: designation,
+                                    lot: lot,
+                                    quantite: addQty,
+                                    unite: unite,
+                                    controle_qualite: parseFloat(row['Contrôle qualité'] || 0),
+                                    statut: 'DISPONIBLE',
+                                    updated_at: new Date().toISOString()
+                                }]);
+                            }
+                        }
+                    }
+                }
+
+                showCustomAlert("Succès", "Opération et synchronisation par Excel effectuées avec succès !", "success");
+                setTimeout(() => window.location.reload(), 2000);
+
+            } catch (err) {
+                console.error("Erreur:", err);
+                showCustomAlert("Erreur", "Erreur lors du traitement : " + (err.message || JSON.stringify(err)), "error");
+                processBtn.disabled = false;
+                processBtn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Exécuter l'opération`;
+            }
+        }
+    </script>
+</body>
+</html>

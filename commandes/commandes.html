@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoufStock Enterprise ERP - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #0b131b;
+            --sidebar-bg: #070d13;
+            --card-bg: rgba(17, 24, 39, 0.85);
+            --card-border: rgba(16, 185, 129, 0.2);
+            --card-border-hover: rgba(16, 185, 129, 0.5);
+            --primary-glow: #10b981;
+            --danger-glow: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .app {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar Pro Styling --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            color: var(--primary-glow);
+        }
+
+        .sidebar-brand h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .sidebar-brand span {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-nav {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-user-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-user-box h4 {
+            font-size: 13px;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-user-box span {
+            font-size: 11px;
+            color: var(--primary-glow);
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger-glow);
+            color: #fff;
+            border-color: var(--danger-glow);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        /* --- Main Content Area --- */
+        .main {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.04), transparent 40%);
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.06) 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+        }
+
+        .welcome-banner h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .welcome-banner p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .stats-grid-pro {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 16px;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            border-color: var(--card-border-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
+        }
+
+        .stat-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stat-box-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .stat-box h3 {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-box .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        .stat-box .trend {
+            font-size: 11px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend.up { color: #10b981; }
+        .trend.down { color: #ef4444; }
+
+        .dashboard-grid-pro {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        @media(max-width: 1200px) {
+            .dashboard-grid-pro {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pro-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(12px);
+        }
+
+        .pro-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pro-card-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .table-pro {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .table-pro th {
+            text-align: left;
+            color: var(--text-muted);
+            padding: 8px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .table-pro td {
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: #e2e8f0;
+        }
+
+        .badge-status {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .badge-status.entree { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .badge-status.sortie { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+        .btn-view-all {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .btn-view-all:hover {
+            background: var(--primary-glow);
+            color: #000;
+            border-color: var(--primary-glow);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR PRO -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-snowflake sidebar-logo"></i>
+            <div class="sidebar-brand">
+                <h2>SoufStock</h2>
+                <span>Gestion</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Ghadi t-3mmar otomatikan mn Navigation.js -->
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user-box">
+                <h4 id="userNameSidebar">Chargement...</h4>
+                <span id="userRoleSidebar" style="display: none;"></span>
+            </div>
+            <button id="btnLogout" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        
+        <div class="welcome-banner">
+            <div>
+                <h1 id="welcomeTitle">Bienvenue, Chargement...</h1>
+                <p>Voici l'état général de votre activité aujourd'hui.</p>
+            </div>
+            <!-- TARIKH W L-WAQTSHAH 100% (Real-time live update) -->
+            <div style="text-align: right; font-size: 12px; color: var(--text-muted);">
+                <i class="fas fa-calendar-alt"></i> <span id="currentDateBanner">--</span> &nbsp;|&nbsp; 
+                <i class="fas fa-clock"></i> <span id="currentTimeBanner">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- STATS CARDS REAL DATA -->
+        <div class="stats-grid-pro">
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <h3>Stock Total</h3>
+                    <div class="stat-box-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-boxes"></i></div>
+                </div>
+                <div class="value" id="statStockTotal">0,000</div>
+                <div style="font-size: 10px; color: var(--text-muted);">KG / Pce</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i> Données en direct</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <h3>Articles</h3>
+                    <div class="stat-box-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"><i class="fas fa-tags"></i></div>
+                </div>
+                <div class="value" id="statArticles">0</div>
+                <div style="font-size: 10px; color: var(--text-muted);">actifs</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i> Données en direct</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <h3>Commandes</h3>
+                    <div class="stat-box-icon" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);"><i class="fas fa-file-invoice"></i></div>
+                </div>
+                <div class="value" id="statCommandes">0</div>
+                <div style="font-size: 10px; color: var(--text-muted);">en cours</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i> Données en direct</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <h3>Picking</h3>
+                    <div class="stat-box-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fas fa-dolly"></i></div>
+                </div>
+                <div class="value" id="statPicking">0</div>
+                <div style="font-size: 10px; color: var(--text-muted);">en cours (v_picking)</div>
+                <div class="trend down"><i class="fas fa-arrow-down"></i> Données en direct</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <h3>Expéditions</h3>
+                    <div class="stat-box-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);"><i class="fas fa-truck"></i></div>
+                </div>
+                <div class="value" id="statExpeditions">0</div>
+                <div style="font-size: 10px; color: var(--text-muted);">aujourd'hui (v_expeditions)</div>
+                <div class="trend up"><i class="fas fa-arrow-up"></i> Données en direct</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-header">
+                    <h3>Réservations</h3>
+                    <div class="stat-box-icon" style="background: linear-gradient(135deg, #ec4899, #be185d);"><i class="fas fa-bookmark"></i></div>
+                </div>
+                <div class="value" id="statReservations">0,000</div>
+                <div style="font-size: 10px; color: var(--text-muted);">KG / Pce</div>
+                <div class="trend down"><i class="fas fa-arrow-down"></i> Données en direct</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid-pro">
+            <div class="pro-card">
+                <div class="pro-card-header">
+                    <h3>Entrées vs Sorties (7 derniers jours)</h3>
+                </div>
+                <div style="height: 200px; position: relative;">
+                    <canvas id="entriesExitsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="pro-card">
+                <div class="pro-card-header">
+                    <h3>Stock par Magasin</h3>
+                </div>
+                <div style="height: 160px; position: relative; display: flex; justify-content: center;">
+                    <canvas id="stockMagasinChart"></canvas>
+                </div>
+            </div>
+
+            <div class="pro-card">
+                <div class="pro-card-header">
+                    <h3>Occupation des Emplacements</h3>
+                </div>
+                <div style="text-align: center; padding: 10px 0;">
+                    <h2 style="font-size: 30px; font-weight: 800; color: #10b981;">68%</h2>
+                    <span style="font-size: 11px; color: var(--text-muted);">Occupation (680 / 1000)</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); height: 6px; border-radius: 4px; overflow: hidden; margin-top: 8px;">
+                    <div style="width: 68%; background: #10b981; height: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div class="pro-card">
+                <div class="pro-card-header">
+                    <h3>Derniers Mouvements</h3>
+                </div>
+                <table class="table-pro">
+                    <thead>
+                        <tr>
+                            <th>Date / Heure</th>
+                            <th>Type</th>
+                            <th>Article</th>
+                            <th>Lot</th>
+                            <th>Emplacement</th>
+                            <th>Qté</th>
+                            <th>Magasin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mouvementsTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted);">Chargement des mouvements...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a href="mouvements.html" class="btn-view-all">Voir tous les mouvements</a>
+            </div>
+
+            <div class="pro-card">
+                <div class="pro-card-header">
+                    <h3>Alertes Stock Minimum</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); padding: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="font-size: 12px; color: #fff;">Burger 100g</strong>
+                            <div style="font-size: 10px; color: var(--text-muted);">A408 • Min: 500 KG</div>
+                        </div>
+                        <span style="color: #ef4444; font-weight: 700; font-size: 12px;">120.000 KG</span>
+                    </div>
+                </div>
+                <a href="alertes.html" class="btn-view-all">Voir toutes les alertes</a>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Logique Dashboard & Real-Time Clock & Date -->
+<script type="module">
+    import Navigation from "/assets/js/core/navigation.js";
+    import SessionManager from "/assets/js/core/session.js";
+    import APP_CONFIG from "/assets/js/core/config.js";
+    import supabase from "/assets/js/core/supabase.js";
+    import { initPermissions } from "/assets/js/core/permissions.js";
+
+    // --- Fonction Active Live Date & Time Shah 100% ---
+    function startRealTimeClock() {
+        const updateClock = () => {
+            const now = new Date();
+            
+            // Format Tarikh Bel Français (ex: Mercredi 28 Juin 2026)
+            const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            let dateStr = now.toLocaleDateString('fr-FR', optionsDate);
+            // Capitalize first letter of day and month
+            dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+            
+            // Format Waqt (HH:MM:SS)
+            const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const dateEl = document.getElementById('currentDateBanner');
+            const timeEl = document.getElementById('currentTimeBanner');
+
+            if (dateEl) dateEl.textContent = dateStr;
+            if (timeEl) timeEl.textContent = timeStr;
+        };
+
+        updateClock();
+        setInterval(updateClock, 1000); // K-t-mdda kol second b dbt
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        // Start l-waqt w t-tarikh l-an
+        startRealTimeClock();
+
+        const isAuth = await SessionManager.requireAuth();
+        if (!isAuth) return;
+
+        await initPermissions();
+        Navigation.init();
+
+        const user = await SessionManager.getUser();
+        if (!user) return;
+
+        // Charger profil utilisateur
+        const { data: profile, error } = await supabase
+            .from(APP_CONFIG.DATABASE.USER_PROFILES_TABLE)
+            .select('*')
+            .eq(APP_CONFIG.PROFILE.ID, user.id)
+            .single();
+
+        if (!error && profile) {
+            let roleNom = "";
+            if (profile[APP_CONFIG.PROFILE.ROLE_ID]) {
+                const { data: roleData } = await supabase
+                    .from(APP_CONFIG.DATABASE.ROLES_TABLE)
+                    .select(`${APP_CONFIG.ROLE.NOM}, ${APP_CONFIG.ROLE.CODE}`)
+                    .eq(APP_CONFIG.ROLE.ID, profile[APP_CONFIG.PROFILE.ROLE_ID])
+                    .single();
+
+                if (roleData) {
+                    roleNom = roleData[APP_CONFIG.ROLE.NOM] || roleData[APP_CONFIG.ROLE.CODE] || "";
+                }
+            }
+
+            const nomComplet = profile[APP_CONFIG.PROFILE.NOM_COMPLET] || 
+                               profile.nom_complet || 
+                               `${profile[APP_CONFIG.PROFILE.PRENOM] || ''} ${profile[APP_CONFIG.PROFILE.NOM] || ''}`.trim() || 
+                               "Utilisateur";
+
+            document.getElementById('welcomeTitle').textContent = `Bienvenue, ${nomComplet} !`;
+            document.getElementById('userNameSidebar').textContent = nomComplet;
+
+            const userRoleEl = document.getElementById('userRoleSidebar');
+            if (roleNom && userRoleEl) {
+                userRoleEl.textContent = roleNom;
+                userRoleEl.style.display = 'inline-block';
+            }
+        }
+
+        // Charger toutes les statistiques en direct de la base de données (100% réel)
+        await loadDashboardRealData();
+
+        initCharts();
+        await loadDashboardMouvements();
+
+        const btnLogout = document.getElementById('btnLogout');
+        if (btnLogout) {
+            btnLogout.addEventListener('click', async () => {
+                if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
+                    await SessionManager.logout();
+                }
+            });
+        }
+    });
+
+    async function loadDashboardRealData() {
+        try {
+            // 1. Stock Total, Articles, Réservations mn la vue vw_dashboard
+            const { data: viewData, error: viewError } = await supabase
+                .from('vw_dashboard')
+                .select('*')
+                .single();
+
+            if (!viewError && viewData) {
+                const stockTotal = Number(viewData.stock_total) || 0;
+                document.getElementById('statStockTotal').textContent = stockTotal.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+
+                const totalArticles = Number(viewData.total_articles) || 0;
+                document.getElementById('statArticles').textContent = totalArticles.toLocaleString('fr-FR');
+
+                const stockReserve = Number(viewData.stock_reserve_total) || 0;
+                document.getElementById('statReservations').textContent = stockReserve.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+            }
+
+            // 2. Commandes (en cours / total mn table commandes)
+            const { count: countCommandes, error: errCmd } = await supabase
+                .from('commandes')
+                .select('*', { count: 'exact', head: true });
+            
+            if (!errCmd) {
+                document.getElementById('statCommandes').textContent = (countCommandes || 0).toLocaleString('fr-FR');
+            }
+
+            // 3. Picking (en cours mn la vue v_picking)
+            const { count: countPicking, error: errPick } = await supabase
+                .from('v_picking')
+                .select('*', { count: 'exact', head: true });
+
+            if (!errPick) {
+                document.getElementById('statPicking').textContent = (countPicking || 0).toLocaleString('fr-FR');
+            }
+
+            // 4. Expéditions (aujourd'hui mn la vue v_expeditions)
+            const todayStr = new Date().toISOString().split('T')[0];
+            const { count: countExpeditions, error: errExp } = await supabase
+                .from('v_expeditions')
+                .select('*', { count: 'exact', head: true })
+                .gte('date_expedition', todayStr);
+
+            if (!errExp) {
+                document.getElementById('statExpeditions').textContent = (countExpeditions || 0).toLocaleString('fr-FR');
+            }
+
+        } catch (err) {
+            console.error("Erreur chargement des stats réelles:", err);
+        }
+    }
+
+    function initCharts() {
+        const ctxLines = document.getElementById('entriesExitsChart');
+        if (ctxLines) {
+            new Chart(ctxLines, {
+                type: 'line',
+                data: {
+                    labels: ['19/06', '20/06', '21/06', '22/06', '23/06', '24/06', '25/06'],
+                    datasets: [
+                        {
+                            label: 'Entrées (KG)',
+                            data: [150000, 110000, 180000, 100000, 160000, 90000, 120000],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Sorties (KG)',
+                            data: [50000, 130000, 80000, 60000, 40000, 110000, 130000],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.03)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.03)' } }
+                    }
+                }
+            });
+        }
+
+        const ctxDonut = document.getElementById('stockMagasinChart');
+        if (ctxDonut) {
+            new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ABPG', 'AB10', 'Congelé', 'Autres'],
+                    datasets: [{
+                        data: [652120, 321450, 198300, 77862],
+                        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '75%'
+                }
+            });
+        }
+    }
+
+    async function loadDashboardMouvements() {
+        try {
+            const { data: mouvements, error } = await supabase
+                .from('mouvements_stock')
+                .select('date_mouvement, type_mouvement, article, lot, emplacement, quantite, magasin')
+                .order('date_mouvement', { ascending: false })
+                .limit(5);
+
+            const tbody = document.getElementById('mouvementsTableBody');
+            if (!tbody) return;
+
+            if (error || !mouvements || mouvements.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Aucun mouvement récent trouvé.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            mouvements.forEach(item => {
+                const isEntree = ['AJOUT', 'IMPORT', 'RETOUR', 'ENTREE'].includes((item.type_mouvement || '').toUpperCase());
+                const badgeClass = isEntree ? 'entree' : 'sortie';
+                const badgeLabel = isEntree ? 'Entrée' : 'Sortie';
+                
+                let formattedDate = '';
+                if (item.date_mouvement) {
+                    const d = new Date(item.date_mouvement);
+                    formattedDate = d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }
+
+                html += `
+                    <tr>
+                        <td>${formattedDate}</td>
+                        <td><span class="badge-status ${badgeClass}">${badgeLabel}</span></td>
+                        <td>${item.article || ''}</td>
+                        <td>${item.lot || ''}</td>
+                        <td>${item.emplacement || ''}</td>
+                        <td>${item.quantite ? Number(item.quantite).toLocaleString('fr-FR', {minimumFractionDigits: 3}) : ''}</td>
+                        <td>${item.magasin || ''}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+
+        } catch (err) {
+            console.error("Erreur chargement tableau mouvements:", err);
+        }
+    }
+</script>
+
+</body>
+</html>

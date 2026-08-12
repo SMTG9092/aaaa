@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoufStock Enterprise ERP - Gestion des Pages</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #0b131b;
+            --sidebar-bg: #070d13;
+            --card-bg: rgba(17, 24, 39, 0.85);
+            --card-border: rgba(16, 185, 129, 0.2);
+            --card-border-hover: rgba(16, 185, 129, 0.5);
+            --primary-glow: #10b981;
+            --danger-glow: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .app {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar Pro Styling --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            color: var(--primary-glow);
+        }
+
+        .sidebar-brand h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .sidebar-brand span {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-nav {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+            color: var(--primary-glow);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-user-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-user-box h4 {
+            font-size: 13px;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-user-box span {
+            font-size: 11px;
+            color: var(--primary-glow);
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger-glow);
+            color: #fff;
+            border-color: var(--danger-glow);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        /* --- Main Content Area --- */
+        .main {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.04), transparent 40%);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            backdrop-filter: blur(12px);
+        }
+
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .pro-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(12px);
+        }
+
+        .table-pro {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .table-pro th {
+            text-align: left;
+            color: var(--text-muted);
+            padding: 12px 10px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .table-pro td {
+            padding: 14px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #e2e8f0;
+        }
+
+        .badge-actif {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .badge-inactif {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR PRO -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-snowflake sidebar-logo"></i>
+            <div class="sidebar-brand">
+                <h2>SoufStock</h2>
+                <span>Gestion Congelé</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- Dynamic Navigation via script -->
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user-box">
+                <h4 id="userNameSidebar">Chargement...</h4>
+                <span id="userRoleSidebar" style="display: none;"></span>
+            </div>
+            <button id="btnLogout" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <div class="page-header">
+            <div>
+                <h1>Gestion des Pages</h1>
+                <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">Configuration et administration des routes de l'application</p>
+            </div>
+            <button class="btn-primary" id="btnAddNewPage">
+                <i class="fas fa-plus"></i> Ajouter une Page
+            </button>
+        </div>
+
+        <div class="pro-card">
+            <table class="table-pro">
+                <thead>
+                    <tr>
+                        <th>Ordre</th>
+                        <th>Code</th>
+                        <th>Nom de la Page</th>
+                        <th>URL</th>
+                        <th>Module</th>
+                        <th>Statut</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="pagesTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted);">Chargement des pages...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- Scripts -->
+<script type="module">
+    import Navigation from "/assets/js/core/navigation.js";
+    import SessionManager from "/assets/js/core/session.js";
+    import APP_CONFIG from "/assets/js/core/config.js";
+    import supabase from "/assets/js/core/supabase.js";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const isAuth = await SessionManager.requireAuth();
+        if (!isAuth) return;
+
+        Navigation.init();
+
+        const user = await SessionManager.getUser();
+        if (!user) return;
+
+        // Profile & Role setup
+        const { data: profile } = await supabase
+            .from(APP_CONFIG.DATABASE.USER_PROFILES_TABLE)
+            .select('*')
+            .eq(APP_CONFIG.PROFILE.ID, user.id)
+            .single();
+
+        if (profile) {
+            const nomComplet = profile[APP_CONFIG.PROFILE.NOM_COMPLET] || 
+                               `${profile[APP_CONFIG.PROFILE.PRENOM] || ''} ${profile[APP_CONFIG.PROFILE.NOM] || ''}`.trim() || 
+                               "Utilisateur";
+            
+            document.getElementById('userNameSidebar').textContent = nomComplet;
+        }
+
+        // Logout action
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm("Voulez-vous vraiment vous déconnecter ?")) {
+                await SessionManager.logout();
+            }
+        });
+
+        // Load Pages Data from public.pages
+        async function loadPages() {
+            const { data: pages, error } = await supabase
+                .from('pages')
+                .select('*')
+                .order('ordre_affichage', { ascending: true });
+
+            const tbody = document.getElementById('pagesTableBody');
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #ef4444;">Erreur de chargement: ${error.message}</td></tr>`;
+                return;
+            }
+
+            if (!pages || pages.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Aucune page trouvée dans la base de données.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = pages.map(page => `
+                <tr>
+                    <td>${page.ordre_affichage ?? 0}</td>
+                    <td><code>${page.code}</code></td>
+                    <td><strong>${page.nom}</strong></td>
+                    <td><span style="color: var(--primary-glow);">${page.url}</span></td>
+                    <td>${page.module || '-'}</td>
+                    <td>
+                        <span class="${page.actif ? 'badge-actif' : 'badge-inactif'}">
+                            ${page.actif ? 'Actif' : 'Inactif'}
+                        </span>
+                    </td>
+                    <td style="text-align: right;">
+                        <button class="btn-primary" style="padding: 6px 10px; font-size: 11px; display: inline-flex;" onclick="alert('Modifier la page: ${page.code}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        loadPages();
+    });
+</script>
+
+</body>
+</html>

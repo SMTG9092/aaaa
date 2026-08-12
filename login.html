@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoufStock Enterprise - Connexion</title>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font (Plus Jakarta Sans) -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           RESET & BASE STYLES
+        ============================================================ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background: #e2e8f0 url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2000&auto=format&fit=crop') no-repeat center center / cover;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* Overlay d'effet congelé/glacé */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(230, 242, 245, 0.75) 0%, rgba(200, 220, 230, 0.65) 100%);
+            backdrop-filter: blur(4px);
+            z-index: 1;
+        }
+
+        /* Banner Offline */
+        #offlineBanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #dc2626;
+            color: #ffffff;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 9999;
+            display: none;
+        }
+
+        /* ============================================================
+           MAIN CONTAINER
+        ============================================================ */
+        .page-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1180px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        @media (max-width: 992px) {
+            .page-container {
+                grid-template-columns: 1fr;
+                max-width: 480px;
+            }
+            .left-section {
+                display: none !important;
+            }
+        }
+
+        /* ============================================================
+           LEFT SECTION (BRANDING & AGENT)
+        ============================================================ */
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            padding: 10px 20px;
+        }
+
+        /* Badge Congelé (Top Left) */
+        .badge-congele {
+            background: #0d6e38;
+            color: #ffffff;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 20px;
+            border-radius: 0 0 16px 16px;
+            width: fit-content;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(13, 110, 56, 0.25);
+        }
+
+        .badge-congele i.fa-snowflake {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .badge-congele .title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .badge-congele .temp {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+            opacity: 0.9;
+        }
+
+        /* Brand Logo Area */
+        .brand-box {
+            margin-bottom: 50px;
+        }
+
+        .brand-logo-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hexagon-icon {
+            width: 52px;
+            height: 52px;
+            background: #0d6e38;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .brand-logo-title h1 {
+            font-size: 42px;
+            font-weight: 800;
+            color: #0b3c26;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            font-size: 18px;
+            color: #1e293b;
+            font-weight: 600;
+            margin-top: 4px;
+            margin-left: 64px;
+        }
+
+        /* Key Features Pills */
+        .brand-pills {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 25px;
+            margin-left: 64px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .brand-pills span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-pills i {
+            color: #0d6e38;
+        }
+
+        .brand-pills .bullet {
+            width: 5px;
+            height: 5px;
+            background-color: #0d6e38;
+            border-radius: 50%;
+        }
+
+        /* Bottom Feature Cards (4 Cards) */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 8px 4px;
+        }
+
+        .feature-card .icon-wrap {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid #0d6e38;
+            color: #0d6e38;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px auto;
+            font-size: 15px;
+        }
+
+        .feature-card h4 {
+            font-size: 11px;
+            font-weight: 700;
+            color: #0d6e38;
+            margin-bottom: 3px;
+        }
+
+        .feature-card p {
+            font-size: 10px;
+            color: #475569;
+            line-height: 1.2;
+        }
+
+        /* ============================================================
+           RIGHT SECTION (LOGIN FORM CARD)
+        ============================================================ */
+        .login-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            width: 100%;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .login-header h2 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .login-header .green-line {
+            width: 32px;
+            height: 3px;
+            background-color: #0d6e38;
+            margin: 0 auto 10px auto;
+            border-radius: 2px;
+        }
+
+        .login-header p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* Error / Success Messages */
+        #error-msg {
+            font-size: 13px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Inputs */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.left-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #0f172a;
+            outline: none;
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #0d6e38;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(13, 110, 56, 0.1);
+        }
+
+        /* Target selector exact: #password + span */
+        .input-wrapper input#password + span {
+            position: absolute;
+            right: 14px;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Form Options (Remember Me / Forgot Password) */
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            font-size: 12px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #334155;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .remember-me input[type="checkbox"] {
+            accent-color: #0d6e38;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        .forgot-pass {
+            color: #0d6e38;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .forgot-pass:hover {
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .btn-primary {
+            width: 100%;
+            background-color: #0d6e38;
+            color: #ffffff;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0a572c;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 18px 0;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider::before { margin-right: .8em; }
+        .divider::after { margin-left: .8em; }
+
+        /* SSO Button */
+        .btn-sso {
+            width: 100%;
+            background-color: #ffffff;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sso:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .btn-sso i {
+            color: #0d6e38;
+        }
+
+        /* Bottom Info Box Inside Card */
+        .env-info-box {
+            margin-top: 22px;
+            background-color: #f0fdf4;
+            border: 1px solid #dcfce7;
+            padding: 12px 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .env-info-box i {
+            font-size: 22px;
+            color: #0d6e38;
+        }
+
+        .env-info-box div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .env-info-box strong {
+            font-size: 12px;
+            color: #14532d;
+            font-weight: 700;
+        }
+
+        .env-info-box span {
+            font-size: 11px;
+            color: #166534;
+        }
+
+        /* ============================================================
+           FOOTER
+        ============================================================ */
+        .page-footer {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .page-footer span {
+            color: #0d6e38;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Offline Notification Banner -->
+    <div id="offlineBanner">
+        <i class="fas fa-wifi-slash"></i> Vous êtes actuellement hors ligne.
+    </div>
+
+    <!-- Main Container -->
+    <div class="page-container">
+        
+        <!-- Left Section (Branding & Features) -->
+        <div class="left-section">
+            
+            <div class="badge-congele">
+                <i class="fas fa-snowflake"></i>
+                <span class="title">CONGELÉ</span>
+                <span class="temp">-18°C / -22°C <i class="fas fa-temperature-low"></i></span>
+            </div>
+
+            <div class="brand-box">
+                <div class="brand-logo-title">
+                    <div class="hexagon-icon">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <h1>SoufStock</h1>
+                </div>
+                <p class="brand-subtitle">Gestion de stock congelé</p>
+
+                <div class="brand-pills">
+                    <span><i class="fas fa-crosshairs"></i> Traçabilité</span>
+                    <span class="bullet"></span>
+                    <span><i class="fas fa-shield-halved"></i> Fiabilité</span>
+                    <span class="bullet"></span>
+                    <span><i class="fas fa-chart-line"></i> Performance</span>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon-wrap"><i class="fas fa-box-archive"></i></div>
+                    <h4>Stock en temps réel</h4>
+                    <p>Suivi précis des quantités</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-wrap"><i class="fas fa-user-shield"></i></div>
+                    <h4>Sécurité renforcée</h4>
+                    <p>Vos données sont protégées</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-wrap"><i class="fas fa-chart-pie"></i></div>
+                    <h4>Pilotage efficace</h4>
+                    <p>Prenez les bonnes décisions</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-wrap"><i class="fas fa-clock"></i></div>
+                    <h4>Disponibilité 24/7</h4>
+                    <p>Accédez à vos données à tout moment</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Section (Login Card) -->
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Bienvenue !</h2>
+                <div class="green-line"></div>
+                <p>Connectez-vous pour accéder à votre espace</p>
+            </div>
+
+            <!-- Error/Success Message Area -->
+            <div id="error-msg" class="hidden"></div>
+
+            <!-- Formulaire Login -->
+            <form id="login-form">
+                
+                <div class="form-group">
+                    <label for="email">Nom d'utilisateur</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user left-icon"></i>
+                        <input type="text" id="email" placeholder="Entrez votre nom d'utilisateur" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock left-icon"></i>
+                        <input type="password" id="password" placeholder="Entrez votre mot de passe" required autocomplete="current-password">
+                        <span>
+                            <i class="fas fa-eye-slash"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox"> Se souvenir de moi
+                    </label>
+                    <a href="#" class="forgot-pass">Mot de passe oublié ?</a>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-arrow-right-to-bracket"></i> Se connecter
+                </button>
+
+            </form>
+
+            <div class="divider">ou</div>
+
+            <button type="button" class="btn-sso">
+                <i class="fas fa-expand"></i> Connexion SSO (Entreprise)
+            </button>
+
+            <div class="env-info-box">
+                <i class="fas fa-snowflake"></i>
+                <div>
+                    <strong>Environnement congelé</strong>
+                    <span>Température contrôlée entre <b>-18°C et -22°C</b></span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Footer Page -->
+    <footer class="page-footer">
+        &copy; 2026 <span>SoufStock</span> - Tous droits réservés.
+    </footer>
+
+    <!-- Liaison Javascript -->
+    <script type="module" src="/assets/js/login.js"></script>
+</body>
+</html>

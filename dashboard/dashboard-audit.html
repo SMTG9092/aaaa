@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - SMTG</title>
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0b1118;
+            --bg-card: #131b26;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --text-main: #fff;
+            --text-muted: #8a99ad;
+            --accent-green: #10b981;
+            --accent-green-bg: rgba(16, 185, 129, 0.15);
+        }
+        
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .card-smg {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+        }
+    </style>
+</head>
+<body>
+<main style="width: 100%; box-sizing: border-box;">
+    <!-- PAGE HEADER -->
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <h1 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 4px 0;">Tableau de bord Administrateur</h1>
+            <p style="font-size: 11px; color: #8a99ad; margin: 0;">Accueil &bull; Tableau de bord &bull; Administration générale SMTG</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button id="refreshBtn" onclick="window.location.reload();" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+        </div>
+    </div>
+
+    <!-- TOP STATS GRID (6 CARDS) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        <!-- Utilisateurs -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Utilisateurs</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-users"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="totalUsersVal">0</div>
+            <div style="font-size: 9px; color: #8a99ad; margin-top: 4px;">Total utilisateurs en BDD</div>
+        </div>
+
+        <!-- Rôles -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Rôles</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-shield-alt"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="totalRolesVal">0</div>
+            <div style="font-size: 9px; color: #8a99ad; margin-top: 4px;">Total rôles</div>
+        </div>
+
+        <!-- Pages -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Pages</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-file-alt"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="totalPagesVal">0</div>
+            <div style="font-size: 9px; color: #8a99ad; margin-top: 4px;">Pages disponibles</div>
+        </div>
+
+        <!-- Modules -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Modules</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-cubes"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="totalModulesVal">0</div>
+            <div style="font-size: 9px; color: #8a99ad; margin-top: 4px;">Modules système</div>
+        </div>
+
+        <!-- Permissions -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Permissions</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-lock"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="totalPermissionsVal">0</div>
+            <div style="font-size: 9px; color: #8a99ad; margin-top: 4px;">Total permissions</div>
+        </div>
+
+        <!-- Connexions -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; color: #8a99ad; font-weight: 600; text-transform: uppercase;">Connexions</span>
+                <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 11px;"><i class="fas fa-heartbeat"></i></div>
+            </div>
+            <div style="font-size: 20px; font-weight: 700; color: #fff;" id="totalConnectionsVal">0</div>
+            <div style="font-size: 9px; color: #10b981; margin-top: 4px;"><i class="fas fa-arrow-up"></i> Actifs en BDD</div>
+        </div>
+    </div>
+
+    <!-- MIDDLE ROW: CHARTS & LOGINS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 15px;">
+        <!-- Donut Chart -->
+        <div class="card-smg" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <h3 style="font-size: 12px; color: #fff; margin: 0 0 10px 0; font-weight: 600;">Utilisateurs par rôle</h3>
+            <div style="display: flex; align-items: center; justify-content: space-around; height: 180px; flex-wrap: wrap;">
+                <div style="width: 140px; height: 140px; position: relative;">
+                    <canvas id="stockEmplacementDonut"></canvas>
+                </div>
+                <div style="font-size: 10px; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span><span style="color: #8a99ad;">Administrateurs</span></div>
+                    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></span><span style="color: #8a99ad;">Gestionnaires</span></div>
+                    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></span><span style="color: #8a99ad;">Opérateurs</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Chart -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="font-size: 12px; color: #fff; margin: 0; font-weight: 600;">Activité des connexions (7 derniers jours)</h3>
+            </div>
+            <div style="height: 180px; position: relative;">
+                <canvas id="mouvements7DaysChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Dernières connexions (Injecté dynamiquement par renderLastLogins) -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="font-size: 12px; color: #fff; margin: 0; font-weight: 600;">Dernières connexions</h3>
+                <a href="#" style="font-size: 9px; color: #10b981; text-decoration: none;">Voir tout</a>
+            </div>
+            <div id="lastLoginsContainer" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="font-size: 10px; color: #8a99ad; text-align: center; padding: 10px;">Chargement des connexions...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOURTH ROW: SYSTEM LOGS & QUICK ACTIONS -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; flex-wrap: wrap;">
+        <!-- Journaux système récents (Injecté dynamiquement par renderSystemLogs) -->
+        <div class="card-smg">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="font-size: 12px; color: #fff; margin: 0; font-weight: 600;">Journaux système récents (Notifications BDD)</h3>
+                <a href="#" style="font-size: 9px; color: #10b981; text-decoration: none;">Voir tout</a>
+            </div>
+            <table style="width: 100%; font-size: 9px; border-collapse: collapse; color: #8a99ad;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); text-align: left;">
+                        <th style="padding: 4px; color: #fff;">Niveau</th>
+                        <th style="padding: 4px; color: #fff;">Message</th>
+                        <th style="padding: 4px; color: #fff;">Utilisateur</th>
+                        <th style="padding: 4px; color: #fff; text-align: right;">IP</th>
+                    </tr>
+                </thead>
+                <tbody id="systemLogsTableBody">
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 10px; color: #8a99ad;">Chargement des journaux...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="card-smg" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <h3 style="font-size: 12px; color: #fff; margin: 0 0 10px 0; font-weight: 600;">Actions rapides</h3>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                <button style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #10b981; padding: 8px 10px; border-radius: 6px; font-size: 10px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-user-plus"></i> Ajouter un utilisateur
+                </button>
+                <button style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #3b82f6; padding: 8px 10px; border-radius: 6px; font-size: 10px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-shield-alt"></i> Gérer les rôles & permissions
+                </button>
+                <button style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #f59e0b; padding: 8px 10px; border-radius: 6px; font-size: 10px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-database"></i> Lancer une sauvegarde manuelle
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Chart.js setup and instantiation -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctxDonut = document.getElementById('stockEmplacementDonut').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Administrateurs', 'Gestionnaires', 'Opérateurs'],
+                datasets: [{
+                    data: [4, 6, 10],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                cutout: '70%'
+            }
+        });
+
+        const ctxLine = document.getElementById('mouvements7DaysChart').getContext('2d');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [{
+                    label: 'Sessions',
+                    data: [22, 28, 31, 25, 34, 32, 37],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#8a99ad', font: { size: 9 } } },
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#8a99ad', font: { size: 9 } } }
+                }
+            }
+        });
+    });
+</script>
+
+<!-- Integration of the ES Module Controller -->
+<script type="module" src="/assets/js/core/admin-dashboard-controller.js"></script>
+</body>
+</html>

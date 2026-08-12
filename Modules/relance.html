@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche & Relance - SoufStock WMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
+                        emerald: { 600: '#059669', 500: '#10b981', 400: '#34d399' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-slate-900/60 border-b border-slate-800 px-6 flex items-center justify-between shrink-0 backdrop-blur-md">
+        <a href="lancer.html" class="flex items-center gap-3 group">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500/20 transition shadow">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div>
+                <span class="font-bold text-sm block">SoufStock <span class="text-emerald-400">WMS</span></span>
+                <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Module de Recherche & Ré-impression</span>
+            </div>
+        </a>
+        <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-3 py-1.5 rounded-xl font-mono text-xs shadow-inner">
+            <span id="liveClock" class="text-emerald-400">--:--:--</span>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER (Wsi3naha 3la ṭoul l-écran) -->
+    <main class="flex-1 p-6 overflow-hidden flex flex-col gap-5 w-full">
+        
+        <!-- CARD DE RECHERCHE -->
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl shrink-0">
+            <h2 class="text-xs font-bold text-slate-100 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <i class="fas fa-magnifying-glass text-emerald-400"></i> Chercher une commande déjà lancée
+            </h2>
+            <p class="text-[11px] text-slate-400 mb-4">Entrez soit le numéro de la commande, soit le numéro de lancement (ex: C-020826-001, T-..., G-...) pour réimprimer son bon de préparation.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Recherche par N° Commande -->
+                <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider"><i class="fas fa-file-lines mr-1.5"></i> Par N° de Commande</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="inputCmd" placeholder="Ex: 10023456" class="bg-slate-900 border border-slate-700 text-xs text-slate-100 px-3 py-2 rounded-xl flex-1 focus:outline-none focus:border-emerald-500 font-mono">
+                        <button onclick="rechercherParCommande()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer shadow flex items-center gap-1.5">
+                            <i class="fas fa-print"></i> Ouvrir
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recherche par N° de Lancement -->
+                <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-sky-400 uppercase tracking-wider"><i class="fas fa-rocket mr-1.5"></i> Par N° de Lancement</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="inputLancement" placeholder="Ex: C-020826-001 wla T-..." class="bg-slate-900 border border-slate-700 text-xs text-slate-100 px-3 py-2 rounded-xl flex-1 focus:outline-none focus:border-sky-500 font-mono">
+                        <button onclick="rechercherParLancement()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer shadow flex items-center gap-1.5">
+                            <i class="fas fa-print"></i> Ouvrir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE HISTORIQUE -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl flex-1 flex flex-col">
+            <div class="p-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fas fa-clock-rotate-left text-amber-400"></i> Dernières commandes lancées
+                </span>
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-lg font-mono text-[11px]">10 Récents</span>
+            </div>
+
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left text-xs border-collapse font-mono">
+                    <thead class="sticky top-0 bg-slate-950 text-slate-400 uppercase text-[10px] z-10 border-b border-slate-800">
+                        <tr>
+                            <th class="p-3.5">N° Lancement</th>
+                            <th class="p-3.5">N° Commande</th>
+                            <th class="p-3.5">Date Lancement</th>
+                            <th class="p-3.5 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historiqueTableBody" class="divide-y divide-slate-800/50">
+                        <tr><td colspan="4" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin mr-2"></i> Chargement de l'historique...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCRIPT LOGIC -->
+    <script type="module">
+        import supabase from '../assets/js/core/supabase.js';
+
+        // 1. Recherche par N° Commande avec Filtrage Sarim dyal les Statuts
+        window.rechercherParCommande = async function() {
+            const val = document.getElementById('inputCmd').value.trim();
+            if (!val) {
+                alert("Veuillez entrer un numéro de commande valide.");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('commandes_excel')
+                .select('document_vente, statut')
+                .eq('document_vente', val)
+                .limit(1);
+
+            if (error || !data || data.length === 0) {
+                alert(`Aucune commande trouvée avec le numéro : ${val}`);
+                return;
+            }
+
+            const cmd = data[0];
+            const statut = cmd.statut ? cmd.statut.toUpperCase().trim() : '';
+
+            // 1. Ila baqa IMPORTEE (matlonsatx)
+            if (statut === 'IMPORTEE') {
+                alert(`⚠️ La commande ${val} est encore à l'état [IMPORTEE]. Elle n'a pas encore été lancée !`);
+                return;
+            }
+
+            // 2. Ila dzwat l marahil lokhrin (EN_PICKING, PICKING_TERMINE, EN_AB10, EXPEDIEE, ANNULEE)
+            const statutsInterdits = ['EN_PICKING', 'PICKING_TERMINE', 'EN_AB10', 'EXPEDIEE', 'ANNULEE'];
+            if (statutsInterdits.includes(statut)) {
+                alert(`❌ Impossible d'ouvrir cette commande. Elle a déjà dépassé l'étape de lancement (Statut actuel : ${statut}).`);
+                return;
+            }
+
+            // 3. Ila kant b الصح LANCEE
+            if (statut === 'LANCEE') {
+                window.open(`bon_preparation.html?cmd=${val}`, '_blank');
+            } else {
+                alert(`⚠️ Statut de la commande non reconnu ou non autorisé : "${statut}"`);
+            }
+        };
+
+        // 2. Recherche par N° de Lancement
+        window.rechercherParLancement = async function() {
+            const val = document.getElementById('inputLancement').value.trim();
+            if (!val) {
+                alert("Veuillez entrer un numéro de lancement valide.");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('suivi_commandes_lancer')
+                .select('document_vente, num_lancement')
+                .eq('num_lancement', val);
+
+            if (error || !data || data.length === 0) {
+                alert(`Aucun lancement trouvé avec la référence : ${val}`);
+                return;
+            }
+
+            if (data.length === 1) {
+                window.open(`bon_preparation.html?cmd=${data[0].document_vente}`, '_blank');
+            } else {
+                const docs = data.map(r => r.document_vente).join(',');
+                window.open(`bon_preparation_global.html?mode=cmd&val=${encodeURIComponent(docs)}`, '_blank');
+            }
+        };
+
+        // 3. Charger l'historique récent des commandes lancées
+        async function loadHistorique() {
+            const tbody = document.getElementById('historiqueTableBody');
+            
+            const { data, error } = await supabase
+                .from('suivi_commandes_lancer')
+                .select('num_lancement, document_vente, date_lancement, statut')
+                .eq('statut', 'LANCEE')
+                .order('date_lancement', { ascending: false })
+                .limit(10);
+
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">Aucun historique de lancement récent.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            data.forEach(row => {
+                const dateFormatted = row.date_lancement ? new Date(row.date_lancement).toLocaleString('fr-FR') : '-';
+                html += `
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="p-3.5 text-sky-400 font-bold">${row.num_lancement || 'Manual'}</td>
+                        <td class="p-3.5 text-emerald-400 font-bold">${row.document_vente}</td>
+                        <td class="p-3.5 text-slate-300">${dateFormatted}</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="window.open('bon_preparation.html?cmd=${row.document_vente}', '_blank')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer shadow inline-flex items-center gap-1.5">
+                                <i class="fas fa-print"></i> Imprimer Bon
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        setInterval(() => {
+            document.getElementById("liveClock").innerText = new Date().toLocaleTimeString('fr-FR');
+        }, 1000);
+
+        loadHistorique();
+    </script>
+</body>
+</html>

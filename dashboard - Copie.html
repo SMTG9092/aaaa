@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMTG - Système de Management et de Traçabilité Globale</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #0b131a;
+            --sidebar-bg: #070c10;
+            --card-bg: #111b24;
+            --card-border: rgba(16, 185, 129, 0.15);
+            --primary-glow: #10b981;
+            --danger-glow: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #8a99ad;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        .app {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR STYLING --- */
+        .sidebar {
+            width: 270px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-logo-box {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-glow);
+            font-size: 18px;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-brand span {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            overflow-y: auto;
+            flex: 1;
+            max-height: calc(100vh - 140px);
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-glow);
+        }
+
+        .nav-link.active {
+            border-left: 3px solid var(--primary-glow);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Pages sans permission : invisibles et non cliquables */
+        .nav-link.permission-hidden {
+            display: none !important;
+            pointer-events: none !important;
+        }
+
+        .nav-link i {
+            font-size: 13px;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+        }
+
+        /* --- TOP NAVBAR --- */
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px 18px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 50;
+        }
+
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn-top {
+            width: 34px;
+            height: 34px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .icon-btn-top:hover {
+            border-color: var(--primary-glow);
+            color: var(--primary-glow);
+        }
+
+        .notification-badge-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--danger-glow);
+            color: #fff;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        /* --- USER PROFILE WRAPPER & DROPDOWN --- */
+        .user-profile-wrapper {
+            position: relative;
+        }
+
+        .user-profile-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 4px 10px 4px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .user-profile-pill:hover {
+            border-color: var(--primary-glow);
+        }
+
+        .user-avatar-box {
+            width: 28px;
+            height: 28px;
+            background: var(--primary-glow);
+            color: #000;
+            font-weight: 700;
+            font-size: 11px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info-text h4 {
+            font-size: 11px;
+            color: #fff;
+        }
+
+        .user-info-text span {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .user-dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            width: 180px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .user-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 11px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.2s;
+        }
+
+        .user-dropdown-menu a:hover {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-glow);
+        }
+
+        .user-dropdown-menu a:last-child {
+            border-bottom: none;
+            color: var(--danger-glow);
+        }
+
+        /* --- FOOTER STATUS BAR --- */
+        .footer-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 10px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            margin-top: 15px;
+        }
+        .status-indicators {
+            display: flex;
+            gap: 15px;
+        }
+        .status-dot-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .dot-green { width: 6px; height: 6px; background: #10b981; border-radius: 50%; box-shadow: 0 0 6px #10b981; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <div class="sidebar-logo-box"><i class="fas fa-cubes"></i></div>
+                <div class="sidebar-brand">
+                    <h2>SMTG</h2>
+                    <span>Traçabilité Globale</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- RECHERCHE GLOBALE -->
+                <div style="padding: 6px 4px 10px 4px;">
+                    <div style="position: relative;">
+                        <i class="fas fa-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 11px;"></i>
+                        <input type="text" id="sidebarSearchInput" placeholder="Rechercher dans le menu..." style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--card-border); padding: 7px 8px 7px 28px; border-radius: 6px; color: #fff; font-size: 10px; outline: none;">
+                    </div>
+                </div>
+
+                <!-- Tableaux de bord (Chemins corrigés sans double dossier dashboard/) -->
+                <a href="#" class="nav-link active" data-page="dashboard/dashboard-admin.html"><i class="fas fa-chart-pie"></i> Tableau de bord Admin</a>
+                <a href="#" class="nav-link" data-page="dashboard/dashboard-stock.html"><i class="fas fa-chart-line"></i> Tableau de bord Stock</a>
+                <a href="#" class="nav-link" data-page="dashboard/dashboard-audit.html"><i class="fas fa-chart-bar"></i> Direction & Audit</a>
+                
+                <!-- GESTION DE STOCK -->
+                <a href="#" class="nav-link" data-page="Modules/produits.html"><i class="fas fa-box"></i> Produits</a>
+                <a href="#" class="nav-link" data-page="Modules/mouvements.html"><i class="fas fa-exchange-alt"></i> Mouvements de stock</a>
+                <a href="#" class="nav-link" data-page="Modules/ab10.html"><i class="fas fa-tags"></i> Stock par article / lot</a>
+                
+                <!-- COMMANDES & ACHATS -->
+                <a href="#" class="nav-link" data-page="Modules/commandes.html"><i class="fas fa-file-invoice"></i> Commandes (KG / Pièces)</a>
+                <a href="#" class="nav-link" data-page="Modules/reservations.html"><i class="fas fa-bookmark"></i> Réservations</a>
+                <a href="#" class="nav-link" data-page="Modules/achats.html"><i class="fas fa-shopping-cart"></i> Gestion des Achats</a>
+
+                <!-- PRODUCTION -->
+                <a href="#" class="nav-link" data-page="Modules/lancer.html"><i class="fas fa-play-circle"></i> Lancements de Production</a>
+                <a href="#" class="nav-link" data-page="Modules/production-abs.html"><i class="fas fa-industry"></i> Suivi Production ABS</a>
+                <a href="#" class="nav-link" data-page="Modules/production-ach.html"><i class="fas fa-cogs"></i> Suivi Production ACH</a>
+
+                <!-- INFRASTRUCTURE -->
+                <a href="#" class="nav-link" data-page="Modules/magasins.html"><i class="fas fa-warehouse"></i> Chambres & Dépôts</a>
+                <a href="#" class="nav-link" data-page="Modules/grille-emplacements.html"><i class="fas fa-th"></i> Tunnels & Grilles</a>
+                <a href="#" class="nav-link" data-page="Modules/emplacements.html"><i class="fas fa-map-marker-alt"></i> Emplacements</a>
+                
+                <!-- EXPÉDITIONS & LOGISTIQUE -->
+                <a href="#" class="nav-link" data-page="Modules/picking.html"><i class="fas fa-dolly"></i> Picking</a>
+                <a href="#" class="nav-link" data-page="Modules/expeditions.html"><i class="fas fa-truck"></i> Expéditions & Chargement</a>
+                <a href="#" class="nav-link" data-page="Modules/logistique-flux.html"><i class="fas fa-route"></i> Logistique Globale & Flux</a>
+                <a href="#" class="nav-link" data-page="Modules/retours.html"><i class="fas fa-undo"></i> Retours</a>
+                
+                <!-- QUALITÉ & VÉTÉRINAIRE -->
+                <a href="#" class="nav-link" data-page="Modules/qualite-vet.html"><i class="fas fa-shield-alt"></i> Validation Sanitaire & Lots</a>
+
+                <!-- MAINTENANCE -->
+                <a href="#" class="nav-link" data-page="Modules/maintenance.html"><i class="fas fa-tools"></i> Service Technique & Équipements</a>
+
+                <!-- CONTRÔLE & AUDIT -->
+                <a href="#" class="nav-link" data-page="Modules/inventaire.html"><i class="fas fa-clipboard-list"></i> Inventaire Journalier</a>
+                <a href="#" class="nav-link" data-page="Modules/controle-gestion.html"><i class="fas fa-chart-pie"></i> Analyse de Performance</a>
+            </nav>
+        </div>
+
+        <div style="padding: 12px; border-top: 1px solid rgba(255,255,255,0.04);">
+            <div style="font-size: 10px; color: var(--text-muted); text-align: center;">Session active (Supabase)</div>
+        </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <main class="main">
+        <div>
+            <!-- TOP NAVBAR -->
+            <header class="top-navbar">
+                <div id="liveClockContainer" style="display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); padding: 6px 14px; border-radius: 30px; font-size: 12px; color: #94a3b8;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-calendar-alt" style="color: #10b981;"></i>
+                        <span id="headerDate">--</span>
+                    </div>
+                    <span style="color: rgba(255,255,255,0.2);">|</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-clock" style="color: #10b981;"></i>
+                        <span id="headerClock" style="font-variant-numeric: tabular-nums; color: #fff; font-weight: 500;">--:--:--</span>
+                    </div>
+                </div>
+
+                <div class="top-nav-right">
+                    <div class="icon-btn-top" id="settingsBtn"><i class="fas fa-cog"></i></div>
+                    
+                    <div class="icon-btn-top" id="notifBtn" style="position: relative;">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge-dot">0</span>
+                        <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 45px; width: 300px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000; overflow: hidden;">
+                            <div style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                                <strong style="font-size: 11px; color: #fff;">Notifications</strong>
+                                <span id="notifCountText" style="font-size: 9px; color: var(--text-muted);">0 non lues</span>
+                            </div>
+                            <div id="notifListContainer" style="max-height: 250px; overflow-y: auto; padding: 6px;">
+                                <div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 11px;">0 notification</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- USER PROFILE WRAPPER WITH DROPDOWN -->
+                    <div class="user-profile-wrapper">
+                        <div class="user-profile-pill" id="userProfileBtn">
+                            <div class="user-avatar-box" id="userAvatarInitials">--</div>
+                            <div class="user-info-text">
+                                <h4 id="userFullName">Chargement...</h4>
+                                <span id="userRoleName">--</span>
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size: 10px; color: var(--text-muted); margin-left: 4px;"></i>
+                        </div>
+
+                        <!-- DROPDOWN MENU -->
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <a href="#profile"><i class="fas fa-user"></i> Mon Profil</a>
+                            <a href="#settings"><i class="fas fa-cog"></i> Paramètres</a>
+                            <a href="#logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 🔄 DYNAMIC CONTENT CONTAINER -->
+            <div id="main-screen-content" style="width: 100%;"></div>
+        </div>
+
+        <!-- FOOTER STATUS BAR -->
+        <footer class="footer-status-bar">
+            <span>SMTG &copy; 2026 - Tous droits réservés</span>
+            <div class="status-indicators">
+                <div class="status-dot-item"><div class="dot-green"></div> Système opérationnel</div>
+                <div class="status-dot-item"><div class="dot-green"></div> Sauvegarde OK</div>
+                <div class="status-dot-item"><div class="dot-green"></div> Temps réel</div>
+            </div>
+            <span>Version 2.0.0</span>
+        </footer>
+    </main>
+</div>
+
+<!-- LIVE CLOCK -->
+<script>
+    function initHeaderClock() {
+        const dateSpan = document.getElementById('headerDate');
+        const clockSpan = document.getElementById('headerClock');
+        if (!dateSpan || !clockSpan) return;
+        function update() {
+            const now = new Date();
+            const optionsDate = { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' };
+            let formattedDate = now.toLocaleDateString('fr-FR', optionsDate);
+            formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            dateSpan.textContent = formattedDate;
+            clockSpan.textContent = `${hours}:${minutes}:${seconds} • GMT+1`;
+        }
+        update();
+        setInterval(update, 1000);
+    }
+    document.addEventListener('DOMContentLoaded', initHeaderClock);
+</script>
+
+<!-- SIDEBAR PERMISSIONS -->
+<script type="module">
+import { canAccessPage } from './assets/js/core/permissions-page.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const search = document.getElementById('sidebarSearchInput');
+    const links = document.querySelectorAll('.sidebar-nav .nav-link[data-page]');
+
+    function applyPermissions() {
+        if (window.permissionsLoaded !== true) {
+            links.forEach(l => l.style.display = 'none');
+            return;
+        }
+
+        links.forEach(link => {
+            const page = link.getAttribute('data-page');
+            if (!page) return;
+
+            const allowed = canAccessPage(page);
+            link.style.display = allowed ? 'flex' : 'none';
+            link.classList.toggle('permission-hidden', !allowed);
+        });
+    }
+
+    window.addEventListener('permissionsLoaded', applyPermissions);
+    window.addEventListener('permissionsUpdated', applyPermissions);
+
+    if (window.permissionsLoaded === true) applyPermissions();
+
+    if (search) {
+        search.addEventListener('input', e => {
+            const term = String(e.target.value || '').toLowerCase().trim();
+
+            links.forEach(link => {
+                if (link.classList.contains('permission-hidden')) {
+                    link.style.display = 'none';
+                    return;
+                }
+
+                link.style.display =
+                    link.textContent.toLowerCase().includes(term)
+                        ? 'flex'
+                        : 'none';
+            });
+        });
+    }
+});
+</script>
+
+<!-- CHART.JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- SUPABASE CLIENT -->
+<script type="module">
+    import supabase from './assets/js/core/supabase.js';
+    window.supabase = supabase;
+</script>
+
+<!-- SPA ROUTER & DYNAMIC LOADER -->
+<script type="module">
+import {
+    canAccessPage,
+    applyDeletePermissionsUI
+} from './assets/js/core/permissions-page.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const navLinks =
+        document.querySelectorAll('.sidebar-nav .nav-link[data-page]');
+
+    const mainScreen =
+        document.getElementById('main-screen-content');
+
+    async function waitPermissions(timeout = 15000) {
+        if (window.permissionsLoaded === true) return true;
+
+        const start = Date.now();
+
+        while (window.permissionsLoaded !== true) {
+            if (Date.now() - start >= timeout) return false;
+            await new Promise(r => setTimeout(r, 100));
+        }
+
+        return true;
+    }
+
+    function cleanPageCss(css) {
+        return String(css || '')
+            .replace(/html\s*,\s*body\s*\{/gi, '#main-screen-content {')
+            .replace(/body\s*\{/gi, '#main-screen-content {')
+            .replace(/body\s*\[([^\]]+)\]\s*\{/gi, '#main-screen-content[$1] {');
+    }
+
+    function loadPageStyles(doc) {
+        document
+            .querySelectorAll('style[data-dynamic-page-style]')
+            .forEach(s => s.remove());
+
+        doc.querySelectorAll('head style').forEach(oldStyle => {
+            const style = document.createElement('style');
+            style.dataset.dynamicPageStyle = 'true';
+            style.textContent = cleanPageCss(oldStyle.textContent || '');
+            document.head.appendChild(style);
+        });
+    }
+
+    function resolveAsset(src, pageFile) {
+        if (!src) return '';
+        if (/^(https?:|data:|blob:|\/)/i.test(src)) return src;
+        return new URL(src, new URL(pageFile, window.location.href)).href;
+    }
+
+    async function executePageScripts(doc, pageFile) {
+        for (const oldScript of Array.from(doc.querySelectorAll('script'))) {
+            const script = document.createElement('script');
+            script.type = oldScript.type || 'text/javascript';
+
+            if (oldScript.src) {
+                let src = oldScript.getAttribute('src');
+
+                if (
+                    src.includes('admin-dashboard-controller.js') ||
+                    src.includes('admin-dashboard')
+                ) {
+                    src = './assets/js/core/admin-dashboard-controller.js';
+                } else if (
+                    src.includes('stock-dashboard-controller.js')
+                ) {
+                    src = './assets/js/core/stock-dashboard-controller.js';
+                } else {
+                    src = resolveAsset(src, pageFile);
+                }
+
+                script.src = src;
+            } else {
+                script.textContent = oldScript.textContent || '';
+            }
+
+            document.body.appendChild(script);
+
+            if (script.src) {
+                await new Promise(resolve => {
+                    script.addEventListener('load', resolve, { once: true });
+                    script.addEventListener('error', resolve, { once: true });
+                });
+            }
+        }
+    }
+
+    function showAccessDenied(pageFile) {
+        const name =
+            String(pageFile || '')
+                .split('?')[0]
+                .split('#')[0]
+                .split('/')
+                .pop();
+
+        mainScreen.innerHTML = `
+            <div style="width:100%;min-height:250px;display:flex;align-items:center;justify-content:center;padding:40px;">
+                <div style="width:100%;max-width:650px;background:var(--card-bg);border:1px solid rgba(239,68,68,.35);border-radius:12px;padding:55px 30px;text-align:center;">
+                    <div style="width:56px;height:56px;margin:0 auto 16px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(239,68,68,.10);color:var(--danger-glow);font-size:24px;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div style="color:var(--text-main);font-size:15px;font-weight:700;margin-bottom:8px;">
+                        Accès refusé
+                    </div>
+                    <div style="color:var(--text-muted);font-size:11px;line-height:1.7;">
+                        Vous n'avez pas les permissions nécessaires pour accéder à cette page.
+                    </div>
+                    <div style="color:var(--text-muted);font-size:10px;margin-top:12px;">
+                        Page : ${name || 'inconnue'}
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    async function loadPage(pageFile, linkElement) {
+        if (!pageFile) return;
+
+        const ready = await waitPermissions();
+
+        if (!ready || !canAccessPage(pageFile)) {
+            if (linkElement) linkElement.classList.remove('active');
+            showAccessDenied(pageFile);
+            return;
+        }
+
+        navLinks.forEach(l => l.classList.remove('active'));
+        if (linkElement) linkElement.classList.add('active');
+
+        mainScreen.innerHTML =
+            `<div style="text-align:center;color:var(--text-muted);padding:50px;font-size:12px;">Chargement en cours...</div>`;
+
+        try {
+            const path =
+                pageFile.startsWith('/')
+                    ? pageFile.substring(1)
+                    : pageFile;
+
+            const response =
+                await fetch(path, { cache: 'no-cache' });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP ${response.status}`);
+            }
+
+            const doc =
+                new DOMParser().parseFromString(
+                    await response.text(),
+                    'text/html'
+                );
+
+            loadPageStyles(doc);
+
+            const content =
+                doc.querySelector('main') || doc.body;
+
+            mainScreen.innerHTML = content.innerHTML;
+
+            applyDeletePermissionsUI(
+                window.currentUserRoleCode
+            );
+
+            await executePageScripts(
+                doc,
+                path
+            );
+
+            document.dispatchEvent(
+                new CustomEvent('dashboardLoaded', {
+                    detail: { page: path }
+                })
+            );
+
+        } catch (error) {
+            console.error('Erreur Router Fetch:', error);
+
+            mainScreen.innerHTML = `
+                <div style="color:var(--danger-glow);text-align:center;padding:50px;font-size:12px;">
+                    Erreur : Impossible de charger la page (${pageFile}).
+                    <br>
+                    <small>${error.message || ''}</small>
+                </div>`;
+        }
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+
+            loadPage(
+                link.getAttribute('data-page'),
+                link
+            );
+        });
+    });
+
+    async function loadDefaultPage() {
+        const ready = await waitPermissions();
+
+        if (!ready) {
+            showAccessDenied('dashboard/dashboard-admin.html');
+            return;
+        }
+
+        const preferred =
+            'dashboard/dashboard-admin.html';
+
+        const preferredLink =
+            document.querySelector(
+                `.sidebar-nav .nav-link[data-page="${preferred}"]`
+            );
+
+        if (
+            preferredLink &&
+            canAccessPage(preferred)
+        ) {
+            await loadPage(
+                preferred,
+                preferredLink
+            );
+            return;
+        }
+
+        for (const link of navLinks) {
+            const page =
+                link.getAttribute('data-page');
+
+            if (
+                page &&
+                canAccessPage(page)
+            ) {
+                await loadPage(
+                    page,
+                    link
+                );
+                return;
+            }
+        }
+
+        mainScreen.innerHTML = `
+            <div style="text-align:center;color:var(--text-muted);padding:60px;font-size:13px;">
+                <i class="fas fa-lock" style="font-size:32px;color:var(--danger-glow);margin-bottom:15px;display:block;"></i>
+                Aucune page n'est autorisée pour votre rôle.
+            </div>`;
+    }
+
+    setTimeout(loadDefaultPage, 100);
+});
+</script>
+
+<!-- CORE MODULES -->
+<script type="module" src="./assets/js/core/session.js"></script>
+<script type="module" src="./assets/js/core/profile-dropdown.js"></script>
+<script type="module" src="./assets/js/core/settings-modal.js"></script>
+<script type="module" src="./assets/js/core/notifications.js"></script>
+<script type="module" src="./assets/js/core/user_menu_preferences.js"></script>
+<script type="module" src="./assets/js/core/permissions-page.js"></script>
+
+</body>
+</html>

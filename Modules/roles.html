@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Réservations Stock - SoufStock Enterprise ERP/WMS</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SheetJS pour Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- jsPDF pour Export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            100: '#f1f5f9'
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            400: '#34d399',
+                            300: '#6ee7b7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col min-w-0">
+        
+        <!-- HEADER -->
+        <header class="h-20 bg-slate-900/40 border-b border-slate-800/80 px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-6">
+                <!-- Bouton de retour vers parametres.html avec le même design -->
+                <a href="parametres.html" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm group">
+                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                    <span>Retour Paramètres</span>
+                </a>
+
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Gestion des Réservations Stock</h1>
+                    <div class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span>Accueil</span>
+                        <span>/</span>
+                        <strong class="text-slate-300">Réservations Stock & AB10</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl">
+                <div class="text-right">
+                    <span id="currentDate" class="text-xs font-medium text-slate-300 block">Chargement...</span>
+                    <span id="currentTime" class="text-[10px] text-emerald-400 font-mono block">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="w-full px-4 flex flex-col gap-6 max-w-[1600px] mx-auto">
+                
+                <!-- CONTROLS & FILTERS BAR -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fas fa-list-check text-emerald-400"></i> Suivi des Réservations & Lots
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">
+                            Sélectionnez manuellement les lignes avec un statut Picking 'VALIDE' pour les traiter et transférer vers AB10.
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- DATE FILTER INPUT -->
+                        <div class="relative flex items-center">
+                            <span class="text-xs text-slate-400 mr-2 font-medium"><i class="fas fa-calendar-alt text-emerald-400 mr-1"></i> Date :</span>
+                            <input type="date" id="filterDateInput" 
+                                class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner cursor-pointer">
+                        </div>
+
+                        <!-- PROCESS SELECTED BUTTON -->
+                        <button onclick="processSelectedReservations()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500/30 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg cursor-pointer">
+                            <i class="fas fa-check-double"></i> <span>Traiter la Sélection (AB10)</span>
+                        </button>
+
+                        <!-- EXPORT BUTTONS -->
+                        <button onclick="exportToExcel()" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-file-excel"></i> <span>Excel</span>
+                        </button>
+                        
+                        <button onclick="exportToPDF()" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-file-pdf"></i> <span>PDF</span>
+                        </button>
+
+                        <!-- SEARCH INPUT -->
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400 text-sm"></i>
+                            <input type="text" id="searchInput" placeholder="Rechercher (Doc, Article, Lot)..." 
+                                class="bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-64 transition shadow-inner">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATS CARDS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 uppercase font-semibold tracking-wider block">Total Lignes Réservées</span>
+                            <span id="totalLinesBadge" class="text-xl font-bold text-emerald-400 font-mono mt-1 block">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg">
+                            <i class="fas fa-boxes-stacked"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 uppercase font-semibold tracking-wider block">Quantité Totale Réservée</span>
+                            <span id="totalQtyBadge" class="text-xl font-bold text-sky-400 font-mono mt-1 block">0.000 KG</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 text-lg">
+                            <i class="fas fa-scale-balanced"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 uppercase font-semibold tracking-wider block">Réservations Actives</span>
+                            <span id="totalActiveBadge" class="text-xl font-bold text-amber-400 font-mono mt-1 block">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-lg">
+                            <i class="fas fa-circle-check"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLE CONTAINER -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-950/60 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-800 font-semibold">
+                                    <th class="p-4 w-12 text-center">
+                                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" class="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer w-4 h-4">
+                                    </th>
+                                    <th class="p-4">Document Vente</th>
+                                    <th class="p-4">Article / Désignation</th>
+                                    <th class="p-4">Lot</th>
+                                    <th class="p-4">Magasin</th>
+                                    <th class="p-4 text-right">Quantité Réservée</th>
+                                    <th class="p-4 text-center">Statut Réservation</th>
+                                    <th class="p-4 text-center">Statut Picking</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservationsTableBody" class="divide-y divide-slate-800/50">
+                                <tr>
+                                    <td colspan="8" class="p-10 text-center text-slate-400 text-xs">
+                                        <i class="fas fa-spinner fa-spin mr-2 text-emerald-500 text-base"></i> Chargement des données...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINATION -->
+                    <div class="bg-slate-950/40 border-t border-slate-800 px-6 py-4 flex items-center justify-between text-xs text-slate-400">
+                        <div id="paginationInfo">Affichage de 0 à 0 sur 0 entrées</div>
+                        <div class="flex items-center gap-2">
+                            <button id="prevPageBtn" onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer">
+                                <i class="fas fa-chevron-left mr-1"></i> Précédent
+                            </button>
+                            <span id="pageIndicator" class="px-3 py-1 font-mono text-emerald-400 font-semibold">Page 1 / 1</span>
+                            <button id="nextPageBtn" onclick="changePage(1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer">
+                                Suivant <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import supabase from './assets/js/core/supabase.js';
+
+        let currentPage = 1;
+        const pageSize = 50;
+        let totalRecords = 0;
+        let currentSearch = "";
+        let currentDateFilter = "";
+        let allExportData = [];
+        let currentTableData = [];
+
+        window.changePage = async function(direction) {
+            currentPage += direction;
+            await loadData();
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            initLiveClock();
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById("filterDateInput");
+            if (dateInput) {
+                dateInput.value = todayStr;
+                currentDateFilter = todayStr;
+
+                dateInput.addEventListener("change", async (e) => {
+                    currentDateFilter = e.target.value;
+                    currentPage = 1;
+                    await loadData();
+                });
+            }
+
+            await loadData();
+
+            const searchInput = document.getElementById("searchInput");
+            let timeout;
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(async () => {
+                        currentSearch = e.target.value.trim();
+                        currentPage = 1;
+                        await loadData();
+                    }, 300);
+                });
+            }
+        });
+
+        function initLiveClock() {
+            const updateClock = () => {
+                const now = new Date();
+                const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateEl = document.getElementById("currentDate");
+                const timeEl = document.getElementById("currentTime");
+                if (dateEl) dateEl.innerText = now.toLocaleDateString('fr-FR', optionsDate);
+                if (timeEl) timeEl.innerText = now.toTimeString().split(' ')[0];
+            };
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function applyFilters(query) {
+            if (currentDateFilter) {
+                const startOfDay = `${currentDateFilter}T00:00:00`;
+                const endOfDay = `${currentDateFilter}T23:59:59`;
+                query = query.gte('created_at', startOfDay).lte('created_at', endOfDay);
+            }
+
+            if (currentSearch !== "") {
+                query = query.or(`document_vente.ilike.%${currentSearch}%,article.ilike.%${currentSearch}%,lot.ilike.%${currentSearch}%`);
+            }
+            return query;
+        }
+
+        async function loadData() {
+            const tbody = document.getElementById("reservationsTableBody");
+
+            try {
+                let query = supabase
+                    .from('reservations_stock')
+                    .select(`
+                        id,
+                        stock_id,
+                        picking_id,
+                        picking_detail_id,
+                        suivi_id,
+                        document_vente,
+                        article,
+                        designation_article,
+                        lot,
+                        magasin,
+                        quantite_reservee,
+                        unite,
+                        statut,
+                        created_at,
+                        picking:picking_id ( id, statut )
+                    `, { count: 'exact' });
+
+                query = applyFilters(query);
+
+                const start = (currentPage - 1) * pageSize;
+                const end = start + pageSize - 1;
+                query = query.range(start, end).order('created_at', { ascending: false });
+
+                const { data, count, error } = await query;
+
+                if (error) {
+                    console.error("Erreur:", error);
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur lors du chargement des données.</td></tr>`;
+                    return;
+                }
+
+                totalRecords = count || 0;
+                currentTableData = data || [];
+                renderTable(currentTableData);
+                updatePagination();
+                await fetchGlobalStats();
+
+            } catch (err) {
+                console.error("Erreur technique:", err);
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-400 text-xs">Erreur de connexion.</td></tr>`;
+            }
+        }
+
+        async function fetchGlobalStats() {
+            try {
+                let q = supabase.from('reservations_stock').select('id, stock_id, picking_id, picking_detail_id, suivi_id, quantite_reservee, statut, document_vente, article, designation_article, lot, magasin, created_at, picking:picking_id(id, statut)');
+                q = applyFilters(q);
+                const { data, error } = await q.limit(10000);
+                if (error || !data) return;
+
+                allExportData = data;
+                let totalQty = 0;
+                let activeCount = 0;
+
+                data.forEach(item => {
+                    totalQty += Number(item.quantite_reservee || 0);
+                    if (item.statut === 'RESERVEE') activeCount++;
+                });
+
+                document.getElementById("totalLinesBadge").textContent = data.length.toLocaleString();
+                document.getElementById("totalQtyBadge").textContent = totalQty.toLocaleString(undefined, {minimumFractionDigits: 3, maximumFractionDigits: 3}) + " KG";
+                document.getElementById("totalActiveBadge").textContent = activeCount.toLocaleString();
+
+            } catch (err) {
+                console.error("Erreur stats:", err);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById("reservationsTableBody");
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-xs"><i class="fas fa-folder-open mr-2"></i> Aucune réservation trouvée pour cette date.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            data.forEach(item => {
+                let badgeResColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                if (item.statut === 'TRANSFEREE_AB10' || item.statut === 'VALIDEE') badgeResColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (item.statut === 'RESERVEE') badgeResColor = 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+
+                let pickingStatut = item.picking ? item.picking.statut : 'NON_ASSOCIE';
+                let badgePickColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                if (pickingStatut === 'TERMINE' || pickingStatut === 'VALIDE') badgePickColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                if (pickingStatut === 'EN_COURS' || pickingStatut === 'PICKING') badgePickColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+
+                let isValidPicking = (pickingStatut === 'VALIDE');
+                let checkboxDisabled = !isValidPicking ? 'disabled' : '';
+                let checkboxClass = !isValidPicking ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer';
+
+                html += `
+                    <tr class="hover:bg-slate-800/35 transition">
+                        <td class="p-4 text-center">
+                            <input type="checkbox" class="row-checkbox rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-emerald-500 w-4 h-4 ${checkboxClass}" 
+                                data-id="${item.id}" ${checkboxDisabled} ${!isValidPicking ? 'title="Le Picking doit être VALIDE pour pouvoir être sélectionné"' : ''}>
+                        </td>
+                        <td class="p-4 font-mono font-semibold text-emerald-400 text-xs">${item.document_vente || '-'}</td>
+                        <td class="p-4 text-slate-100 text-xs">
+                            <span class="font-mono font-bold text-slate-200">${item.article || ''}</span>
+                            <span class="text-slate-400 block text-[11px]">${item.designation_article || ''}</span>
+                        </td>
+                        <td class="p-4 font-mono text-slate-300 text-xs">${item.lot || '-'}</td>
+                        <td class="p-4 text-slate-300 text-xs font-medium">${item.magasin || '-'}</td>
+                        <td class="p-4 text-right font-mono font-bold text-sky-400 text-xs">
+                            ${Number(item.quantite_reservee || 0).toLocaleString(undefined, {minimumFractionDigits: 3})} <span class="text-[10px] text-slate-400">${item.unite || 'KG'}</span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${badgeResColor}">
+                                ${item.statut || 'RESERVEE'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${badgePickColor}">
+                                ${pickingStatut}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        window.toggleSelectAll = function(master) {
+            const checkboxes = document.querySelectorAll('.row-checkbox:not(:disabled)');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startItem = totalRecords === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+            const endItem = Math.min(currentPage * pageSize, totalRecords);
+
+            document.getElementById("paginationInfo").textContent = `Affichage de ${startItem} à ${endItem} sur ${totalRecords} entrées`;
+            document.getElementById("pageIndicator").textContent = `Page ${currentPage} / ${totalPages}`;
+            document.getElementById("prevPageBtn").disabled = currentPage <= 1;
+            document.getElementById("nextPageBtn").disabled = currentPage >= totalPages;
+        }
+
+        window.processSelectedReservations = async function() {
+            try {
+                const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+                if (selectedCheckboxes.length === 0) {
+                    alert("Veuillez sélectionner au moins une ligne valide à traiter.");
+                    return;
+                }
+
+                const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-id'));
+                const targetRows = currentTableData.filter(item => selectedIds.includes(item.id));
+
+                if (targetRows.length === 0) {
+                    alert("Aucune ligne valide sélectionnée.");
+                    return;
+                }
+
+                const validIds = targetRows.map(i => i.id);
+
+                const { error: errRes } = await supabase
+                    .from('reservations_stock')
+                    .update({ statut: 'TRANSFEREE_AB10' })
+                    .in('id', validIds);
+
+                if (errRes) throw errRes;
+
+                const pickingIds = [...new Set(targetRows.map(i => i.picking_id).filter(Boolean))];
+                if (pickingIds.length > 0) {
+                    const { error: errPick } = await supabase
+                        .from('picking')
+                        .update({ statut: 'TERMINE' })
+                        .in('id', pickingIds);
+                    if (errPick) throw errPick;
+                }
+
+                const ab10Payloads = targetRows.map(item => ({
+                    reservation_id: item.id,
+                    picking_id: item.picking_id,
+                    picking_detail_id: item.picking_detail_id,
+                    suivi_id: item.suivi_id,
+                    stock_id: item.stock_id,
+                    document_vente: item.document_vente,
+                    article: item.article,
+                    designation_article: item.designation_article,
+                    lot: item.lot,
+                    magasin_origine: item.magasin,
+                    magasin_destination: 'AB10',
+                    quantite: item.quantite_reservee,
+                    unite: item.unite || 'KG',
+                    statut: 'EN_AB10'
+                }));
+
+                const { error: errAb10 } = await supabase.from('ab10_stock').insert(ab10Payloads);
+                if (errAb10) {
+                    console.error("Erreur insertion AB10:", errAb10);
+                }
+
+                const aggregatedMap = new Map();
+
+                targetRows.forEach(item => {
+                    const key = `${item.article}_${item.lot}_${item.magasin}`;
+                    const qty = Number(item.quantite_reservee || 0);
+
+                    if (aggregatedMap.has(key)) {
+                        let existing = aggregatedMap.get(key);
+                        existing.Quantité += qty;
+                    } else {
+                        aggregatedMap.set(key, {
+                            "Article": item.article || '',
+                            "Quantité": qty,
+                            "Mag.": item.magasin || '',
+                            "Lot": item.lot || '',
+                            "Désignation": item.designation_article || ''
+                        });
+                    }
+                });
+
+                const excelData = Array.from(aggregatedMap.values());
+
+                const worksheet = XLSX.utils.json_to_sheet(excelData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "AB10_Export");
+                XLSX.writeFile(workbook, `AB10_Transfer_${new Date().toISOString().slice(0,10)}.xlsx`);
+
+                alert(`Traitement réussi ! ${targetRows.length} ligne(s) sélectionnées ont été basculées à TERMINE / TRANSFEREE_AB10.`);
+                await loadData();
+
+            } catch (err) {
+                console.error("Erreur lors du traitement de la sélection:", err);
+                alert("Une erreur est survenue lors de l'exécution.");
+            }
+        }
+
+        window.exportToExcel = function() {
+            if (!allExportData || allExportData.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+            const dataToExport = allExportData.map(item => ({
+                "Document Vente": item.document_vente,
+                "Article": item.article,
+                "Désignation": item.designation_article,
+                "Lot": item.lot,
+                "Magasin": item.magasin,
+                "Quantité Réservée": item.quantite_reservee,
+                "Statut Réservation": item.statut,
+                "Statut Picking": item.picking ? item.picking.statut : 'NON_ASSOCIE'
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "ReservationsStock");
+            XLSX.writeFile(workbook, `Reservations_Stock_${currentDateFilter || new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        window.exportToPDF = function() {
+            if (!allExportData || allExportData.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+
+            doc.setFontSize(16);
+            doc.text(`SoufStock Enterprise - Suivi des Réservations (${currentDateFilter})`, 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Date d'export : ${new Date().toLocaleDateString('fr-FR')}`, 14, 22);
+
+            const columns = ["Document Vente", "Article", "Lot", "Magasin", "Quantité", "Statut Rés.", "Statut Pick."];
+            const rows = allExportData.map(item => [
+                item.document_vente || '',
+                item.article || '',
+                item.lot || '',
+                item.magasin || '',
+                Number(item.quantite_reservee || 0).toFixed(3),
+                item.statut || '',
+                item.picking ? item.picking.statut : ''
+            ]);
+
+            doc.autoTable({
+                head: [columns],
+                body: rows,
+                startY: 28,
+                theme: 'grid',
+                styles: { fontSize: 9, cellPadding: 3 },
+                headStyles: { fillColor: [15, 23, 42] }
+            });
+
+            doc.save(`Reservations_Stock_${currentDateFilter || new Date().toISOString().slice(0,10)}.pdf`);
+        }
+    </script>
+</body>
+</html>

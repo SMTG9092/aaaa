@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lancement & Suivi des Commandes - SoufStock WMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *{box-sizing:border-box}
+        html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:#f5f8f6;color:#101828}
+        body{font-size:13px}
+        button,input{font-family:inherit}
+        .page{min-height:100vh;padding:8px 10px 10px;display:flex;flex-direction:column;gap:12px}
+        .card{background:#fff;border:1px solid #e1e8e4;border-radius:16px;box-shadow:0 3px 14px rgba(16,24,40,.06)}
+        .header{min-height:78px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+        .brand{display:flex;align-items:center;gap:14px}.brand-icon{width:42px;height:42px;border-radius:13px;background:#e9f8ef;color:#079455;display:flex;align-items:center;justify-content:center;font-size:20px}
+        .brand h1{margin:0;font-size:22px;line-height:1.1;font-weight:800;color:#101828}.brand p{margin:5px 0 0;color:#667085;font-size:11px}
+        .header-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+        .top-btn{height:38px;padding:0 15px;border-radius:10px;border:1px solid #d8e4dd;background:#f8fbf9;color:#087f3e;font-weight:700;font-size:11px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:.15s}.top-btn:hover{background:#edf8f1}.top-btn.dark{background:#0b1028;color:#fff;border-color:#202745}.top-btn.dark:hover{background:#141b3a}
+        .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{min-height:105px;padding:18px;display:flex;align-items:center;justify-content:space-between}.stat-left{display:flex;align-items:center;gap:14px}.stat-icon{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:20px}.green{background:#eaf8f0;color:#079455}.amber{background:#fff5df;color:#d98a00}.blue{background:#edf5ff;color:#438cf5}.purple{background:#f5edff;color:#8b45e8}.stat-label{font-size:10px;color:#667085;text-transform:uppercase;letter-spacing:.04em;font-weight:700}.stat-value{display:block;margin-top:7px;font-size:25px;font-weight:800;color:#101828}.stat-value.green-t{color:#079455}.stat-value.amber-t{color:#d98a00}.stat-value.blue-t{color:#2563eb}
+        .filters{padding:14px 16px;display:flex;flex-direction:column;gap:12px}.search-wrap{position:relative;width:min(740px,100%)}.search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#667085}.search{height:44px;width:100%;border:1px solid #d5dfda;border-radius:10px;padding:0 14px 0 42px;outline:none;color:#101828;background:#fff;font-size:12px}.search:focus{border-color:#079455;box-shadow:0 0 0 3px rgba(7,148,85,.08)}.filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.date-box,.select-box{height:44px;border:1px solid #d5dfda;border-radius:10px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;color:#344054}.date-box{min-width:265px}.date-box i{color:#667085}.date-box span{font-size:11px;font-weight:700;color:#667085}.date-box input{border:0;outline:0;background:transparent;font-size:12px;font-weight:600;color:#101828;flex:1}.filter-btn{height:44px;padding:0 18px;border:0;border-radius:10px;background:#079455;color:#fff;font-size:11px;font-weight:800;display:inline-flex;align-items:center;gap:8px;cursor:pointer;box-shadow:0 4px 10px rgba(7,148,85,.18)}.filter-btn:hover{background:#067a46}
+        .table-card{overflow:hidden;display:flex;flex-direction:column;min-height:0}.table-toolbar{padding:12px 15px;border-bottom:1px solid #e3e9e6;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.mode-label{font-size:11px;font-weight:800;color:#475467;display:flex;align-items:center;gap:8px}.mode-label i{color:#079455}.tabs{display:flex;gap:7px}.tab{height:34px;padding:0 12px;border-radius:9px;border:1px solid #dbe4df;background:#f7faf8;color:#667085;font-size:11px;font-weight:800;cursor:pointer}.tab.active{background:#079455;border-color:#079455;color:#fff;box-shadow:0 3px 8px rgba(7,148,85,.15)}.count{background:#eaf8f0;color:#079455;border:1px solid #ccebd8;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:800}
+        .table-scroll{overflow:auto;max-height:calc(100vh - 410px)}table{width:100%;min-width:1050px;border-collapse:collapse;table-layout:auto}thead th{position:sticky;top:0;z-index:2;background:#f1f5f3;color:#101828;border-bottom:2px solid #c8d2cd;border-right:1px solid #d8e0dc;padding:12px 11px;font-size:10px;text-transform:uppercase;font-weight:800;text-align:center;white-space:nowrap}tbody td{padding:12px 11px;border-bottom:1px solid #dce4e0;border-right:1px solid #e1e8e4;color:#101828;background:#fff;font-size:11px;font-weight:600;vertical-align:middle}tbody tr:nth-child(even) td{background:#f9fbfa}tbody tr:hover td{background:#eef8f2}.num-green{color:#087f3e!important}.num-blue{color:#2563eb!important}.num-emerald{color:#079455!important}.badge{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:9px;font-weight:800}.badge-import{background:#fff4dc;color:#9a6700;border:1px solid #f1d99b}.action-cell{white-space:nowrap;text-align:center}.action-btn{height:32px;padding:0 10px;border-radius:8px;border:1px solid #d6e0db;background:#f7faf8;font-size:10px;font-weight:800;display:inline-flex;align-items:center;gap:6px;cursor:pointer}.action-btn.details{color:#2563eb}.action-btn.launch{background:#079455;border-color:#079455;color:#fff}.action-btn:hover{filter:brightness(.97)}
+        .empty{padding:50px;text-align:center;color:#98a2b3}.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(5px);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}.modal{width:min(850px,95vw);max-height:85vh;background:#fff;border:1px solid #dfe7e2;border-radius:18px;box-shadow:0 20px 60px rgba(16,24,40,.2);display:flex;flex-direction:column;overflow:hidden}.modal-head{padding:16px 18px;border-bottom:1px solid #e4e9e6;display:flex;align-items:center;justify-content:space-between}.modal-head h3{margin:0;font-size:14px;color:#101828}.modal-head h3 span{color:#079455}.modal-close{border:0;background:#f3f6f4;color:#667085;width:34px;height:34px;border-radius:9px;cursor:pointer}.modal-body{overflow:auto;padding:14px}.modal table{min-width:650px}.modal thead th{position:static}.modal-foot{padding:12px 18px;border-top:1px solid #e4e9e6;display:flex;justify-content:flex-end}.close-btn{height:36px;padding:0 15px;border:0;border-radius:9px;background:#eef2f0;color:#344054;font-weight:700;cursor:pointer}
+        @media(max-width:1000px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.header{align-items:flex-start;flex-direction:column}.header-actions{width:100%}.table-scroll{max-height:none}}
+        @media(max-width:600px){.page{padding:6px}.stats{grid-template-columns:1fr}.brand h1{font-size:19px}.date-box{min-width:100%;}.filter-btn{width:100%;justify-content:center}}
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="card header">
+        <div class="brand">
+            <div class="brand-icon"><i class="fas fa-list-check"></i></div>
+            <div><h1>Lancement des Commandes</h1><p>Gestion et suivi du lancement des commandes</p></div>
+        </div>
+
+    </header>
+
+    <section class="stats">
+        <div class="card stat"><div class="stat-left"><div class="stat-icon green"><i class="fas fa-file-lines"></i></div><div><span class="stat-label">Total Commandes</span><span id="statTotal" class="stat-value green-t">0</span></div></div></div>
+        <div class="card stat"><div class="stat-left"><div class="stat-icon amber"><i class="fas fa-file-import"></i></div><div><span class="stat-label">Importées</span><span id="statImportee" class="stat-value amber-t">0</span></div></div></div>
+        <div class="card stat"><div class="stat-left"><div class="stat-icon blue"><i class="fas fa-play"></i></div><div><span class="stat-label">Lancées</span><span id="statLancee" class="stat-value blue-t">0</span></div></div></div>
+        <div class="card stat"><div class="stat-left"><div class="stat-icon purple"><i class="fas fa-box-open"></i></div><div><span class="stat-label">Picking</span><span id="statPicking" class="stat-value" style="color:#7c3aed">0</span></div></div></div>
+    </section>
+
+    <section class="card filters">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input id="searchInput" class="search" type="text" placeholder="Rechercher par N° Commande, Client, Itinéraire...">
+        </div>
+        <div class="filter-row">
+            <div class="date-box"><i class="far fa-calendar"></i><span>Du</span><input type="date" id="dateDebut"></div>
+            <div class="date-box"><i class="far fa-calendar"></i><span>Au</span><input type="date" id="dateFin"></div>
+            <button onclick="loadSuiviCommandes()" class="filter-btn"><i class="fas fa-filter"></i> Afficher</button>
+        </div>
+    </section>
+
+    <section class="card table-card">
+        <div class="table-toolbar">
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="mode-label"><i class="fas fa-list-check"></i> Affichage :</div>
+                <div class="tabs">
+                    <button onclick="switchMode('commande')" id="tabModeCommande" class="tab active"><i class="fas fa-file-lines"></i> Par Commande</button>
+                    <button onclick="switchMode('tournee')" id="tabModeTournee" class="tab"><i class="fas fa-route"></i> Par Tournée</button>
+                </div>
+            </div>
+            <span id="tableCountBadge" class="count">0 éléments</span>
+        </div>
+
+        <div id="containerTableCommande" class="table-scroll">
+            <table>
+                <thead><tr>
+                    <th>N° Commande</th><th>Client / Réceptionnaire</th><th>Date Livraison</th><th>Nb Postes</th><th>Total KG</th><th>Total Pièces</th><th>Itinéraire / Tournée</th><th>Statut</th><th>Actions & Lancement</th>
+                </tr></thead>
+                <tbody id="suiviTableBody"><tr><td colspan="9" class="empty">Chargement...</td></tr></tbody>
+            </table>
+        </div>
+
+        <div id="containerTableTournee" class="table-scroll" style="display:none">
+            <table>
+                <thead><tr>
+                    <th>Itinéraire / Tournée</th><th>Nb Commandes</th><th>Total Postes</th><th>Total KG</th><th>Total Pièces</th><th>Actions & Lancement</th>
+                </tr></thead>
+                <tbody id="tourneeTableBody"><tr><td colspan="6" class="empty">Chargement...</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<div id="detailModal" class="modal-overlay" style="display:none;opacity:0;transition:opacity .2s">
+    <div class="modal">
+        <div class="modal-head"><h3><i class="fas fa-boxes-stacked" style="color:#079455;margin-right:7px"></i> Détails : <span id="modalDocTitle"></span></h3><button onclick="closeModal()" class="modal-close"><i class="fas fa-xmark"></i></button></div>
+        <div class="modal-body"><table><thead id="modalTableHead"><tr><th>Poste</th><th>Article</th><th>Désignation</th><th>Quantité KG</th><th>Pièces</th></tr></thead><tbody id="modalDetailsBody"></tbody></table></div>
+        <div class="modal-foot"><button onclick="closeModal()" class="close-btn">Fermer</button></div>
+    </div>
+</div>
+
+    <!-- APP SCRIPT -->
+    <script type="module">
+        import supabase from '../assets/js/core/supabase.js';
+
+        let currentMode = 'commande'; // 'commande' ou 'tournee'
+
+        function getLocalDateString(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        const today = new Date();
+        document.getElementById('dateDebut').value = getLocalDateString(today);
+        const demain = new Date(today);
+        demain.setDate(demain.getDate() + 1);
+        document.getElementById('dateFin').value = getLocalDateString(demain);
+
+        window.switchMode = function(mode) {
+            currentMode = mode;
+            const btnCmd = document.getElementById('tabModeCommande');
+            const tabCmd = document.getElementById('containerTableCommande');
+            const btnTrn = document.getElementById('tabModeTournee');
+            const tabTrn = document.getElementById('containerTableTournee');
+
+            btnCmd.className = 'tab';
+            btnTrn.className = 'tab';
+
+            if (mode === 'commande') {
+                btnCmd.className = 'tab active';
+                tabCmd.style.display = 'block';
+                tabTrn.style.display = 'none';
+            } else {
+                btnTrn.className = 'tab active';
+                tabCmd.style.display = 'none';
+                tabTrn.style.display = 'block';
+            }
+
+            loadSuiviCommandes();
+        };
+
+        // Recherche locale dans le tableau actuellement affiché
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const q = this.value.trim().toLowerCase();
+                const container = currentMode === 'commande'
+                    ? document.getElementById('containerTableCommande')
+                    : document.getElementById('containerTableTournee');
+                const rows = container.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    row.style.display = (!q || row.innerText.toLowerCase().includes(q)) ? '' : 'none';
+                });
+            });
+        }
+
+        window.loadSuiviCommandes = async function() {
+            const dateDebut = document.getElementById('dateDebut').value;
+            const dateFin = document.getElementById('dateFin').value;
+            
+            // 1. Charger Stats Globales
+            let queryStats = supabase.from('commandes_excel').select('document_vente, statut, date_livraison');
+            if (dateDebut) queryStats = queryStats.gte('date_livraison', dateDebut);
+            if (dateFin) queryStats = queryStats.lte('date_livraison', dateFin);
+            const { data: rawStats } = await queryStats;
+
+            if (rawStats) {
+                const commandesMap = {};
+                rawStats.forEach(r => { if (!commandesMap[r.document_vente]) commandesMap[r.document_vente] = r.statut; });
+                const statuts = Object.values(commandesMap);
+                document.getElementById('statTotal').textContent = statuts.length;
+                document.getElementById('statImportee').textContent = statuts.filter(s => s === 'IMPORTEE').length;
+                document.getElementById('statLancee').textContent = statuts.filter(s => s === 'LANCEE').length;
+                document.getElementById('statPicking').textContent = statuts.filter(s => s === 'EN_PICKING').length;
+            }
+
+            if (currentMode === 'commande') {
+                await loadTableCommandes(dateDebut, dateFin, 'IMPORTEE');
+            } else {
+                await loadTableTournees(dateDebut, dateFin);
+            }
+        };
+
+        async function loadTableCommandes(dateDebut, dateFin, targetStatut) {
+            const tbody = document.getElementById("suiviTableBody");
+            tbody.innerHTML = `<tr><td colspan="9" class="empty"><i class="fas fa-spinner fa-spin mr-2"></i> Chargement...</td></tr>`;
+
+            let query = supabase.from('commandes_excel').select('document_vente, nom_receptionnaire, date_livraison, itineraire, statut').eq('statut', targetStatut);
+            if (dateDebut) query = query.gte('date_livraison', dateDebut);
+            if (dateFin) query = query.lte('date_livraison', dateFin);
+            const { data: tableRows } = await query;
+
+            const uniqueMap = {};
+            if (tableRows) tableRows.forEach(r => { if (!uniqueMap[r.document_vente]) uniqueMap[r.document_vente] = r; });
+            const list = Object.values(uniqueMap);
+            document.getElementById('tableCountBadge').textContent = `${list.length} commandes`;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="empty">Aucune commande trouvée avec le statut [${targetStatut}].</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            for (let item of list) {
+                const { data: details } = await supabase.from('commandes_excel').select('quantite_commandee, nombre_pieces, "Poste"').eq('document_vente', item.document_vente);
+                const nbPostes = details ? details.length : 0;
+                const totalKg = details ? details.reduce((a, c) => a + Number(c.quantite_commandee || 0), 0) : 0;
+                const totalPieces = details ? details.reduce((a, c) => a + Number(c.nombre_pieces || 0), 0) : 0;
+
+                const badgeColor = 'badge badge-import';
+                
+                let actionButtons = `
+                    <button onclick="openDetailsCommande('${item.document_vente}')" class="action-btn details">
+                        <i class="fas fa-eye"></i> Articles
+                    </button>
+                    <button onclick="lancerCommande('${item.document_vente}')" class="action-btn launch">
+                        <i class="fas fa-play"></i> Lancer
+                    </button>
+                `;
+
+                html += `
+                    <tr class="">
+                        <td class="p-3.5 font-bold num-green">${item.document_vente}</td>
+                        <td class="p-3.5 ">${item.nom_receptionnaire || 'Client Divers'}</td>
+                        <td class="p-3.5 num-blue font-mono">${item.date_livraison || '-'}</td>
+                        <td class="p-3.5 text-center font-bold num-blue">${nbPostes} Postes</td>
+                        <td class="p-3.5 text-right font-bold ">${totalKg.toFixed(2)} KG</td>
+                        <td class="p-3.5 text-right font-bold num-green">${totalPieces} Pcs</td>
+                        <td class="p-3.5 "><span class="">${item.itineraire || 'Non assigné'}</span></td>
+                        <td class="p-3.5"><span class="${badgeColor}">${item.statut}</span></td>
+                        <td class="p-3.5 action-cell">
+                            ${actionButtons}
+                        </td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        async function loadTableTournees(dateDebut, dateFin) {
+            const tbody = document.getElementById("tourneeTableBody");
+            tbody.innerHTML = `<tr><td colspan="6" class="empty"><i class="fas fa-spinner fa-spin mr-2"></i> Chargement...</td></tr>`;
+
+            let query = supabase.from('commandes_excel').select('document_vente, itineraire, quantite_commandee, nombre_pieces, "Poste"').eq('statut', 'IMPORTEE');
+            if (dateDebut) query = query.gte('date_livraison', dateDebut);
+            if (dateFin) query = query.lte('date_livraison', dateFin);
+            const { data: rows } = await query;
+
+            if (!rows || rows.length === 0) {
+                document.getElementById('tableCountBadge').textContent = `0 tournées`;
+                tbody.innerHTML = `<tr><td colspan="6" class="empty">Aucune tournée avec commandes IMPORTEE.</td></tr>`;
+                return;
+            }
+
+            const tourneesMap = {};
+            rows.forEach(r => {
+                const tourneeName = r.itineraire || 'Non assigné';
+                if (!tourneesMap[tourneeName]) {
+                    tourneesMap[tourneeName] = { name: tourneeName, docs: new Set(), totalPostes: 0, totalKg: 0, totalPieces: 0 };
+                }
+                tourneesMap[tourneeName].docs.add(r.document_vente);
+                tourneesMap[tourneeName].totalPostes += 1;
+                tourneesMap[tourneeName].totalKg += Number(r.quantite_commandee || 0);
+                tourneesMap[tourneeName].totalPieces += Number(r.nombre_pieces || 0);
+            });
+
+            const tourneesList = Object.values(tourneesMap);
+            document.getElementById('tableCountBadge').textContent = `${tourneesList.length} tournées`;
+
+            let html = "";
+            for (let t of tourneesList) {
+                const nbCommandes = t.docs.size;
+                html += `
+                    <tr class="">
+                        <td class="p-3.5 font-bold num-green"><i class="fas fa-route mr-2 num-blue"></i>${t.name}</td>
+                        <td class="p-3.5 text-center num-blue font-bold">${nbCommandes} Commandes</td>
+                        <td class="p-3.5 text-center ">${t.totalPostes} Postes</td>
+                        <td class="p-3.5 text-right font-bold ">${t.totalKg.toFixed(2)} KG</td>
+                        <td class="p-3.5 text-right font-bold num-green">${t.totalPieces} Pcs</td>
+                        <td class="p-3.5 action-cell">
+                            <button onclick="openDetailsTournee('${t.name}')" class="action-btn details">
+                                <i class="fas fa-eye"></i> Commandes & Articles
+                            </button>
+                            <button onclick="lancerTournee('${t.name}')" class="action-btn launch">
+                                <i class="fas fa-play"></i> Lancer Tournée
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        window.openDetailsCommande = async function(docVente) {
+            document.getElementById("modalDocTitle").textContent = docVente;
+            document.getElementById("modalTableHead").innerHTML = `
+                <tr>
+                    <th class="p-2.5">Poste</th>
+                    <th class="p-2.5">Article</th>
+                    <th class="p-2.5">Désignation</th>
+                    <th class="p-2.5 text-right">Quantité KG</th>
+                    <th class="p-2.5 text-right num-green">Pièces</th>
+                </tr>`;
+            const modalBody = document.getElementById("modalDetailsBody");
+            modalBody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Chargement...</td></tr>`;
+            const modal = document.getElementById("detailModal");
+            modal.style.display = "flex";
+            requestAnimationFrame(() => { modal.style.opacity = "1"; });
+
+            const { data } = await supabase.from('commandes_excel').select('"Poste", article, designation_article, quantite_commandee, nombre_pieces').eq('document_vente', docVente).order('"Poste"', { ascending: true });
+            let html = "";
+            if (data) {
+                data.forEach(row => {
+                    html += `<tr class=""><td class="p-2.5 text-amber-400 font-bold">${row.Poste}</td><td class="p-2.5 num-blue">${row.article}</td><td class="p-2.5 ">${row.designation_article}</td><td class="p-2.5 text-right font-bold ">${row.quantite_commandee} KG</td><td class="p-2.5 text-right font-bold num-green">${row.nombre_pieces} Pcs</td></tr>`;
+                });
+            }
+            modalBody.innerHTML = html;
+        };
+
+        window.openDetailsTournee = async function(tourneeName) {
+            document.getElementById("modalDocTitle").textContent = `Tournée : ${tourneeName}`;
+            document.getElementById("modalTableHead").innerHTML = `
+                <tr>
+                    <th class="p-2.5">N° Commande</th>
+                    <th class="p-2.5">Client</th>
+                    <th class="p-2.5 text-center">Postes</th>
+                    <th class="p-2.5 text-right">KG</th>
+                    <th class="p-2.5 text-right num-green">Pièces</th>
+                </tr>`;
+            const modalBody = document.getElementById("modalDetailsBody");
+            modalBody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Chargement...</td></tr>`;
+            const modal = document.getElementById("detailModal");
+            modal.style.display = "flex";
+            requestAnimationFrame(() => { modal.style.opacity = "1"; });
+
+            const dateDebut = document.getElementById('dateDebut').value;
+            const dateFin = document.getElementById('dateFin').value;
+            let query = supabase.from('commandes_excel').select('document_vente, nom_receptionnaire, quantite_commandee, nombre_pieces, "Poste"').eq('statut', 'IMPORTEE').eq('itineraire', tourneeName);
+            if (dateDebut) query = query.gte('date_livraison', dateDebut);
+            if (dateFin) query = query.lte('date_livraison', dateFin);
+            const { data } = await query;
+
+            const mapCmds = {};
+            if (data) {
+                data.forEach(r => {
+                    if (!mapCmds[r.document_vente]) {
+                        mapCmds[r.document_vente] = { client: r.nom_receptionnaire, postes: 0, kg: 0, pcs: 0 };
+                    }
+                    mapCmds[r.document_vente].postes += 1;
+                    mapCmds[r.document_vente].kg += Number(r.quantite_commandee || 0);
+                    mapCmds[r.document_vente].pcs += Number(r.nombre_pieces || 0);
+                });
+            }
+
+            let html = "";
+            Object.entries(mapCmds).forEach(([doc, info]) => {
+                html += `<tr class=""><td class="p-2.5 num-green font-bold">${doc}</td><td class="p-2.5 ">${info.client || '-'}</td><td class="p-2.5 text-center num-blue">${info.postes} Postes</td><td class="p-2.5 text-right font-bold ">${info.kg.toFixed(2)} KG</td><td class="p-2.5 text-right font-bold num-green">${info.pcs} Pcs</td></tr>`;
+            });
+            modalBody.innerHTML = html;
+        };
+
+        window.closeModal = function() {
+            const modal = document.getElementById("detailModal");
+            modal.style.opacity = "0";
+            setTimeout(() => { modal.style.display = "none"; }, 200);
+        };
+
+        async function genererNumLancement(prefix) {
+            const now = new Date();
+            const jj = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yy = String(now.getFullYear()).slice(-2);
+            const datePrefix = `${prefix}-${jj}${mm}${yy}-`;
+
+            const { data } = await supabase
+                .from('suivi_commandes_lancer')
+                .select('num_lancement')
+                .like('num_lancement', `${datePrefix}%`);
+
+            let nextSeq = 1;
+            if (data && data.length > 0) {
+                const seqs = data.map(item => {
+                    if (!item.num_lancement) return 0;
+                    const parts = item.num_lancement.split('-');
+                    return parseInt(parts[parts.length - 1], 10) || 0;
+                });
+                nextSeq = Math.max(...seqs, 0) + 1;
+            }
+            return `${datePrefix}${String(nextSeq).padStart(3, '0')}`;
+        }
+
+        window.lancerCommande = async function(docVente) {
+            if (!confirm(`Voulez-vous lancer la commande ${docVente} ?`)) return;
+            
+            const { data: { user } } = await supabase.auth.getUser();
+            const userId = user ? user.id : null;
+            const numLancement = await genererNumLancement('C');
+            const nowIso = new Date().toISOString();
+
+            const { error: err1 } = await supabase
+                .from('commandes_excel')
+                .update({ statut: 'LANCEE', updated_at: nowIso })
+                .eq('document_vente', docVente);
+                
+            if (err1) { alert("Erreur commandes_excel: " + err1.message); return; }
+
+            const { error: err2 } = await supabase
+                .from('suivi_commandes_lancer')
+                .update({
+                    statut: 'LANCEE',
+                    num_lancement: numLancement,
+                    lance_par: userId,
+                    date_lancement: nowIso,
+                    updated_at: nowIso
+                })
+                .eq('document_vente', docVente);
+
+            if (err2) { alert("Erreur suivi_commandes_lancer: " + err2.message); return; }
+            
+            window.open(`bon_preparation.html?cmd=${docVente}`, '_blank');
+            loadSuiviCommandes();
+        };
+
+        window.lancerTournee = async function(tourneeName) {
+            if (!confirm(`Voulez-vous vraiment lancer toute la tournée "${tourneeName}" ?`)) return;
+            
+            const dateDebut = document.getElementById('dateDebut').value;
+            const dateFin = document.getElementById('dateFin').value;
+
+            const { data: { user } } = await supabase.auth.getUser();
+            const userId = user ? user.id : null;
+            const nowIso = new Date().toISOString();
+
+            let queryDocs = supabase.from('commandes_excel').select('document_vente').eq('statut', 'IMPORTEE').eq('itineraire', tourneeName);
+            if (dateDebut) queryDocs = queryDocs.gte('date_livraison', dateDebut);
+            if (dateFin) queryDocs = queryDocs.lte('date_livraison', dateFin);
+            const { data: docsRows } = await queryDocs;
+
+            if (!docsRows || docsRows.length === 0) {
+                alert("Aucune commande trouvée pour cette tournée.");
+                return;
+            }
+
+            const uniqueDocs = [...new Set(docsRows.map(r => r.document_vente))];
+
+            for (let docVente of uniqueDocs) {
+                const numLancement = await genererNumLancement('T');
+
+                await supabase.from('commandes_excel')
+                    .update({ statut: 'LANCEE', updated_at: nowIso })
+                    .eq('document_vente', docVente);
+
+                await supabase.from('suivi_commandes_lancer')
+                    .update({
+                        statut: 'LANCEE',
+                        num_lancement: numLancement,
+                        lance_par: userId,
+                        date_lancement: nowIso,
+                        updated_at: nowIso
+                    })
+                    .eq('document_vente', docVente);
+            }
+
+            alert(`La tournée "${tourneeName}" a été lancée avec succès (${uniqueDocs.length} commandes) !`);
+            window.open(`bon_preparation_tournee.html?tournee=${encodeURIComponent(tourneeName)}`, '_blank');
+            loadSuiviCommandes();
+        };
+
+        setInterval(() => {
+            document.getElementById("liveClock").innerText = new Date().toLocaleTimeString('fr-FR');
+        }, 1000);
+
+        loadSuiviCommandes();
+    </script>
+
+</body>
+</html>
