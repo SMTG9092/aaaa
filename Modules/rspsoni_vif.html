@@ -1,743 +1,506 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réception VIF</title>
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f7f6;
-            color: #173b2a;
-            font-size: 12px;
-        }
-
-        .vif-page {
-            width: 100%;
-            padding: 10px;
-        }
-
-        .page-header {
-            background: #fff;
-            border: 1px solid #dce6e1;
-            border-radius: 14px;
-            padding: 16px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .page-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .page-title-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 9px;
-            background: #eaf7f0;
-            color: #008f55;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 17px;
-        }
-
-        .page-title h1 {
-            margin: 0;
-            font-size: 18px;
-            color: #007f4d;
-        }
-
-        .page-title p {
-            margin: 4px 0 0;
-            color: #7b8b84;
-            font-size: 10px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 7px;
-        }
-
-        button {
-            border: 1px solid #d3e1da;
-            background: #fff;
-            color: #174b35;
-            border-radius: 8px;
-            padding: 9px 13px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        button:hover {
-            background: #f0f8f4;
-        }
-
-        .btn-primary {
-            background: #008f55;
-            color: white;
-            border-color: #008f55;
-        }
-
-        .btn-primary:hover {
-            background: #007846;
-            color: white;
-        }
-
-        .btn-warning {
-            background: #fff8e7;
-            border-color: #ead69c;
-            color: #8a6200;
-        }
-
-        .btn-danger {
-            background: #fff1ef;
-            border-color: #efc1bb;
-            color: #b33a2d;
-        }
-
-        .btn-secondary {
-            background: #f4f7f6;
-        }
-
-        .status-bar {
-            background: #fff;
-            border: 1px solid #dce6e1;
-            border-radius: 10px;
-            padding: 9px 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .status-dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: #00a968;
-        }
-
-        .status-dot.warning {
-            background: #e5a400;
-        }
-
-        .status-dot.danger {
-            background: #d84235;
-        }
-
-        .status-text {
-            font-size: 11px;
-            color: #617169;
-        }
-
-        .layout {
-            display: grid;
-            grid-template-columns: 330px minmax(0, 1fr);
-            gap: 10px;
-            align-items: stretch;
-        }
-
-        .card {
-            background: #fff;
-            border: 1px solid #dce6e1;
-            border-radius: 14px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 13px 15px;
-            border-bottom: 1px solid #e7eeeb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .card-header h2 {
-            margin: 0;
-            font-size: 13px;
-            color: #00834f;
-        }
-
-        .card-header small {
-            display: block;
-            margin-top: 3px;
-            color: #87958f;
-            font-size: 9px;
-        }
-
-        .card-body {
-            padding: 14px;
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 10px;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 11px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #8b9b94;
-        }
-
-        .search-box input {
-            padding-left: 32px;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            border: 1px solid #d5e0db;
-            background: #fff;
-            border-radius: 8px;
-            padding: 9px 10px;
-            color: #173b2a;
-            outline: none;
-            font-family: inherit;
-            font-size: 11px;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: #00a968;
-            box-shadow: 0 0 0 2px rgba(0, 169, 104, .08);
-        }
-
-        input[readonly] {
-            background: #f5f8f6;
-        }
-
-        textarea {
-            min-height: 70px;
-            resize: vertical;
-        }
-
-        label {
-            display: block;
-            font-size: 9px;
-            font-weight: 700;
-            color: #65756e;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .required {
-            color: #d43c31;
-        }
-
-        .field {
-            min-width: 0;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .section {
-            margin-bottom: 14px;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            border-bottom: 1px solid #e1e9e5;
-            padding-bottom: 7px;
-            margin-bottom: 10px;
-            color: #00854f;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .section-title i {
-            font-size: 12px;
-        }
-
-        .mission-list {
-            max-height: 650px;
-            overflow-y: auto;
-        }
-
-        .mission-item {
-            border: 1px solid #e0e8e4;
-            border-radius: 9px;
-            padding: 11px;
-            margin-bottom: 7px;
-            cursor: pointer;
-            transition: .15s;
-        }
-
-        .mission-item:hover {
-            border-color: #9bd7bb;
-            background: #f7fcf9;
-        }
-
-        .mission-item.active {
-            border-color: #00a968;
-            background: #edf9f3;
-        }
-
-        .mission-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 5px;
-            margin-bottom: 7px;
-        }
-
-        .mission-number {
-            color: #007f4d;
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .mission-meta {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px 8px;
-        }
-
-        .meta-item span {
-            display: block;
-            color: #98a49f;
-            font-size: 8px;
-            text-transform: uppercase;
-        }
-
-        .meta-item strong {
-            display: block;
-            color: #34463d;
-            font-size: 9px;
-            margin-top: 2px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px 7px;
-            border-radius: 20px;
-            font-size: 8px;
-            font-weight: 800;
-            white-space: nowrap;
-        }
-
-        .badge-prep {
-            background: #eef2f4;
-            color: #68767e;
-        }
-
-        .badge-route {
-            background: #fff5db;
-            color: #936800;
-        }
-
-        .badge-return {
-            background: #eaf3ff;
-            color: #2865a4;
-        }
-
-        .badge-arrive {
-            background: #e9f5ff;
-            color: #2476a5;
-        }
-
-        .badge-reception {
-            background: #e8f8ef;
-            color: #087c48;
-        }
-
-        .badge-cancel {
-            background: #fff0ef;
-            color: #b33a2e;
-        }
-
-        .empty-list {
-            padding: 50px 15px;
-            text-align: center;
-            color: #9aa7a1;
-        }
-
-        .empty-list i {
-            display: block;
-            font-size: 25px;
-            margin-bottom: 8px;
-            color: #c8d3ce;
-        }
-
-        .form-card {
-            min-height: 650px;
-        }
-
-        .mission-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            padding: 15px 17px;
-            border-bottom: 1px solid #e5ece9;
-        }
-
-        .mission-header h2 {
-            margin: 0;
-            font-size: 18px;
-            color: #008f55;
-        }
-
-        .mission-header p {
-            margin: 4px 0 0;
-            font-size: 9px;
-            color: #85938d;
-        }
-
-        .mission-content {
-            padding: 15px 17px;
-        }
-
-        .info-strip {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            border: 1px solid #dce7e2;
-            border-radius: 9px;
-            overflow: hidden;
-            margin-bottom: 14px;
-        }
-
-        .info-cell {
-            padding: 10px 11px;
-            border-right: 1px solid #dce7e2;
-        }
-
-        .info-cell:last-child {
-            border-right: none;
-        }
-
-        .info-cell span {
-            display: block;
-            color: #8a9992;
-            text-transform: uppercase;
-            font-size: 8px;
-            margin-bottom: 4px;
-        }
-
-        .info-cell strong {
-            font-size: 11px;
-            color: #273b32;
-        }
-
-        .timeline {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0;
-            margin-bottom: 16px;
-            border: 1px solid #dce7e2;
-            border-radius: 9px;
-            overflow: hidden;
-        }
-
-        .timeline-step {
-            padding: 9px 7px;
-            text-align: center;
-            background: #f8faf9;
-            border-right: 1px solid #dce7e2;
-            position: relative;
-        }
-
-        .timeline-step:last-child {
-            border-right: none;
-        }
-
-        .timeline-step .circle {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #dce5e1;
-            color: #6d7d75;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 800;
-            margin-bottom: 4px;
-        }
-
-        .timeline-step.active {
-            background: #edf9f3;
-        }
-
-        .timeline-step.active .circle {
-            background: #00a968;
-            color: white;
-        }
-
-        .timeline-step.done .circle {
-            background: #008f55;
-            color: white;
-        }
-
-        .timeline-step strong {
-            display: block;
-            font-size: 8px;
-            color: #55655d;
-        }
-
-        .time-card {
-            border: 1px solid #dce7e2;
-            border-radius: 9px;
-            padding: 12px;
-            background: #fbfcfb;
-        }
-
-        .time-value {
-            font-size: 18px;
-            font-weight: 800;
-            color: #007f4d;
-            margin-top: 4px;
-        }
-
-        .weight-box {
-            border: 1px solid #d8e5df;
-            border-radius: 10px;
-            padding: 12px;
-            background: #fbfdfc;
-        }
-
-        .weight-box.net {
-            background: #edf9f3;
-            border-color: #a8dec3;
-        }
-
-        .weight-label {
-            color: #74847c;
-            font-size: 9px;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        .weight-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: #173b2a;
-            margin-top: 5px;
-        }
-
-        .weight-box.net .weight-value {
-            color: #008f55;
-        }
-
-        .calibre-box {
-            background: #f5f9f7;
-            border: 1px solid #dce7e2;
-            border-radius: 9px;
-            padding: 11px;
-            text-align: center;
-        }
-
-        .calibre-box .label {
-            font-size: 8px;
-            color: #87958f;
-            text-transform: uppercase;
-        }
-
-        .calibre-box .value {
-            font-size: 17px;
-            font-weight: 800;
-            color: #008f55;
-            margin-top: 4px;
-        }
-
-        .details-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #dce6e1;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .details-table th {
-            background: #f4f7f5;
-            color: #74847c;
-            font-size: 8px;
-            text-transform: uppercase;
-            padding: 9px 7px;
-            text-align: left;
-            border-bottom: 1px solid #dce6e1;
-        }
-
-        .details-table td {
-            padding: 9px 7px;
-            font-size: 9px;
-            border-bottom: 1px solid #edf1ef;
-            color: #31433b;
-        }
-
-        .details-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 7px;
-            padding-top: 14px;
-            border-top: 1px solid #e4ebe8;
-            margin-top: 15px;
-        }
-
-        .alert {
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: none;
-            font-size: 10px;
-        }
-
-        .alert.show {
-            display: block;
-        }
-
-        .alert.error {
-            background: #fff1ef;
-            border: 1px solid #efc3bd;
-            color: #b1392f;
-        }
-
-        .alert.success {
-            background: #eaf8f0;
-            border: 1px solid #b8e2ca;
-            color: #087844;
-        }
-
-        .alert.warning {
-            background: #fff8e6;
-            border: 1px solid #ead69c;
-            color: #8a6500;
-        }
-
-        .loading {
-            opacity: .65;
-            pointer-events: none;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .readonly-value {
-            min-height: 34px;
-            padding: 9px 10px;
-            background: #f5f8f6;
-            border: 1px solid #d8e2dd;
-            border-radius: 8px;
-            font-size: 11px;
-            color: #34463d;
-        }
-
-        .right-empty {
-            min-height: 580px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #9aa7a1;
-        }
-
-        .right-empty i {
-            display: block;
-            font-size: 35px;
-            color: #c9d4cf;
-            margin-bottom: 10px;
-        }
-
-        .right-empty strong {
-            display: block;
-            color: #77877f;
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-
-        .right-empty span {
-            font-size: 9px;
-        }
-
-        .footer-note {
-            margin-top: 10px;
-            color: #8b9892;
-            font-size: 8px;
-            text-align: right;
-        }
-
-        @media (max-width: 1100px) {
-            .layout {
-                grid-template-columns: 280px minmax(0, 1fr);
-            }
-
-            .grid-4,
-            .info-strip {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .timeline {
-                grid-template-columns: repeat(5, minmax(80px, 1fr));
-                overflow-x: auto;
-            }
-        }
-
-        @media (max-width: 800px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
-
-            .grid-2,
-            .grid-3,
-            .grid-4,
-            .info-strip {
-                grid-template-columns: 1fr;
-            }
-
-            .page-header,
-            .mission-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Réception VIF</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    background:#0b1219;
+    color:#23372d;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:11px;
+}
+
+.vif-page{
+    padding:12px;
+    width:100%;
+}
+
+.card{
+    background:#fff;
+    border:1px solid #dbe5e0;
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:10px;
+}
+
+.page-header{
+    padding:15px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.title-icon{
+    width:35px;
+    height:35px;
+    border-radius:9px;
+    background:#eaf8f1;
+    color:#008f55;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+}
+
+.title h1{
+    margin:0;
+    color:#008b53;
+    font-size:17px;
+}
+
+.title p{
+    margin:3px 0 0;
+    color:#89958f;
+    font-size:9px;
+}
+
+.actions{
+    display:flex;
+    gap:7px;
+}
+
+button{
+    border:1px solid #d5e2dc;
+    background:#fff;
+    color:#174b35;
+    border-radius:7px;
+    padding:8px 12px;
+    font-size:10px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#f1f8f4;
+}
+
+.btn-green{
+    background:#008f55;
+    color:#fff;
+    border-color:#008f55;
+}
+
+.btn-green:hover{
+    background:#007745;
+    color:#fff;
+}
+
+.btn-blue{
+    background:#eef6ff;
+    border-color:#c8def3;
+    color:#24618d;
+}
+
+.btn-orange{
+    background:#fff7e6;
+    border-color:#ead6a1;
+    color:#8b6400;
+}
+
+.btn-red{
+    background:#fff0ee;
+    border-color:#edc2bd;
+    color:#ad382d;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    border:1px solid #d5e0db;
+    border-radius:7px;
+    padding:8px 9px;
+    outline:none;
+    background:#fff;
+    color:#263b31;
+    font-family:inherit;
+    font-size:10px;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:#00a968;
+    box-shadow:0 0 0 2px rgba(0,169,104,.08);
+}
+
+input:disabled,
+select:disabled,
+input[readonly]{
+    background:#f2f6f4;
+    color:#6c7973;
+    cursor:not-allowed;
+}
+
+label{
+    display:block;
+    font-size:8px;
+    font-weight:bold;
+    color:#74827c;
+    text-transform:uppercase;
+    margin-bottom:4px;
+}
+
+.required{
+    color:#d6382e;
+}
+
+.section{
+    margin-bottom:14px;
+}
+
+.section-title{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    color:#00864f;
+    font-weight:bold;
+    font-size:10px;
+    border-bottom:1px solid #dfe8e4;
+    padding-bottom:7px;
+    margin-bottom:9px;
+}
+
+.grid-2{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+}
+
+.grid-3{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:9px;
+}
+
+.grid-4{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:9px;
+}
+
+.field{
+    min-width:0;
+}
+
+.stage-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border:1px solid #d8e4de;
+    border-radius:9px;
+    overflow:hidden;
+    margin-bottom:10px;
+}
+
+.stage{
+    padding:12px;
+    text-align:center;
+    background:#f5f8f6;
+    color:#87938e;
+    font-weight:bold;
+    border-right:1px solid #d8e4de;
+}
+
+.stage:last-child{
+    border-right:0;
+}
+
+.stage.active{
+    background:#eaf8f1;
+    color:#008b53;
+}
+
+.stage.done{
+    background:#008f55;
+    color:#fff;
+}
+
+.stage i{
+    display:block;
+    margin-bottom:4px;
+    font-size:14px;
+}
+
+.stage small{
+    display:block;
+    font-size:8px;
+}
+
+.status{
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:8px;
+    font-weight:bold;
+}
+
+.status-prepared{
+    background:#eef2f3;
+    color:#66747b;
+}
+
+.status-route{
+    background:#fff4d8;
+    color:#906600;
+}
+
+.status-reception{
+    background:#e7f8ef;
+    color:#087b48;
+}
+
+.status-closed{
+    background:#e7f2ff;
+    color:#23679a;
+}
+
+.mission-head{
+    padding:14px 17px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:1px solid #e2e9e6;
+}
+
+.mission-head h2{
+    margin:0;
+    color:#008c54;
+    font-size:17px;
+}
+
+.mission-head p{
+    margin:3px 0 0;
+    color:#8a9791;
+    font-size:9px;
+}
+
+.content{
+    padding:15px 17px;
+}
+
+.weight-card{
+    border:1px solid #d9e5df;
+    border-radius:9px;
+    padding:13px;
+    background:#fafcfb;
+}
+
+.weight-card.highlight{
+    background:#eaf9f1;
+    border-color:#a8dfc2;
+}
+
+.weight-label{
+    color:#7d8b85;
+    font-size:8px;
+    text-transform:uppercase;
+    font-weight:bold;
+}
+
+.weight-value{
+    margin-top:5px;
+    font-size:21px;
+    font-weight:800;
+    color:#008c54;
+}
+
+.net-card{
+    background:#edf9f3;
+    border:1px solid #a9ddc1;
+    border-radius:9px;
+    padding:14px;
+}
+
+.net-card .net{
+    font-size:23px;
+    color:#008c54;
+    font-weight:800;
+    margin-top:4px;
+}
+
+.locked{
+    position:relative;
+}
+
+.locked::after{
+    content:"🔒";
+    position:absolute;
+    right:7px;
+    top:7px;
+    font-size:9px;
+}
+
+.notice{
+    padding:10px 12px;
+    border-radius:8px;
+    margin-bottom:10px;
+    display:none;
+    font-size:10px;
+}
+
+.notice.show{
+    display:block;
+}
+
+.notice.success{
+    background:#eaf8f0;
+    border:1px solid #b7e1c8;
+    color:#087744;
+}
+
+.notice.error{
+    background:#fff0ee;
+    border:1px solid #efc1bb;
+    color:#b2392e;
+}
+
+.notice.warning{
+    background:#fff8e5;
+    border:1px solid #ead69d;
+    color:#8b6500;
+}
+
+.bottom-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:7px;
+    border-top:1px solid #e4ebe7;
+    padding-top:12px;
+    margin-top:14px;
+}
+
+.readonly-box{
+    min-height:33px;
+    background:#f3f7f5;
+    border:1px solid #d8e3de;
+    border-radius:7px;
+    padding:8px 9px;
+    color:#56655e;
+}
+
+.hidden{
+    display:none!important;
+}
+
+.loading{
+    opacity:.65;
+    pointer-events:none;
+}
+
+.info-box{
+    background:#f7faf8;
+    border:1px solid #dce7e2;
+    border-radius:8px;
+    padding:10px;
+}
+
+.info-box span{
+    display:block;
+    color:#89958f;
+    font-size:8px;
+    text-transform:uppercase;
+}
+
+.info-box strong{
+    display:block;
+    margin-top:4px;
+    color:#263b31;
+    font-size:11px;
+}
+
+.history{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:10px;
+}
+
+.list{
+    max-height:620px;
+    overflow:auto;
+}
+
+.mission-item{
+    border:1px solid #dce6e1;
+    border-radius:8px;
+    padding:10px;
+    margin-bottom:7px;
+    cursor:pointer;
+}
+
+.mission-item:hover{
+    background:#f4faf7;
+}
+
+.mission-item.active{
+    background:#eaf8f1;
+    border-color:#00a968;
+}
+
+.mission-number{
+    color:#008c54;
+    font-weight:bold;
+}
+
+.item-line{
+    display:flex;
+    justify-content:space-between;
+    margin-top:6px;
+}
+
+.item-line small{
+    color:#8b9791;
+}
+
+.empty{
+    text-align:center;
+    padding:45px 10px;
+    color:#9aa6a1;
+}
+
+textarea{
+    min-height:65px;
+    resize:vertical;
+}
+
+@media(max-width:900px){
+    .grid-4,
+    .grid-3{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .history{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:600px){
+    .grid-4,
+    .grid-3,
+    .grid-2{
+        grid-template-columns:1fr;
+    }
+
+    .page-header,
+    .mission-head{
+        flex-direction:column;
+        gap:10px;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -745,675 +508,869 @@
 <div class="vif-page">
 
     <!-- HEADER -->
-    <div class="page-header">
-        <div class="page-title">
-            <div class="page-title-icon">
-                <i class="fa-solid fa-truck-ramp-box"></i>
+    <div class="card page-header">
+
+        <div class="title">
+
+            <div class="title-icon">
+                <i class="fa-solid fa-truck-fast"></i>
             </div>
 
             <div>
                 <h1>Réception VIF</h1>
-                <p>Suivi des camions, transporteurs, marchandises et pesées VIF</p>
+                <p>Sortie camion et entrée / réception VIF</p>
             </div>
+
         </div>
 
-        <div class="header-actions">
-            <button type="button" id="btnRefresh">
+        <div class="actions">
+
+            <button id="btnRefresh">
                 <i class="fa-solid fa-rotate"></i>
                 Actualiser
             </button>
 
-            <button type="button" class="btn-primary" id="btnNew">
+            <button class="btn-green" id="btnNew">
                 <i class="fa-solid fa-plus"></i>
                 Nouvelle mission
             </button>
+
         </div>
+
     </div>
 
-    <!-- STATUS -->
-    <div class="status-bar">
-        <span class="status-dot" id="connectionDot"></span>
-        <span class="status-text" id="connectionText">
-            Connexion à la base de données...
-        </span>
-    </div>
+    <div id="notice" class="notice"></div>
 
-    <!-- ALERT -->
-    <div id="alertBox" class="alert"></div>
+    <!-- LISTE + FORMULAIRE -->
+    <div class="history">
 
-    <div class="layout">
-
-        <!-- LEFT : LIST -->
+        <!-- LISTE -->
         <div class="card">
-            <div class="card-header">
-                <div>
-                    <h2>
-                        <i class="fa-solid fa-list"></i>
-                        Missions VIF
-                    </h2>
-                    <small>Camions enregistrés</small>
+
+            <div style="padding:13px;border-bottom:1px solid #e2e9e6">
+
+                <div style="font-weight:bold;color:#008b53">
+                    <i class="fa-solid fa-list"></i>
+                    Missions VIF
                 </div>
 
-                <span id="missionCount" class="badge badge-prep">0</span>
-            </div>
-
-            <div class="card-body">
-
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input
-                        type="text"
-                        id="searchMission"
-                        placeholder="Rechercher camion, fournisseur, mission..."
-                    >
-                </div>
-
-                <div class="grid-2" style="margin-bottom:10px;">
-                    <select id="filterStatut">
-                        <option value="">Tous les statuts</option>
-                        <option value="PREPARE">Préparé</option>
-                        <option value="EN_ROUTE">En route</option>
-                        <option value="RETOUR">Retour</option>
-                        <option value="ARRIVE">Arrivé</option>
-                        <option value="RECEPTIONNE">Réceptionné</option>
-                        <option value="ANNULE">Annulé</option>
-                    </select>
-
-                    <button type="button" id="btnFilter">
-                        <i class="fa-solid fa-filter"></i>
-                        Filtrer
-                    </button>
-                </div>
-
-                <div id="missionList" class="mission-list">
-                    <div class="empty-list">
-                        <i class="fa-solid fa-truck"></i>
-                        <span>Chargement...</span>
-                    </div>
+                <div style="font-size:9px;color:#8b9791;margin-top:3px">
+                    Sorties et entrées
                 </div>
 
             </div>
+
+            <div style="padding:10px">
+
+                <input
+                    id="search"
+                    type="text"
+                    placeholder="Rechercher mission, camion, fournisseur..."
+                >
+
+            </div>
+
+            <div id="missionList" class="list">
+                <div class="empty">
+                    Chargement...
+                </div>
+            </div>
+
         </div>
 
-        <!-- RIGHT -->
-        <div class="card form-card">
+        <!-- DETAIL -->
+        <div class="card">
 
-            <!-- EMPTY -->
-            <div id="emptyState" class="right-empty">
-                <div>
-                    <i class="fa-solid fa-truck-fast"></i>
-                    <strong>Sélectionnez une mission</strong>
-                    <span>
-                        Sélectionnez un camion ou créez une nouvelle mission VIF.
-                    </span>
-                </div>
+            <div id="emptyState" class="empty" style="height:650px;display:flex;align-items:center;justify-content:center;flex-direction:column">
+
+                <i class="fa-solid fa-truck" style="font-size:35px;color:#ccd7d2;margin-bottom:10px"></i>
+
+                <strong style="font-size:13px;color:#788780">
+                    Sélectionnez une mission
+                </strong>
+
+                <span style="font-size:9px;margin-top:4px">
+                    Ou cliquez sur « Nouvelle mission »
+                </span>
+
             </div>
 
-            <!-- FORM -->
-            <div id="formContainer" class="hidden">
+            <div id="form" class="hidden">
 
-                <div class="mission-header">
+                <!-- MISSION HEADER -->
+                <div class="mission-head">
+
                     <div>
-                        <h2 id="missionTitle">Nouvelle mission</h2>
-                        <p id="missionSubtitle">
-                            Enregistrement d'une nouvelle mission VIF
+                        <h2 id="missionTitle">
+                            Nouvelle mission
+                        </h2>
+
+                        <p id="missionSubTitle">
+                            Préparation de sortie camion
                         </p>
                     </div>
 
-                    <div id="statusBadge" class="badge badge-prep">
+                    <span id="statusBadge"
+                          class="status status-prepared">
                         PRÉPARÉ
-                    </div>
+                    </span>
+
                 </div>
 
-                <div class="mission-content">
+                <div class="content">
 
-                    <!-- TIMELINE -->
-                    <div class="timeline" id="timeline">
+                    <!-- STAGES -->
+                    <div class="stage-tabs">
 
-                        <div class="timeline-step active" data-step="PREPARE">
-                            <div class="circle">
-                                <i class="fa-solid fa-clipboard"></i>
-                            </div>
-                            <strong>PRÉPARÉ</strong>
-                        </div>
+                        <div id="stageSortie"
+                             class="stage active">
 
-                        <div class="timeline-step" data-step="EN_ROUTE">
-                            <div class="circle">
-                                <i class="fa-solid fa-road"></i>
-                            </div>
-                            <strong>EN ROUTE</strong>
-                        </div>
-
-                        <div class="timeline-step" data-step="RETOUR">
-                            <div class="circle">
-                                <i class="fa-solid fa-rotate-left"></i>
-                            </div>
-                            <strong>RETOUR</strong>
-                        </div>
-
-                        <div class="timeline-step" data-step="ARRIVE">
-                            <div class="circle">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-                            <strong>ARRIVÉ</strong>
-                        </div>
-
-                        <div class="timeline-step" data-step="RECEPTIONNE">
-                            <div class="circle">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </div>
-                            <strong>RÉCEPTIONNÉ</strong>
-                        </div>
-
-                    </div>
-
-                    <!-- GENERAL -->
-                    <div class="section">
-
-                        <div class="section-title">
-                            <i class="fa-solid fa-building"></i>
-                            Informations générales
-                        </div>
-
-                        <div class="grid-3">
-
-                            <div class="field">
-                                <label>
-                                    N° Mission
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="numeroMission"
-                                    readonly
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>
-                                    Firma <span class="required">*</span>
-                                </label>
-
-                                <select id="firmaId">
-                                    <option value="">
-                                        Sélectionner une firma
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="field">
-                                <label>
-                                    Fournisseur <span class="required">*</span>
-                                </label>
-
-                                <select id="fournisseurId" disabled>
-                                    <option value="">
-                                        Sélectionner d'abord une firma
-                                    </option>
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <div class="grid-3" style="margin-top:10px;">
-
-                            <div class="field">
-                                <label>N° Commande</label>
-                                <input
-                                    type="text"
-                                    id="numeroCommande"
-                                    placeholder="Ex : 470001900"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Référence fournisseur</label>
-                                <input
-                                    type="text"
-                                    id="referenceFournisseur"
-                                    placeholder="Référence fournisseur"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>N° VIF / BL</label>
-                                <input
-                                    type="text"
-                                    id="numeroVif"
-                                    placeholder="N° VIF / BL"
-                                >
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- CAMION -->
-                    <div class="section">
-
-                        <div class="section-title">
-                            <i class="fa-solid fa-truck"></i>
-                            Camion & transport
-                        </div>
-
-                        <div class="grid-4">
-
-                            <div class="field">
-                                <label>
-                                    Immatriculation camion <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="immatriculationCamion"
-                                    placeholder="Ex : 22622-A-81"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>N° transporteur</label>
-
-                                <input
-                                    type="text"
-                                    id="numeroTransporteur"
-                                    placeholder="Ex : 800000212"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Nom transporteur</label>
-
-                                <input
-                                    type="text"
-                                    id="nomTransporteur"
-                                    placeholder="Nom transporteur"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Chauffeur</label>
-
-                                <input
-                                    type="text"
-                                    id="nomChauffeur"
-                                    placeholder="Nom chauffeur"
-                                >
-                            </div>
-
-                        </div>
-
-                        <div class="grid-4" style="margin-top:10px;">
-
-                            <div class="field">
-                                <label>Téléphone chauffeur</label>
-
-                                <input
-                                    type="text"
-                                    id="telephoneChauffeur"
-                                    placeholder="06XXXXXXXX"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Date départ</label>
-
-                                <input
-                                    type="date"
-                                    id="dateDepart"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Heure départ</label>
-
-                                <input
-                                    type="time"
-                                    id="heureDepart"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Statut</label>
-
-                                <div class="readonly-value" id="statutReadonly">
-                                    PRÉPARÉ
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- MARCHANDISE -->
-                    <div class="section">
-
-                        <div class="section-title">
-                            <i class="fa-solid fa-boxes-stacked"></i>
-                            Marchandise
-                        </div>
-
-                        <div class="grid-4">
-
-                            <div class="field">
-                                <label>Article</label>
-
-                                <input
-                                    type="text"
-                                    id="articleId"
-                                    placeholder="Code article"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Désignation <span class="required">*</span></label>
-
-                                <input
-                                    type="text"
-                                    id="designation"
-                                    placeholder="Ex : DINDE VIF"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Origine / Ferme</label>
-
-                                <input
-                                    type="text"
-                                    id="origineFerme"
-                                    placeholder="Ex : 674 SELVADIND IV"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Lot</label>
-
-                                <input
-                                    type="text"
-                                    id="lot"
-                                    placeholder="Ex : 0124-03D01-674"
-                                >
-                            </div>
-
-                        </div>
-
-                        <div class="grid-4" style="margin-top:10px;">
-
-                            <div class="field">
-                                <label>Sexe animal</label>
-
-                                <select id="sexeAnimal">
-                                    <option value="">--</option>
-                                    <option value="M">M</option>
-                                    <option value="F">F</option>
-                                </select>
-                            </div>
-
-                            <div class="field">
-                                <label>Effectif prévu</label>
-
-                                <input
-                                    type="number"
-                                    id="effectifPrevu"
-                                    min="0"
-                                    step="1"
-                                    placeholder="0"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Quantité prévue KG</label>
-
-                                <input
-                                    type="number"
-                                    id="quantitePrevue"
-                                    min="0"
-                                    step="0.001"
-                                    placeholder="0.000"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Calibre prévu</label>
-
-                                <input
-                                    type="number"
-                                    id="calibrePrevu"
-                                    min="0"
-                                    step="0.001"
-                                    placeholder="0.000"
-                                >
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- SORTIE -->
-                    <div class="section">
-
-                        <div class="section-title">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                            Sortie camion
-                        </div>
 
-                        <div class="grid-2">
+                            SORTIE CAMION
 
-                            <div class="time-card">
-                                <label>Départ enregistré</label>
-                                <div class="time-value" id="departDisplay">
-                                    —
-                                </div>
-                            </div>
-
-                            <div class="time-card">
-                                <label>Durée trajet</label>
-                                <div class="time-value" id="dureeDisplay">
-                                    —
-                                </div>
-                            </div>
+                            <small>
+                                Préparation + pesée sortie
+                            </small>
 
                         </div>
 
-                    </div>
+                        <div id="stageEntree"
+                             class="stage">
 
-                    <!-- RETOUR -->
-                    <div class="section">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
 
-                        <div class="section-title">
-                            <i class="fa-solid fa-weight-scale"></i>
-                            Retour & pesée
-                        </div>
+                            ENTRÉE / RÉCEPTION
 
-                        <div class="grid-3">
-
-                            <div class="field">
-                                <label>Date entrée</label>
-
-                                <input
-                                    type="date"
-                                    id="dateEntree"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Heure entrée</label>
-
-                                <input
-                                    type="time"
-                                    id="heureEntree"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>N° Ticket pesée</label>
-
-                                <input
-                                    type="text"
-                                    id="numeroTicket"
-                                    placeholder="Ex : 33029"
-                                >
-                            </div>
-
-                        </div>
-
-                        <div class="grid-3" style="margin-top:10px;">
-
-                            <div class="field">
-                                <label>Poste pesée</label>
-
-                                <input
-                                    type="text"
-                                    id="postePesee"
-                                    placeholder="Ex : PB2"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>P1 — Poids entrée camion</label>
-
-                                <input
-                                    type="number"
-                                    id="poidsP1"
-                                    min="0"
-                                    step="0.001"
-                                    placeholder="0.000"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>P2 — Poids sortie camion</label>
-
-                                <input
-                                    type="number"
-                                    id="poidsP2"
-                                    min="0"
-                                    step="0.001"
-                                    placeholder="0.000"
-                                >
-                            </div>
-
-                        </div>
-
-                        <div class="grid-3" style="margin-top:10px;">
-
-                            <div class="weight-box net">
-                                <div class="weight-label">
-                                    Poids net
-                                </div>
-
-                                <div class="weight-value" id="poidsNetDisplay">
-                                    0,000 KG
-                                </div>
-                            </div>
-
-                            <div class="calibre-box">
-                                <div class="label">
-                                    Effectif réel
-                                </div>
-
-                                <div class="value" id="effectifReelDisplay">
-                                    0
-                                </div>
-                            </div>
-
-                            <div class="calibre-box">
-                                <div class="label">
-                                    Poids moyen / tête
-                                </div>
-
-                                <div class="value" id="poidsMoyenDisplay">
-                                    0,000 KG
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="grid-3" style="margin-top:10px;">
-
-                            <div class="field">
-                                <label>Effectif réel</label>
-
-                                <input
-                                    type="number"
-                                    id="effectifReel"
-                                    min="0"
-                                    step="1"
-                                    placeholder="0"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Calibre réel</label>
-
-                                <input
-                                    type="number"
-                                    id="calibreReel"
-                                    min="0"
-                                    step="0.001"
-                                    placeholder="0.000"
-                                >
-                            </div>
-
-                            <div class="field">
-                                <label>Quantité réelle KG</label>
-
-                                <input
-                                    type="number"
-                                    id="quantiteReelle"
-                                    min="0"
-                                    step="0.001"
-                                    placeholder="Calculée depuis NET"
-                                >
-                            </div>
+                            <small>
+                                Retour + pesée + réception
+                            </small>
 
                         </div>
 
                     </div>
 
-                    <!-- OBSERVATIONS -->
-                    <div class="section">
 
-                        <div class="section-title">
-                            <i class="fa-solid fa-note-sticky"></i>
-                            Observations
+                    <!-- =================================================
+                         ETAPE 1 : SORTIE
+                    ================================================= -->
+
+                    <div id="sortiePanel">
+
+                        <!-- IDENTIFICATION -->
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-file-lines"></i>
+                                Informations générales
+                            </div>
+
+                            <div class="grid-3">
+
+                                <div class="field">
+                                    <label>N° Mission</label>
+
+                                    <input
+                                        id="numeroMission"
+                                        readonly
+                                    >
+                                </div>
+
+                                <div class="field">
+                                    <label>
+                                        Firma <span class="required">*</span>
+                                    </label>
+
+                                    <select id="firmaId">
+                                        <option value="">
+                                            Sélectionner une firma
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label>
+                                        Fournisseur <span class="required">*</span>
+                                    </label>
+
+                                    <select id="fournisseurId" disabled>
+                                        <option value="">
+                                            Sélectionner d'abord une firma
+                                        </option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="grid-3" style="margin-top:9px">
+
+                                <div class="field">
+
+                                    <label>N° Commande</label>
+
+                                    <input
+                                        id="numeroCommande"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Référence fournisseur</label>
+
+                                    <input
+                                        id="referenceFournisseur"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>N° VIF / BL</label>
+
+                                    <input
+                                        id="numeroVif"
+                                        readonly
+                                    >
+
+                                </div>
+
+                            </div>
+
                         </div>
 
-                        <textarea
-                            id="observations"
-                            placeholder="Observations concernant le camion, la marchandise ou la réception..."
-                        ></textarea>
+
+                        <!-- CAMION -->
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-truck"></i>
+                                Camion & transport
+                            </div>
+
+                            <div class="grid-4">
+
+                                <div class="field">
+
+                                    <label>
+                                        Immatriculation camion
+                                        <span class="required">*</span>
+                                    </label>
+
+                                    <select id="camionId">
+
+                                        <option value="">
+                                            Sélectionner un camion
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>N° transporteur</label>
+
+                                    <input
+                                        id="numeroTransporteur"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Nom transporteur</label>
+
+                                    <input
+                                        id="nomTransporteur"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>
+                                        Chauffeur
+                                        <span class="required">*</span>
+                                    </label>
+
+                                    <select id="chauffeurId">
+
+                                        <option value="">
+                                            Sélectionner un chauffeur
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                            <div class="grid-4" style="margin-top:9px">
+
+                                <div class="field">
+
+                                    <label>Téléphone chauffeur</label>
+
+                                    <input
+                                        id="telephoneChauffeur"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Date sortie</label>
+
+                                    <input
+                                        id="dateSortie"
+                                        type="date"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Heure sortie</label>
+
+                                    <input
+                                        id="heureSortie"
+                                        type="time"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Statut</label>
+
+                                    <div id="statutSortie"
+                                         class="readonly-box">
+                                        PRÉPARÉ
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- MARCHANDISE -->
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                                Marchandise prévue
+                            </div>
+
+                            <div class="grid-4">
+
+                                <div class="field">
+
+                                    <label>Type marchandise</label>
+
+                                    <select id="typeProduit">
+
+                                        <option value="">
+                                            Sélectionner
+                                        </option>
+
+                                        <option value="DINDE VIF">
+                                            DINDE VIF
+                                        </option>
+
+                                        <option value="POULET VIF">
+                                            POULET VIF
+                                        </option>
+
+                                        <option value="AUTRE">
+                                            AUTRE
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Ferme / Origine</label>
+
+                                    <input
+                                        id="origineFerme"
+                                        placeholder="Ferme / origine"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Lot</label>
+
+                                    <input
+                                        id="lot"
+                                        placeholder="Lot"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Sexe</label>
+
+                                    <select id="sexe">
+
+                                        <option value="">
+                                            —
+                                        </option>
+
+                                        <option value="M">
+                                            M
+                                        </option>
+
+                                        <option value="F">
+                                            F
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                            <div class="grid-2"
+                                 style="margin-top:9px">
+
+                                <div class="field">
+
+                                    <label>Effectif prévu</label>
+
+                                    <input
+                                        id="effectifPrevu"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Tonnage prévu KG</label>
+
+                                    <input
+                                        id="tonnagePrevu"
+                                        type="number"
+                                        min="0"
+                                        step="0.001"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- POIDS SORTIE -->
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-weight-scale"></i>
+                                Poids sortie camion
+                            </div>
+
+                            <div class="grid-3">
+
+                                <div class="field">
+
+                                    <label>N° Ticket pesée</label>
+
+                                    <input
+                                        id="numeroTicket"
+                                        readonly
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Poste pesée</label>
+
+                                    <input
+                                        id="postePesee"
+                                        placeholder="PB2"
+                                    >
+
+                                </div>
+
+                                <div class="weight-card highlight">
+
+                                    <div class="weight-label">
+                                        Poids réel sortie
+                                    </div>
+
+                                    <div
+                                        class="weight-value"
+                                        id="poidsSortieDisplay">
+                                        0,000 KG
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div style="margin-top:9px">
+
+                                <label>
+                                    Poids sortie camion — P1
+                                </label>
+
+                                <input
+                                    id="poidsSortie"
+                                    type="number"
+                                    min="0"
+                                    step="0.001"
+                                    placeholder="Poids réel au départ"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-note-sticky"></i>
+                                Observation sortie
+                            </div>
+
+                            <textarea
+                                id="observationSortie"
+                                placeholder="Observation éventuelle..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <!-- ACTION SORTIE -->
+
+                        <div class="bottom-actions">
+
+                            <button id="btnCancel">
+                                <i class="fa-solid fa-xmark"></i>
+                                Fermer
+                            </button>
+
+                            <button
+                                id="btnSaveSortie"
+                                class="btn-green">
+
+                                <i class="fa-solid fa-truck-fast"></i>
+
+                                Enregistrer & Sortir
+
+                            </button>
+
+                            <button
+                                id="btnPrintSortie"
+                                class="btn-blue hidden">
+
+                                <i class="fa-solid fa-print"></i>
+
+                                Imprimer bon sortie
+
+                            </button>
+
+                        </div>
 
                     </div>
 
-                    <!-- ACTIONS -->
-                    <div class="form-actions">
 
-                        <button
-                            type="button"
-                            class="btn-secondary"
-                            id="btnCancel"
-                        >
-                            <i class="fa-solid fa-xmark"></i>
-                            Fermer
-                        </button>
+                    <!-- =================================================
+                         ETAPE 2 : ENTREE / RECEPTION
+                    ================================================= -->
 
-                        <button
-                            type="button"
-                            class="btn-warning"
-                            id="btnSaveDraft"
-                        >
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            Enregistrer
-                        </button>
+                    <div id="entreePanel"
+                         class="hidden">
 
-                        <button
-                            type="button"
-                            class="btn-primary"
-                            id="btnAction"
-                        >
-                            <i class="fa-solid fa-arrow-right"></i>
-                            Enregistrer & continuer
-                        </button>
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                                Retour camion
+                            </div>
+
+                            <div class="grid-3">
+
+                                <div class="field">
+
+                                    <label>Date entrée</label>
+
+                                    <input
+                                        id="dateEntree"
+                                        type="date"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Heure entrée</label>
+
+                                    <input
+                                        id="heureEntree"
+                                        type="time"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Durée trajet</label>
+
+                                    <div
+                                        id="dureeTrajet"
+                                        class="readonly-box">
+                                        —
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- POIDS -->
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-weight-scale"></i>
+                                Pesée retour
+                            </div>
+
+                            <div class="grid-3">
+
+                                <div class="weight-card">
+
+                                    <div class="weight-label">
+                                        P1 — Poids sortie
+                                    </div>
+
+                                    <div
+                                        id="p1Display"
+                                        class="weight-value">
+                                        0,000 KG
+                                    </div>
+
+                                </div>
+
+                                <div class="weight-card highlight">
+
+                                    <div class="weight-label">
+                                        P2 — Poids retour
+                                    </div>
+
+                                    <input
+                                        id="poidsRetour"
+                                        type="number"
+                                        min="0"
+                                        step="0.001"
+                                        style="margin-top:7px"
+                                    >
+
+                                </div>
+
+                                <div class="net-card">
+
+                                    <div class="weight-label">
+                                        Poids net
+                                    </div>
+
+                                    <div
+                                        id="poidsNet"
+                                        class="net">
+                                        0,000 KG
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- RECEPTION REELLE -->
+
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-box-open"></i>
+                                Marchandise réellement reçue
+                            </div>
+
+                            <div class="grid-4">
+
+                                <div class="field">
+
+                                    <label>Effectif réel</label>
+
+                                    <input
+                                        id="effectifReel"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Calibre réel</label>
+
+                                    <input
+                                        id="calibreReel"
+                                        type="number"
+                                        min="0"
+                                        step="0.001"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Lot réel</label>
+
+                                    <input
+                                        id="lotReel"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label>Type réel</label>
+
+                                    <input
+                                        id="typeReel"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- COMPARAISON -->
+
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-chart-column"></i>
+                                Prévu / Réel
+                            </div>
+
+                            <div class="grid-4">
+
+                                <div class="info-box">
+
+                                    <span>
+                                        Effectif prévu
+                                    </span>
+
+                                    <strong id="compareEffectifPrevu">
+                                        0
+                                    </strong>
+
+                                </div>
+
+                                <div class="info-box">
+
+                                    <span>
+                                        Effectif réel
+                                    </span>
+
+                                    <strong id="compareEffectifReel">
+                                        0
+                                    </strong>
+
+                                </div>
+
+                                <div class="info-box">
+
+                                    <span>
+                                        Tonnage prévu
+                                    </span>
+
+                                    <strong id="compareTonnagePrevu">
+                                        0,000 KG
+                                    </strong>
+
+                                </div>
+
+                                <div class="info-box">
+
+                                    <span>
+                                        Tonnage réel
+                                    </span>
+
+                                    <strong id="compareTonnageReel">
+                                        0,000 KG
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="section">
+
+                            <div class="section-title">
+                                <i class="fa-solid fa-note-sticky"></i>
+                                Observation réception
+                            </div>
+
+                            <textarea
+                                id="observationEntree"
+                                placeholder="Observation concernant la réception..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="bottom-actions">
+
+                            <button
+                                id="btnBackSortie">
+
+                                <i class="fa-solid fa-arrow-left"></i>
+                                Retour sortie
+
+                            </button>
+
+                            <button
+                                id="btnSaveEntree"
+                                class="btn-green">
+
+                                <i class="fa-solid fa-circle-check"></i>
+
+                                Valider réception
+
+                            </button>
+
+                        </div>
 
                     </div>
 
@@ -1423,2100 +1380,1974 @@
 
         </div>
 
-    </div>
-
-    <div class="footer-note">
-        Suivi VIF — Camion → Pesée → Réception
     </div>
 
 </div>
 
+
 <script>
-(function () {
-    "use strict";
+(function(){
 
-    /* =========================================================
-       CONFIGURATION
-    ========================================================= */
+"use strict";
 
-    const TABLE_CAMIONS = "camions_vif";
-    const TABLE_DETAILS = "camions_vif_details";
-    const TABLE_PESEES = "camions_vif_pesees";
+/* =========================================================
+   CONFIG
+========================================================= */
 
-    let db = null;
+const TABLE_MISSION = "camions_vif";
+const TABLE_DETAIL = "camions_vif_details";
+const TABLE_PESEE = "camions_vif_pesees";
 
-    let missions = [];
-    let firmas = [];
-    let fournisseurs = [];
+let db = null;
 
-    let currentMission = null;
-    let currentDetail = null;
-    let currentPesee = null;
+let missions = [];
+let firmas = [];
+let currentMission = null;
+let currentDetail = null;
+let currentPesee = null;
 
-    /* =========================================================
-       HELPERS
-    ========================================================= */
 
-    function $(id) {
-        return document.getElementById(id);
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ = id => document.getElementById(id);
+
+function client(){
+
+    if(window.supabaseClient)
+        return window.supabaseClient;
+
+    if(window.supabase &&
+       typeof window.supabase.from === "function")
+        return window.supabase;
+
+    return null;
+}
+
+function esc(v){
+
+    return String(v ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+function num(id){
+
+    const n = parseFloat($(id).value);
+
+    return Number.isFinite(n) ? n : 0;
+}
+
+function fmt(n,d=3){
+
+    return Number(n || 0).toLocaleString("fr-FR",{
+        minimumFractionDigits:d,
+        maximumFractionDigits:d
+    });
+}
+
+function today(){
+
+    const d = new Date();
+
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function timeNow(){
+
+    const d = new Date();
+
+    return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+
+function alertMsg(message,type="success"){
+
+    const box = $("notice");
+
+    box.className = `notice ${type} show`;
+
+    box.textContent = message;
+
+    clearTimeout(alertMsg.timer);
+
+    alertMsg.timer = setTimeout(()=>{
+        box.classList.remove("show");
+    },5000);
+}
+
+function loading(v){
+
+    document.body.classList.toggle("loading",v);
+}
+
+
+/* =========================================================
+   AUTO NUMBERS
+========================================================= */
+
+function randomNumber(){
+
+    return Math.floor(
+        Math.random()*999999
+    ).toString().padStart(6,"0");
+}
+
+function generateMission(){
+
+    const d = new Date();
+
+    return `VIF-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${randomNumber()}`;
+}
+
+function generateCommande(){
+
+    const d = new Date();
+
+    return `CMD-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${randomNumber()}`;
+}
+
+function generateVif(){
+
+    const d = new Date();
+
+    return `VIF-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${randomNumber()}`;
+}
+
+function generateTicket(){
+
+    return `T-${randomNumber()}`;
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+async function init(){
+
+    db = client();
+
+    if(!db){
+
+        alertMsg(
+            "Supabase client introuvable.",
+            "error"
+        );
+
+        return;
     }
 
-    function escapeHtml(value) {
-        if (value === null || value === undefined) return "";
+    bind();
 
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+    await loadFirmas();
+    await loadCamions();
+    await loadChauffeurs();
+    await loadMissions();
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function bind(){
+
+    $("btnNew").onclick = newMission;
+
+    $("btnRefresh").onclick = async()=>{
+        await loadFirmas();
+        await loadCamions();
+        await loadChauffeurs();
+        await loadMissions();
+    };
+
+    $("btnCancel").onclick = closeForm;
+
+    $("search").oninput = renderMissions;
+
+    $("firmaId").onchange =
+        ()=>loadFournisseurs(
+            $("firmaId").value
+        );
+
+    $("fournisseurId").onchange =
+        autoSupplierReference;
+
+    $("camionId").onchange =
+        autoCamion;
+
+    $("chauffeurId").onchange =
+        autoChauffeur;
+
+    $("poidsSortie").oninput =
+        ()=>{
+            $("poidsSortieDisplay").textContent =
+                `${fmt(num("poidsSortie"))} KG`;
+        };
+
+    $("poidsRetour").oninput =
+        calculateNet;
+
+    $("effectifReel").oninput =
+        updateComparison;
+
+    $("dateEntree").onchange =
+        calculateDuration;
+
+    $("heureEntree").onchange =
+        calculateDuration;
+
+    $("btnSaveSortie").onclick =
+        saveSortie;
+
+    $("btnPrintSortie").onclick =
+        printSortie;
+
+    $("btnBackSortie").onclick =
+        showSortie;
+
+    $("btnSaveEntree").onclick =
+        saveEntree;
+}
+
+
+/* =========================================================
+   FIRMAS
+========================================================= */
+
+async function loadFirmas(){
+
+    const {data,error} = await db
+        .from("firmas")
+        .select("*")
+        .eq("actif",true)
+        .order("nom_firma");
+
+    if(error){
+
+        console.error(error);
+
+        return;
     }
 
-    function numberValue(id) {
-        const value = parseFloat($(id)?.value);
-        return Number.isFinite(value) ? value : 0;
-    }
-
-    function formatNumber(value, decimals = 3) {
-        const n = Number(value || 0);
-
-        return n.toLocaleString("fr-FR", {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals
-        });
-    }
-
-    function formatDate(dateValue) {
-        if (!dateValue) return "—";
-
-        const d = new Date(dateValue + "T00:00:00");
-
-        if (Number.isNaN(d.getTime())) return dateValue;
-
-        return d.toLocaleDateString("fr-FR");
-    }
-
-    function formatDateTime(date, time) {
-        if (!date || !time) return "—";
-
-        return `${formatDate(date)} ${time}`;
-    }
-
-    function getNowDate() {
-        const d = new Date();
-
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-
-        return `${year}-${month}-${day}`;
-    }
-
-    function getNowTime() {
-        const d = new Date();
-
-        const hours = String(d.getHours()).padStart(2, "0");
-        const minutes = String(d.getMinutes()).padStart(2, "0");
-
-        return `${hours}:${minutes}`;
-    }
-
-    function showAlert(message, type = "success") {
-        const box = $("alertBox");
-
-        box.className = `alert ${type} show`;
-        box.textContent = message;
-
-        clearTimeout(showAlert.timer);
-
-        showAlert.timer = setTimeout(() => {
-            box.classList.remove("show");
-        }, 4500);
-    }
-
-    function hideAlert() {
-        $("alertBox").classList.remove("show");
-    }
-
-    function setLoading(value) {
-        document.body.classList.toggle("loading", Boolean(value));
-    }
-
-    function getSupabaseClient() {
-
-        if (window.supabaseClient) {
-            return window.supabaseClient;
-        }
-
-        if (window.supabase && typeof window.supabase.from === "function") {
-            return window.supabase;
-        }
-
-        if (window.SupabaseClient) {
-            return window.SupabaseClient;
-        }
-
-        return null;
-    }
-
-    /* =========================================================
-       INITIALISATION
-    ========================================================= */
-
-    async function init() {
-
-        db = getSupabaseClient();
-
-        if (!db) {
-            $("connectionDot").className = "status-dot danger";
-            $("connectionText").textContent =
-                "Client Supabase introuvable — vérifiez votre config.js / supabase.js.";
-
-            showAlert(
-                "Connexion Supabase introuvable.",
-                "error"
-            );
-
-            return;
-        }
-
-        $("connectionDot").className = "status-dot";
-        $("connectionText").textContent =
-            "Connexion à la base de données OK";
-
-        bindEvents();
-
-        resetForm();
-
-        await Promise.all([
-            loadFirmas(),
-            loadMissions()
-        ]);
-    }
-
-    /* =========================================================
-       EVENTS
-    ========================================================= */
-
-    function bindEvents() {
-
-        $("btnRefresh").addEventListener("click", async () => {
-            await loadFirmas();
-            await loadMissions();
-
-            if (currentMission?.id) {
-                await openMission(currentMission.id);
-            }
-        });
-
-        $("btnNew").addEventListener("click", () => {
-            createNewMission();
-        });
-
-        $("btnCancel").addEventListener("click", () => {
-            closeForm();
-        });
-
-        $("btnSaveDraft").addEventListener("click", async () => {
-            await saveMission("draft");
-        });
-
-        $("btnAction").addEventListener("click", async () => {
-            await handleMainAction();
-        });
-
-        $("firmaId").addEventListener("change", async () => {
-            await loadFournisseursForFirma(
-                $("firmaId").value
-            );
-        });
-
-        $("searchMission").addEventListener("input", () => {
-            renderMissionList();
-        });
-
-        $("filterStatut").addEventListener("change", () => {
-            renderMissionList();
-        });
-
-        $("btnFilter").addEventListener("click", () => {
-            renderMissionList();
-        });
-
-        $("poidsP1").addEventListener("input", updateWeights);
-        $("poidsP2").addEventListener("input", updateWeights);
-        $("effectifReel").addEventListener("input", updateWeights);
-    }
-
-    /* =========================================================
-       FIRMAS
-    ========================================================= */
-
-    async function loadFirmas() {
-
-        try {
-
-            const { data, error } = await db
-                .from("firmas")
-                .select("*")
-                .eq("actif", true)
-                .order("nom_firma");
-
-            if (error) throw error;
-
-            firmas = data || [];
-
-            const select = $("firmaId");
-
-            const currentValue = select.value;
-
-            select.innerHTML = `
-                <option value="">
-                    Sélectionner une firma
-                </option>
-            `;
-
-            firmas.forEach(firma => {
-
-                const option = document.createElement("option");
-
-                option.value = firma.id;
-
-                option.textContent =
-                    `${firma.code_firma || ""} - ${firma.nom_firma || ""}`;
-
-                select.appendChild(option);
-            });
-
-            if (currentValue) {
-                select.value = currentValue;
-            }
-
-        } catch (error) {
-
-            console.error("[VIF] loadFirmas:", error);
-
-            showAlert(
-                "Impossible de charger les firmas.",
-                "error"
-            );
-        }
-    }
-
-    /* =========================================================
-       FOURNISSEURS PAR FIRMA
-       TABLE DE RELATION :
-       fournisseurs_firmas
-    ========================================================= */
-
-    async function loadFournisseursForFirma(firmaId) {
-
-        const select = $("fournisseurId");
-
-        select.innerHTML = `
-            <option value="">
-                Chargement...
+    firmas = data || [];
+
+    $("firmaId").innerHTML =
+        `<option value="">Sélectionner une firma</option>`+
+        firmas.map(f=>`
+            <option value="${f.id}">
+                ${esc(f.code_firma)} - ${esc(f.nom_firma)}
             </option>
-        `;
+        `).join("");
+}
 
-        select.disabled = true;
 
-        if (!firmaId) {
+/* =========================================================
+   FOURNISSEURS
+========================================================= */
 
-            select.innerHTML = `
-                <option value="">
-                    Sélectionner d'abord une firma
-                </option>
-            `;
+async function loadFournisseurs(firmaId){
 
-            return;
-        }
+    const select = $("fournisseurId");
 
-        try {
+    select.disabled = true;
 
-            const { data, error } = await db
-                .from("fournisseurs_firmas")
-                .select(`
-                    fournisseur_id,
-                    fournisseur:fournisseurs (
-                        id,
-                        code_fournisseur,
-                        nom,
-                        actif
-                    )
-                `)
-                .eq("firma_id", firmaId);
+    select.innerHTML =
+        `<option value="">Chargement...</option>`;
 
-            if (error) throw error;
+    if(!firmaId){
 
-            fournisseurs = (data || [])
-                .map(row => row.fournisseur)
-                .filter(Boolean)
-                .filter(f => f.actif !== false)
-                .sort((a, b) =>
-                    String(a.nom || "")
-                        .localeCompare(
-                            String(b.nom || ""),
-                            "fr"
-                        )
-                );
+        select.innerHTML =
+            `<option value="">Sélectionner d'abord une firma</option>`;
 
-            select.innerHTML = `
-                <option value="">
-                    Sélectionner un fournisseur
-                </option>
-            `;
-
-            fournisseurs.forEach(fournisseur => {
-
-                const option = document.createElement("option");
-
-                option.value = fournisseur.id;
-
-                option.textContent =
-                    `${fournisseur.code_fournisseur || ""} - ${fournisseur.nom || ""}`;
-
-                select.appendChild(option);
-            });
-
-            select.disabled = false;
-
-        } catch (error) {
-
-            console.error("[VIF] loadFournisseursForFirma:", error);
-
-            select.innerHTML = `
-                <option value="">
-                    Erreur de chargement
-                </option>
-            `;
-
-            showAlert(
-                "Impossible de charger les fournisseurs liés à cette firma.",
-                "error"
-            );
-        }
+        return;
     }
 
-    /* =========================================================
-       MISSIONS
-    ========================================================= */
+    /*
+       Table de liaison existante du projet.
+       Si votre nom réel diffère, on le garde comme dans votre DB.
+    */
 
-    async function loadMissions() {
+    const {data,error} = await db
+        .from("fournisseurs_firmas")
+        .select(`
+            fournisseur_id,
+            fournisseur:fournisseurs(
+                id,
+                code_fournisseur,
+                nom,
+                actif
+            )
+        `)
+        .eq("firma_id",firmaId);
 
-        try {
+    if(error){
 
-            const { data, error } = await db
-                .from(TABLE_CAMIONS)
-                .select(`
-                    *,
-                    firma:firmas (
-                        id,
-                        code_firma,
-                        nom_firma
-                    ),
-                    fournisseur:fournisseurs (
-                        id,
-                        code_fournisseur,
-                        nom
-                    )
-                `)
-                .order("created_at", {
-                    ascending: false
-                });
+        console.error(error);
 
-            if (error) throw error;
+        select.innerHTML =
+            `<option value="">Erreur chargement fournisseurs</option>`;
 
-            missions = data || [];
-
-            $("missionCount").textContent =
-                missions.length;
-
-            renderMissionList();
-
-        } catch (error) {
-
-            console.error("[VIF] loadMissions:", error);
-
-            renderMissionList();
-
-            showAlert(
-                `Erreur chargement missions : ${error.message || error}`,
-                "error"
-            );
-        }
+        return;
     }
 
-    function renderMissionList() {
+    const rows = (data || [])
+        .map(x=>x.fournisseur)
+        .filter(Boolean)
+        .filter(x=>x.actif !== false);
 
-        const container = $("missionList");
+    select.innerHTML =
+        `<option value="">Sélectionner un fournisseur</option>`+
+        rows.map(f=>`
+            <option
+                value="${f.id}"
+                data-code="${esc(f.code_fournisseur || "")}">
+                ${esc(f.code_fournisseur || "")} -
+                ${esc(f.nom || "")}
+            </option>
+        `).join("");
 
-        const search = String(
-            $("searchMission").value || ""
-        )
-            .trim()
-            .toLowerCase();
+    select.disabled = false;
+}
 
-        const statut = $("filterStatut").value;
 
-        const filtered = missions.filter(mission => {
+/* =========================================================
+   CAMIONS
+========================================================= */
 
-            if (
-                statut &&
-                mission.statut !== statut
-            ) {
-                return false;
-            }
+async function loadCamions(){
 
-            if (!search) {
+    const {data,error} = await db
+        .from("camions_transporteurs")
+        .select("*")
+        .eq("actif",true)
+        .order("immatriculation_camion");
+
+    if(error){
+
+        console.error(error);
+
+        return;
+    }
+
+    $("camionId").innerHTML =
+        `<option value="">Sélectionner un camion</option>`+
+        (data || []).map(c=>`
+            <option
+                value="${c.id}"
+                data-numero="${esc(c.numero_transporteur || "")}"
+                data-nom="${esc(c.nom_transporteur || "")}"
+                data-immat="${esc(c.immatriculation_camion || "")}">
+                ${esc(c.immatriculation_camion)}
+            </option>
+        `).join("");
+}
+
+
+/* =========================================================
+   CHAUFFEURS
+========================================================= */
+
+async function loadChauffeurs(){
+
+    const {data,error} = await db
+        .from("chauffeurs_vif")
+        .select("*")
+        .eq("actif",true)
+        .order("nom_chauffeur");
+
+    if(error){
+
+        console.error(error);
+
+        return;
+    }
+
+    $("chauffeurId").innerHTML =
+        `<option value="">Sélectionner un chauffeur</option>`+
+        (data || []).map(c=>`
+            <option
+                value="${c.id}"
+                data-phone="${esc(c.telephone_chauffeur || "")}">
+                ${esc(c.nom_chauffeur)}
+            </option>
+        `).join("");
+}
+
+
+/* =========================================================
+   AUTO DATA
+========================================================= */
+
+function autoCamion(){
+
+    const option =
+        $("camionId").selectedOptions[0];
+
+    if(!option) return;
+
+    $("numeroTransporteur").value =
+        option.dataset.numero || "";
+
+    $("nomTransporteur").value =
+        option.dataset.nom || "";
+}
+
+function autoChauffeur(){
+
+    const option =
+        $("chauffeurId").selectedOptions[0];
+
+    $("telephoneChauffeur").value =
+        option?.dataset.phone || "";
+}
+
+function autoSupplierReference(){
+
+    const id =
+        $("fournisseurId").value;
+
+    $("referenceFournisseur").value =
+        id || "";
+}
+
+
+/* =========================================================
+   MISSIONS
+========================================================= */
+
+async function loadMissions(){
+
+    const {data,error} = await db
+        .from(TABLE_MISSION)
+        .select("*")
+        .order("created_at",{ascending:false});
+
+    if(error){
+
+        console.error(error);
+
+        $("missionList").innerHTML =
+            `<div class="empty">Erreur de chargement</div>`;
+
+        return;
+    }
+
+    missions = data || [];
+
+    renderMissions();
+}
+
+function renderMissions(){
+
+    const search =
+        $("search").value.trim().toLowerCase();
+
+    const rows =
+        missions.filter(m=>{
+
+            if(!search)
                 return true;
-            }
 
-            const haystack = [
-                mission.numero_mission,
-                mission.immatriculation_camion,
-                mission.nom_chauffeur,
-                mission.nom_transporteur,
-                mission.numero_commande,
-                mission.reference_fournisseur,
-                mission.firma?.nom_firma,
-                mission.fournisseur?.nom
+            return [
+                m.numero_mission,
+                m.immatriculation_camion,
+                m.nom_chauffeur,
+                m.nom_transporteur,
+                m.numero_commande
             ]
-                .filter(Boolean)
-                .join(" ")
-                .toLowerCase();
-
-            return haystack.includes(search);
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .includes(search);
         });
 
-        if (!filtered.length) {
+    if(!rows.length){
 
-            container.innerHTML = `
-                <div class="empty-list">
-                    <i class="fa-solid fa-truck"></i>
-                    <span>Aucune mission trouvée.</span>
-                </div>
-            `;
+        $("missionList").innerHTML =
+            `<div class="empty">
+                <i class="fa-solid fa-truck"></i>
+                <br>Aucune mission
+            </div>`;
 
-            return;
-        }
+        return;
+    }
 
-        container.innerHTML = filtered
-            .map(mission => {
+    $("missionList").innerHTML =
+        rows.map(m=>{
 
-                const active =
-                    currentMission?.id === mission.id
-                        ? "active"
-                        : "";
+            const active =
+                currentMission &&
+                currentMission.id === m.id
+                ? "active"
+                : "";
 
-                return `
-                    <div
-                        class="mission-item ${active}"
-                        data-id="${mission.id}"
-                    >
+            const status =
+                m.statut === "RECEPTIONNE"
+                    ? "status-reception"
+                    : m.statut === "EN_ROUTE"
+                        ? "status-route"
+                        : "status-prepared";
 
-                        <div class="mission-top">
+            const label =
+                m.statut === "RECEPTIONNE"
+                    ? "RÉCEPTIONNÉ"
+                    : m.statut === "EN_ROUTE"
+                        ? "EN ROUTE"
+                        : "PRÉPARÉ";
 
-                            <span class="mission-number">
-                                ${escapeHtml(
-                                    mission.numero_mission
-                                )}
-                            </span>
+            return `
+                <div
+                    class="mission-item ${active}"
+                    data-id="${m.id}">
 
-                            ${statusBadge(
-                                mission.statut
-                            )}
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                    ">
 
-                        </div>
+                        <span class="mission-number">
+                            ${esc(m.numero_mission)}
+                        </span>
 
-                        <div class="mission-meta">
-
-                            <div class="meta-item">
-                                <span>Camion</span>
-                                <strong>
-                                    ${escapeHtml(
-                                        mission.immatriculation_camion || "—"
-                                    )}
-                                </strong>
-                            </div>
-
-                            <div class="meta-item">
-                                <span>Fournisseur</span>
-                                <strong>
-                                    ${escapeHtml(
-                                        mission.fournisseur?.nom || "—"
-                                    )}
-                                </strong>
-                            </div>
-
-                            <div class="meta-item">
-                                <span>Départ</span>
-                                <strong>
-                                    ${escapeHtml(
-                                        formatDateTime(
-                                            mission.date_depart,
-                                            mission.heure_depart
-                                        )
-                                    )}
-                                </strong>
-                            </div>
-
-                            <div class="meta-item">
-                                <span>Entrée</span>
-                                <strong>
-                                    ${escapeHtml(
-                                        formatDateTime(
-                                            mission.date_entree,
-                                            mission.heure_entree
-                                        )
-                                    )}
-                                </strong>
-                            </div>
-
-                        </div>
+                        <span class="status ${status}">
+                            ${label}
+                        </span>
 
                     </div>
-                `;
-            })
-            .join("");
 
-        container
-            .querySelectorAll(".mission-item")
-            .forEach(item => {
+                    <div class="item-line">
+                        <small>CAMION</small>
+                        <strong>
+                            ${esc(m.immatriculation_camion || "—")}
+                        </strong>
+                    </div>
 
-                item.addEventListener("click", async () => {
+                    <div class="item-line">
+                        <small>CHAUFFEUR</small>
+                        <strong>
+                            ${esc(m.nom_chauffeur || "—")}
+                        </strong>
+                    </div>
 
-                    const id = Number(
-                        item.dataset.id
-                    );
+                </div>
+            `;
+        }).join("");
 
-                    await openMission(id);
-                });
-            });
-    }
-
-    /* =========================================================
-       STATUS
-    ========================================================= */
-
-    function statusBadge(status) {
-
-        const labels = {
-            PREPARE: "PRÉPARÉ",
-            EN_ROUTE: "EN ROUTE",
-            RETOUR: "RETOUR",
-            ARRIVE: "ARRIVÉ",
-            RECEPTIONNE: "RÉCEPTIONNÉ",
-            ANNULE: "ANNULÉ"
-        };
-
-        const classes = {
-            PREPARE: "badge-prep",
-            EN_ROUTE: "badge-route",
-            RETOUR: "badge-return",
-            ARRIVE: "badge-arrive",
-            RECEPTIONNE: "badge-reception",
-            ANNULE: "badge-cancel"
-        };
-
-        return `
-            <span class="badge ${classes[status] || "badge-prep"}">
-                ${labels[status] || status || "—"}
-            </span>
-        `;
-    }
-
-    function updateStatusUI(status) {
-
-        $("statusBadge").className =
-            `badge ${
-                status === "PREPARE"
-                    ? "badge-prep"
-                    : status === "EN_ROUTE"
-                        ? "badge-route"
-                        : status === "RETOUR"
-                            ? "badge-return"
-                            : status === "ARRIVE"
-                                ? "badge-arrive"
-                                : status === "RECEPTIONNE"
-                                    ? "badge-reception"
-                                    : "badge-cancel"
-            }`;
-
-        $("statusBadge").textContent =
-            ({
-                PREPARE: "PRÉPARÉ",
-                EN_ROUTE: "EN ROUTE",
-                RETOUR: "RETOUR",
-                ARRIVE: "ARRIVÉ",
-                RECEPTIONNE: "RÉCEPTIONNÉ",
-                ANNULE: "ANNULÉ"
-            })[status] || status;
-
-        $("statutReadonly").textContent =
-            ({
-                PREPARE: "PRÉPARÉ",
-                EN_ROUTE: "EN ROUTE",
-                RETOUR: "RETOUR",
-                ARRIVE: "ARRIVÉ",
-                RECEPTIONNE: "RÉCEPTIONNÉ",
-                ANNULE: "ANNULÉ"
-            })[status] || status;
-
-        updateTimeline(status);
-
-        updateMainButton(status);
-    }
-
-    function updateTimeline(status) {
-
-        const order = [
-            "PREPARE",
-            "EN_ROUTE",
-            "RETOUR",
-            "ARRIVE",
-            "RECEPTIONNE"
-        ];
-
-        const currentIndex =
-            order.indexOf(status);
-
-        document
-            .querySelectorAll(".timeline-step")
-            .forEach(step => {
-
-                const stepStatus =
-                    step.dataset.step;
-
-                const stepIndex =
-                    order.indexOf(stepStatus);
-
-                step.classList.remove(
-                    "active",
-                    "done"
+    document
+        .querySelectorAll(".mission-item")
+        .forEach(el=>{
+            el.onclick = ()=>{
+                openMission(
+                    Number(el.dataset.id)
                 );
+            };
+        });
+}
 
-                if (currentIndex >= 0) {
 
-                    if (stepIndex < currentIndex) {
-                        step.classList.add("done");
-                    }
+/* =========================================================
+   NEW
+========================================================= */
 
-                    if (stepIndex === currentIndex) {
-                        step.classList.add("active");
-                    }
-                }
-            });
-    }
+function newMission(){
 
-    function updateMainButton(status) {
+    currentMission = null;
+    currentDetail = null;
+    currentPesee = null;
 
-        const btn = $("btnAction");
+    resetForm();
 
-        if (!btn) return;
+    $("numeroMission").value =
+        generateMission();
 
-        if (status === "PREPARE") {
+    $("numeroCommande").value =
+        generateCommande();
 
-            btn.innerHTML = `
-                <i class="fa-solid fa-road"></i>
-                Déclarer sortie camion
-            `;
+    $("numeroVif").value =
+        generateVif();
 
-        } else if (status === "EN_ROUTE") {
+    $("numeroTicket").value =
+        generateTicket();
 
-            btn.innerHTML = `
-                <i class="fa-solid fa-rotate-left"></i>
-                Déclarer retour
-            `;
+    $("dateSortie").value =
+        today();
 
-        } else if (status === "RETOUR") {
+    $("heureSortie").value =
+        timeNow();
 
-            btn.innerHTML = `
-                <i class="fa-solid fa-location-dot"></i>
-                Enregistrer entrée
-            `;
+    $("emptyState").classList.add("hidden");
+    $("form").classList.remove("hidden");
 
-        } else if (status === "ARRIVE") {
+    showSortie();
 
-            btn.innerHTML = `
-                <i class="fa-solid fa-circle-check"></i>
-                Valider réception
-            `;
+    $("missionTitle").textContent =
+        "Nouvelle mission";
 
-        } else if (status === "RECEPTIONNE") {
+    $("missionSubTitle").textContent =
+        "Préparation du camion avant sortie";
 
-            btn.innerHTML = `
-                <i class="fa-solid fa-check"></i>
-                Réception terminée
-            `;
+    renderMissions();
+}
 
-            btn.disabled = true;
 
-        } else {
+/* =========================================================
+   RESET
+========================================================= */
 
-            btn.innerHTML = `
-                <i class="fa-solid fa-arrow-right"></i>
-                Enregistrer
-            `;
+function resetForm(){
 
-            btn.disabled = false;
-        }
-    }
+    [
+        "numeroMission",
+        "numeroCommande",
+        "referenceFournisseur",
+        "numeroVif",
+        "numeroTransporteur",
+        "nomTransporteur",
+        "telephoneChauffeur",
+        "origineFerme",
+        "lot",
+        "effectifPrevu",
+        "tonnagePrevu",
+        "poidsSortie",
+        "postePesee",
+        "observationSortie",
+        "dateEntree",
+        "heureEntree",
+        "poidsRetour",
+        "effectifReel",
+        "calibreReel",
+        "lotReel",
+        "typeReel",
+        "observationEntree"
+    ].forEach(id=>{
+        if($(id)) $(id).value="";
+    });
 
-    /* =========================================================
-       NEW MISSION
-    ========================================================= */
+    $("firmaId").value="";
+    $("fournisseurId").innerHTML =
+        `<option value="">
+            Sélectionner d'abord une firma
+        </option>`;
+    $("fournisseurId").disabled=true;
 
-    function createNewMission() {
+    $("camionId").value="";
+    $("chauffeurId").value="";
 
-        currentMission = null;
-        currentDetail = null;
-        currentPesee = null;
+    $("typeProduit").value="";
+    $("sexe").value="";
 
-        resetForm();
+    $("poidsSortieDisplay").textContent =
+        "0,000 KG";
+
+    $("p1Display").textContent =
+        "0,000 KG";
+
+    $("poidsNet").textContent =
+        "0,000 KG";
+
+    $("dureeTrajet").textContent =
+        "—";
+
+    $("statutSortie").textContent =
+        "PRÉPARÉ";
+
+    $("btnSaveSortie").classList.remove("hidden");
+    $("btnPrintSortie").classList.add("hidden");
+
+    $("btnSaveEntree").disabled=false;
+}
+
+
+/* =========================================================
+   OPEN
+========================================================= */
+
+async function openMission(id){
+
+    loading(true);
+
+    try{
+
+        const {data,error} =
+            await db
+                .from(TABLE_MISSION)
+                .select("*")
+                .eq("id",id)
+                .single();
+
+        if(error) throw error;
+
+        currentMission=data;
+
+        const details =
+            await db
+                .from(TABLE_DETAIL)
+                .select("*")
+                .eq("camion_vif_id",id)
+                .order("id",{ascending:true})
+                .limit(1);
+
+        currentDetail =
+            details.data?.[0] || null;
+
+        const pesees =
+            await db
+                .from(TABLE_PESEE)
+                .select("*")
+                .eq("camion_vif_id",id)
+                .order("id",{ascending:false})
+                .limit(1);
+
+        currentPesee =
+            pesees.data?.[0] || null;
+
+        await fillMission();
 
         $("emptyState").classList.add("hidden");
-        $("formContainer").classList.remove("hidden");
+        $("form").classList.remove("hidden");
 
-        $("missionTitle").textContent =
-            "Nouvelle mission";
+        if(currentMission.statut === "RECEPTIONNE")
+            showEntree();
+        else if(currentMission.statut === "EN_ROUTE")
+            showEntree();
+        else
+            showSortie();
 
-        $("missionSubtitle").textContent =
-            "Enregistrer un camion VIF avant son départ";
+        renderMissions();
 
-        $("numeroMission").value =
-            generateMissionNumber();
+    }catch(e){
 
-        $("dateDepart").value =
-            getNowDate();
+        console.error(e);
 
-        $("heureDepart").value =
-            getNowTime();
-
-        updateStatusUI("PREPARE");
-
-        $("firmaId").focus();
-
-        renderMissionList();
-    }
-
-    function generateMissionNumber() {
-
-        const d = new Date();
-
-        const year = d.getFullYear();
-
-        const month =
-            String(d.getMonth() + 1)
-                .padStart(2, "0");
-
-        const day =
-            String(d.getDate())
-                .padStart(2, "0");
-
-        const random =
-            String(
-                Math.floor(
-                    Math.random() * 9999
-                )
-            ).padStart(4, "0");
-
-        return `VIF-${year}${month}${day}-${random}`;
-    }
-
-    /* =========================================================
-       OPEN MISSION
-    ========================================================= */
-
-    async function openMission(id) {
-
-        setLoading(true);
-
-        try {
-
-            const { data: mission, error } =
-                await db
-                    .from(TABLE_CAMIONS)
-                    .select(`
-                        *,
-                        firma:firmas (
-                            id,
-                            code_firma,
-                            nom_firma
-                        ),
-                        fournisseur:fournisseurs (
-                            id,
-                            code_fournisseur,
-                            nom
-                        )
-                    `)
-                    .eq("id", id)
-                    .single();
-
-            if (error) throw error;
-
-            const { data: details, error: detailsError } =
-                await db
-                    .from(TABLE_DETAILS)
-                    .select("*")
-                    .eq("camion_vif_id", id)
-                    .order("id", {
-                        ascending: true
-                    });
-
-            if (detailsError) throw detailsError;
-
-            const { data: pesees, error: peseesError } =
-                await db
-                    .from(TABLE_PESEES)
-                    .select("*")
-                    .eq("camion_vif_id", id)
-                    .order("id", {
-                        ascending: false
-                    })
-                    .limit(1);
-
-            if (peseesError) throw peseesError;
-
-            currentMission = mission;
-            currentDetail = details?.[0] || null;
-            currentPesee = pesees?.[0] || null;
-
-            await fillForm();
-
-            $("emptyState").classList.add("hidden");
-            $("formContainer").classList.remove("hidden");
-
-            renderMissionList();
-
-        } catch (error) {
-
-            console.error("[VIF] openMission:", error);
-
-            showAlert(
-                `Impossible d'ouvrir la mission : ${error.message || error}`,
-                "error"
-            );
-
-        } finally {
-
-            setLoading(false);
-        }
-    }
-
-    /* =========================================================
-       FILL FORM
-    ========================================================= */
-
-    async function fillForm() {
-
-        const m = currentMission;
-        const d = currentDetail;
-        const p = currentPesee;
-
-        $("missionTitle").textContent =
-            m.numero_mission || "Mission VIF";
-
-        $("missionSubtitle").textContent =
-            `Créée le ${formatDate(m.created_at?.slice(0, 10) || m.date_depart)}`;
-
-        $("numeroMission").value =
-            m.numero_mission || "";
-
-        $("numeroCommande").value =
-            m.numero_commande || "";
-
-        $("referenceFournisseur").value =
-            m.reference_fournisseur || "";
-
-        $("numeroVif").value =
-            p?.numero_vif || "";
-
-        $("firmaId").value =
-            m.firma_id || "";
-
-        await loadFournisseursForFirma(
-            m.firma_id
+        alertMsg(
+            "Impossible d'ouvrir la mission.",
+            "error"
         );
 
-        $("fournisseurId").value =
-            m.fournisseur_id || "";
+    }finally{
 
-        $("immatriculationCamion").value =
-            m.immatriculation_camion || "";
+        loading(false);
+    }
+}
 
-        $("numeroTransporteur").value =
-            m.numero_transporteur || "";
 
-        $("nomTransporteur").value =
-            m.nom_transporteur || "";
+/* =========================================================
+   FILL
+========================================================= */
 
-        $("nomChauffeur").value =
-            m.nom_chauffeur || "";
+async function fillMission(){
 
-        $("telephoneChauffeur").value =
-            m.telephone_chauffeur || "";
+    const m=currentMission;
+    const d=currentDetail;
+    const p=currentPesee;
 
-        $("dateDepart").value =
-            m.date_depart || "";
+    $("missionTitle").textContent =
+        m.numero_mission || "Mission";
 
-        $("heureDepart").value =
-            m.heure_depart || "";
+    $("numeroMission").value =
+        m.numero_mission || "";
 
-        $("dateEntree").value =
-            m.date_entree || "";
+    $("numeroCommande").value =
+        m.numero_commande || "";
 
-        $("heureEntree").value =
-            m.heure_entree || "";
+    $("numeroVif").value =
+        m.numero_vif || "";
 
-        $("articleId").value =
-            d?.article_id || "";
+    $("firmaId").value =
+        m.firma_id || "";
 
-        $("designation").value =
-            d?.designation || "";
+    await loadFournisseurs(
+        m.firma_id
+    );
 
-        $("origineFerme").value =
-            d?.origine_ferme || "";
+    $("fournisseurId").value =
+        m.fournisseur_id || "";
 
-        $("lot").value =
-            d?.lot || "";
+    autoSupplierReference();
 
-        $("sexeAnimal").value =
-            d?.sexe_animal || "";
+    $("camionId").value =
+        m.camion_id || "";
 
-        $("effectifPrevu").value =
-            d?.effectif_prevu || "";
+    if($("camionId").value)
+        autoCamion();
 
-        $("quantitePrevue").value =
-            d?.quantite_prevue || "";
+    $("chauffeurId").value =
+        m.chauffeur_id || "";
 
-        $("calibrePrevu").value =
-            d?.calibre_prevu || "";
+    if($("chauffeurId").value)
+        autoChauffeur();
 
-        $("effectifReel").value =
-            d?.effectif_reel || "";
+    $("dateSortie").value =
+        m.date_sortie || "";
 
-        $("calibreReel").value =
-            d?.calibre_reel || "";
+    $("heureSortie").value =
+        m.heure_sortie || "";
 
-        $("quantiteReelle").value =
-            d?.quantite_reelle || "";
+    $("typeProduit").value =
+        d?.type_produit || "";
 
-        $("numeroTicket").value =
-            p?.numero_ticket || "";
+    $("origineFerme").value =
+        d?.origine_ferme || "";
 
-        $("postePesee").value =
-            p?.poste_pesee || "";
+    $("lot").value =
+        d?.lot || "";
 
-        $("poidsP1").value =
-            p?.poids_p1 || "";
+    $("sexe").value =
+        d?.sexe || "";
 
-        $("poidsP2").value =
-            p?.poids_p2 || "";
+    $("effectifPrevu").value =
+        d?.effectif_prevu || "";
 
-        $("observations").value =
-            m.observations || "";
+    $("tonnagePrevu").value =
+        d?.tonnage_prevu || "";
 
-        updateWeights();
+    $("poidsSortie").value =
+        p?.poids_sortie || "";
 
-        updateStatusUI(
-            m.statut || "PREPARE"
+    $("numeroTicket").value =
+        p?.numero_ticket || $("numeroTicket").value;
+
+    $("postePesee").value =
+        p?.poste_pesee || "";
+
+    $("observationSortie").value =
+        m.observation_sortie || "";
+
+    $("dateEntree").value =
+        m.date_entree || "";
+
+    $("heureEntree").value =
+        m.heure_entree || "";
+
+    $("poidsRetour").value =
+        p?.poids_retour || "";
+
+    $("effectifReel").value =
+        d?.effectif_reel || "";
+
+    $("calibreReel").value =
+        d?.calibre_reel || "";
+
+    $("lotReel").value =
+        d?.lot_reel || "";
+
+    $("typeReel").value =
+        d?.type_reel || "";
+
+    $("observationEntree").value =
+        m.observation_entree || "";
+
+    $("poidsSortieDisplay").textContent =
+        `${fmt(p?.poids_sortie)} KG`;
+
+    $("p1Display").textContent =
+        `${fmt(p?.poids_sortie)} KG`;
+
+    calculateNet();
+
+    updateComparison();
+
+    calculateDuration();
+
+    lockSortie(
+        m.statut === "EN_ROUTE" ||
+        m.statut === "RECEPTIONNE"
+    );
+
+    updateStatus(m.statut);
+}
+
+
+/* =========================================================
+   SAVE SORTIE
+========================================================= */
+
+async function saveSortie(){
+
+    if(currentMission &&
+       currentMission.statut === "EN_ROUTE"){
+
+        alertMsg(
+            "Cette sortie est déjà validée et verrouillée.",
+            "warning"
         );
+
+        return;
     }
 
-    /* =========================================================
-       RESET
-    ========================================================= */
+    const firma =
+        $("firmaId").value;
 
-    function resetForm() {
+    const fournisseur =
+        $("fournisseurId").value;
 
-        const ids = [
-            "numeroMission",
-            "numeroCommande",
-            "referenceFournisseur",
-            "numeroVif",
-            "immatriculationCamion",
-            "numeroTransporteur",
-            "nomTransporteur",
-            "nomChauffeur",
-            "telephoneChauffeur",
-            "dateDepart",
-            "heureDepart",
-            "dateEntree",
-            "heureEntree",
-            "articleId",
-            "designation",
-            "origineFerme",
-            "lot",
-            "effectifPrevu",
-            "quantitePrevue",
-            "calibrePrevu",
-            "effectifReel",
-            "calibreReel",
-            "quantiteReelle",
-            "numeroTicket",
-            "postePesee",
-            "poidsP1",
-            "poidsP2",
-            "observations"
-        ];
+    const camion =
+        $("camionId").value;
 
-        ids.forEach(id => {
+    const chauffeur =
+        $("chauffeurId").value;
 
-            const el = $(id);
+    const poids =
+        num("poidsSortie");
 
-            if (el) {
-                el.value = "";
-            }
-        });
+    if(!firma){
 
-        $("sexeAnimal").value = "";
+        alertMsg(
+            "Veuillez sélectionner une firma.",
+            "warning"
+        );
 
-        $("firmaId").value = "";
-
-        $("fournisseurId").innerHTML = `
-            <option value="">
-                Sélectionner d'abord une firma
-            </option>
-        `;
-
-        $("fournisseurId").disabled = true;
-
-        $("poidsNetDisplay").textContent =
-            "0,000 KG";
-
-        $("effectifReelDisplay").textContent =
-            "0";
-
-        $("poidsMoyenDisplay").textContent =
-            "0,000 KG";
-
-        $("departDisplay").textContent =
-            "—";
-
-        $("dureeDisplay").textContent =
-            "—";
-
-        updateStatusUI("PREPARE");
+        return;
     }
 
-    function closeForm() {
+    if(!fournisseur){
 
-        currentMission = null;
-        currentDetail = null;
-        currentPesee = null;
+        alertMsg(
+            "Veuillez sélectionner un fournisseur.",
+            "warning"
+        );
 
-        $("formContainer").classList.add("hidden");
-        $("emptyState").classList.remove("hidden");
-
-        renderMissionList();
+        return;
     }
 
-    /* =========================================================
-       WEIGHTS
-    ========================================================= */
+    if(!camion){
 
-    function updateWeights() {
+        alertMsg(
+            "Veuillez sélectionner un camion.",
+            "warning"
+        );
 
-        const p1 = numberValue("poidsP1");
-        const p2 = numberValue("poidsP2");
-
-        let net = 0;
-
-        if (p2 >= p1) {
-            net = p2 - p1;
-        }
-
-        $("poidsNetDisplay").textContent =
-            `${formatNumber(net)} KG`;
-
-        $("quantiteReelle").value =
-            net > 0 ? net.toFixed(3) : "";
-
-        const effectif =
-            numberValue("effectifReel");
-
-        $("effectifReelDisplay").textContent =
-            effectif
-                ? formatNumber(effectif, 0)
-                : "0";
-
-        let average = 0;
-
-        if (
-            net > 0 &&
-            effectif > 0
-        ) {
-            average =
-                net / effectif;
-        }
-
-        $("poidsMoyenDisplay").textContent =
-            `${formatNumber(average)} KG`;
+        return;
     }
 
-    /* =========================================================
-       VALIDATION
-    ========================================================= */
+    if(!chauffeur){
 
-    function validateMission() {
+        alertMsg(
+            "Veuillez sélectionner un chauffeur.",
+            "warning"
+        );
 
-        const firmaId =
-            $("firmaId").value;
-
-        const fournisseurId =
-            $("fournisseurId").value;
-
-        const camion =
-            $("immatriculationCamion")
-                .value
-                .trim();
-
-        const designation =
-            $("designation")
-                .value
-                .trim();
-
-        const dateDepart =
-            $("dateDepart").value;
-
-        const heureDepart =
-            $("heureDepart").value;
-
-        if (!firmaId) {
-            showAlert(
-                "Veuillez sélectionner une firma.",
-                "warning"
-            );
-
-            $("firmaId").focus();
-
-            return false;
-        }
-
-        if (!fournisseurId) {
-            showAlert(
-                "Veuillez sélectionner un fournisseur.",
-                "warning"
-            );
-
-            $("fournisseurId").focus();
-
-            return false;
-        }
-
-        if (!camion) {
-            showAlert(
-                "Veuillez saisir l'immatriculation du camion.",
-                "warning"
-            );
-
-            $("immatriculationCamion").focus();
-
-            return false;
-        }
-
-        if (!designation) {
-            showAlert(
-                "Veuillez saisir la désignation de la marchandise.",
-                "warning"
-            );
-
-            $("designation").focus();
-
-            return false;
-        }
-
-        if (!dateDepart || !heureDepart) {
-            showAlert(
-                "Veuillez renseigner la date et l'heure de départ.",
-                "warning"
-            );
-
-            return false;
-        }
-
-        return true;
+        return;
     }
 
-    /* =========================================================
-       MAIN ACTION
-    ========================================================= */
+    if(poids <= 0){
 
-    async function handleMainAction() {
+        alertMsg(
+            "Le poids réel de sortie est obligatoire.",
+            "warning"
+        );
 
-        if (!currentMission) {
-
-            const saved =
-                await saveMission("prepare");
-
-            if (!saved) return;
-
-            await updateMissionStatus(
-                currentMission.id,
-                "EN_ROUTE"
-            );
-
-            return;
-        }
-
-        const status =
-            currentMission.statut;
-
-        if (status === "PREPARE") {
-
-            await updateMissionStatus(
-                currentMission.id,
-                "EN_ROUTE"
-            );
-
-            return;
-        }
-
-        if (status === "EN_ROUTE") {
-
-            await updateMissionStatus(
-                currentMission.id,
-                "RETOUR"
-            );
-
-            return;
-        }
-
-        if (status === "RETOUR") {
-
-            await saveEntryTime();
-
-            await updateMissionStatus(
-                currentMission.id,
-                "ARRIVE"
-            );
-
-            return;
-        }
-
-        if (status === "ARRIVE") {
-
-            const success =
-                await savePesee();
-
-            if (!success) return;
-
-            await updateMissionStatus(
-                currentMission.id,
-                "RECEPTIONNE"
-            );
-
-            return;
-        }
-
-        if (status === "RECEPTIONNE") {
-
-            showAlert(
-                "Cette réception est déjà terminée.",
-                "success"
-            );
-
-            return;
-        }
+        return;
     }
 
-    /* =========================================================
-       SAVE MISSION
-    ========================================================= */
+    loading(true);
 
-    async function saveMission(mode = "draft") {
+    try{
 
-        if (!validateMission()) {
-            return false;
-        }
+        const camionOption =
+            $("camionId").selectedOptions[0];
 
-        setLoading(true);
+        const chauffeurOption =
+            $("chauffeurId").selectedOptions[0];
 
-        try {
+        const missionPayload={
 
-            const missionPayload = {
+            numero_mission:
+                $("numeroMission").value,
 
-                numero_mission:
-                    $("numeroMission").value.trim()
-                    || generateMissionNumber(),
+            numero_commande:
+                $("numeroCommande").value,
 
-                firma_id:
-                    Number(
-                        $("firmaId").value
-                    ),
+            numero_vif:
+                $("numeroVif").value,
 
-                fournisseur_id:
-                    Number(
-                        $("fournisseurId").value
-                    ),
+            firma_id:
+                Number(firma),
 
-                numero_commande:
-                    $("numeroCommande").value.trim()
-                    || null,
+            fournisseur_id:
+                Number(fournisseur),
 
-                reference_fournisseur:
-                    $("referenceFournisseur").value.trim()
-                    || null,
+            camion_id:
+                Number(camion),
 
-                immatriculation_camion:
-                    $("immatriculationCamion")
-                        .value
-                        .trim(),
+            immatriculation_camion:
+                camionOption?.dataset.immat || "",
 
-                numero_transporteur:
-                    $("numeroTransporteur")
-                        .value
-                        .trim()
-                    || null,
+            chauffeur_id:
+                Number(chauffeur),
 
-                nom_transporteur:
-                    $("nomTransporteur")
-                        .value
-                        .trim()
-                    || null,
+            nom_chauffeur:
+                chauffeurOption?.textContent.trim() || "",
 
-                nom_chauffeur:
-                    $("nomChauffeur")
-                        .value
-                        .trim()
-                    || null,
+            numero_transporteur:
+                $("numeroTransporteur").value || null,
 
-                telephone_chauffeur:
-                    $("telephoneChauffeur")
-                        .value
-                        .trim()
-                    || null,
+            nom_transporteur:
+                $("nomTransporteur").value || null,
 
-                date_depart:
-                    $("dateDepart").value,
+            date_sortie:
+                $("dateSortie").value,
 
-                heure_depart:
-                    $("heureDepart").value,
+            heure_sortie:
+                $("heureSortie").value,
 
-                observations:
-                    $("observations")
-                        .value
-                        .trim()
-                    || null,
+            statut:
+                "EN_ROUTE",
 
-                statut:
-                    currentMission?.statut
-                    || "PREPARE"
-            };
-
-            let mission;
-
-            if (currentMission?.id) {
-
-                const { data, error } =
-                    await db
-                        .from(TABLE_CAMIONS)
-                        .update(missionPayload)
-                        .eq("id", currentMission.id)
-                        .select(`
-                            *,
-                            firma:firmas (
-                                id,
-                                code_firma,
-                                nom_firma
-                            ),
-                            fournisseur:fournisseurs (
-                                id,
-                                code_fournisseur,
-                                nom
-                            )
-                        `)
-                        .single();
-
-                if (error) throw error;
-
-                mission = data;
-
-            } else {
-
-                const { data, error } =
-                    await db
-                        .from(TABLE_CAMIONS)
-                        .insert(missionPayload)
-                        .select(`
-                            *,
-                            firma:firmas (
-                                id,
-                                code_firma,
-                                nom_firma
-                            ),
-                            fournisseur:fournisseurs (
-                                id,
-                                code_fournisseur,
-                                nom
-                            )
-                        `)
-                        .single();
-
-                if (error) throw error;
-
-                mission = data;
-            }
-
-            currentMission = mission;
-
-            $("numeroMission").value =
-                mission.numero_mission;
-
-            await saveDetail();
-
-            await loadMissions();
-
-            await openMission(
-                mission.id
-            );
-
-            showAlert(
-                mode === "draft"
-                    ? "Mission enregistrée avec succès."
-                    : "Mission créée avec succès.",
-                "success"
-            );
-
-            return true;
-
-        } catch (error) {
-
-            console.error("[VIF] saveMission:", error);
-
-            showAlert(
-                `Erreur d'enregistrement : ${error.message || error}`,
-                "error"
-            );
-
-            return false;
-
-        } finally {
-
-            setLoading(false);
-        }
-    }
-
-    /* =========================================================
-       SAVE DETAIL
-    ========================================================= */
-
-    async function saveDetail() {
-
-        if (!currentMission?.id) {
-            return;
-        }
-
-        const payload = {
-
-            camion_vif_id:
-                currentMission.id,
-
-            article_id:
-                $("articleId").value.trim()
-                || null,
-
-            designation:
-                $("designation")
-                    .value
-                    .trim(),
-
-            origine_ferme:
-                $("origineFerme")
-                    .value
-                    .trim()
-                || null,
-
-            lot:
-                $("lot")
-                    .value
-                    .trim()
-                || null,
-
-            sexe_animal:
-                $("sexeAnimal").value
-                || null,
-
-            effectif_prevu:
-                numberValue("effectifPrevu"),
-
-            effectif_reel:
-                numberValue("effectifReel"),
-
-            calibre_prevu:
-                numberValue("calibrePrevu"),
-
-            calibre_reel:
-                numberValue("calibreReel"),
-
-            quantite_prevue:
-                numberValue("quantitePrevue"),
-
-            quantite_reelle:
-                numberValue("quantiteReelle"),
-
-            unite:
-                "KG",
-
-            observations:
-                $("observations")
-                    .value
-                    .trim()
-                || null
+            observation_sortie:
+                $("observationSortie").value || null
         };
 
-        if (currentDetail?.id) {
+        let mission;
 
-            const { data, error } =
+        if(currentMission?.id){
+
+            const {data,error} =
                 await db
-                    .from(TABLE_DETAILS)
-                    .update(payload)
-                    .eq("id", currentDetail.id)
+                    .from(TABLE_MISSION)
+                    .update(missionPayload)
+                    .eq("id",currentMission.id)
                     .select()
                     .single();
 
-            if (error) throw error;
+            if(error) throw error;
 
-            currentDetail = data;
+            mission=data;
 
-        } else {
+        }else{
 
-            const { data, error } =
+            const {data,error} =
                 await db
-                    .from(TABLE_DETAILS)
-                    .insert(payload)
+                    .from(TABLE_MISSION)
+                    .insert(missionPayload)
                     .select()
                     .single();
 
-            if (error) throw error;
+            if(error) throw error;
 
-            currentDetail = data;
+            mission=data;
         }
+
+        currentMission=mission;
+
+        const detailPayload={
+
+            camion_vif_id:
+                mission.id,
+
+            type_produit:
+                $("typeProduit").value || null,
+
+            origine_ferme:
+                $("origineFerme").value || null,
+
+            lot:
+                $("lot").value || null,
+
+            sexe:
+                $("sexe").value || null,
+
+            effectif_prevu:
+                num("effectifPrevu"),
+
+            tonnage_prevu:
+                num("tonnagePrevu")
+        };
+
+        if(currentDetail?.id){
+
+            const {data,error} =
+                await db
+                    .from(TABLE_DETAIL)
+                    .update(detailPayload)
+                    .eq("id",currentDetail.id)
+                    .select()
+                    .single();
+
+            if(error) throw error;
+
+            currentDetail=data;
+
+        }else{
+
+            const {data,error} =
+                await db
+                    .from(TABLE_DETAIL)
+                    .insert(detailPayload)
+                    .select()
+                    .single();
+
+            if(error) throw error;
+
+            currentDetail=data;
+        }
+
+
+        const peseePayload={
+
+            camion_vif_id:
+                mission.id,
+
+            numero_ticket:
+                $("numeroTicket").value,
+
+            poste_pesee:
+                $("postePesee").value || null,
+
+            poids_sortie:
+                poids,
+
+            date_sortie:
+                $("dateSortie").value,
+
+            heure_sortie:
+                $("heureSortie").value
+        };
+
+        if(currentPesee?.id){
+
+            const {data,error} =
+                await db
+                    .from(TABLE_PESEE)
+                    .update(peseePayload)
+                    .eq("id",currentPesee.id)
+                    .select()
+                    .single();
+
+            if(error) throw error;
+
+            currentPesee=data;
+
+        }else{
+
+            const {data,error} =
+                await db
+                    .from(TABLE_PESEE)
+                    .insert(peseePayload)
+                    .select()
+                    .single();
+
+            if(error) throw error;
+
+            currentPesee=data;
+        }
+
+
+        /*
+         IMPORTANT :
+         من هنا sortie مبلّوكي.
+        */
+
+        lockSortie(true);
+
+        updateStatus("EN_ROUTE");
+
+        $("btnSaveSortie").classList.add("hidden");
+        $("btnPrintSortie").classList.remove("hidden");
+
+        await loadMissions();
+
+        alertMsg(
+            "Sortie camion enregistrée. Les données de sortie sont maintenant verrouillées.",
+            "success"
+        );
+
+    }catch(e){
+
+        console.error(e);
+
+        alertMsg(
+            "Erreur lors de l'enregistrement de la sortie : "+
+            (e.message || e),
+            "error"
+        );
+
+    }finally{
+
+        loading(false);
+    }
+}
+
+
+/* =========================================================
+   LOCK SORTIE
+========================================================= */
+
+function lockSortie(lock){
+
+    const ids=[
+
+        "firmaId",
+        "fournisseurId",
+        "camionId",
+        "chauffeurId",
+        "typeProduit",
+        "origineFerme",
+        "lot",
+        "sexe",
+        "effectifPrevu",
+        "tonnagePrevu",
+        "poidsSortie",
+        "postePesee",
+        "observationSortie"
+    ];
+
+    ids.forEach(id=>{
+
+        const el=$(id);
+
+        if(el)
+            el.disabled=lock;
+    });
+
+    [
+        "numeroMission",
+        "numeroCommande",
+        "referenceFournisseur",
+        "numeroVif",
+        "numeroTransporteur",
+        "nomTransporteur",
+        "telephoneChauffeur",
+        "dateSortie",
+        "heureSortie",
+        "numeroTicket"
+    ].forEach(id=>{
+
+        const el=$(id);
+
+        if(el)
+            el.readOnly=true;
+    });
+
+    if(lock){
+
+        $("poidsSortieDisplay").textContent =
+            `${fmt(num("poidsSortie"))} KG`;
+    }
+}
+
+
+/* =========================================================
+   SHOW SORTIE
+========================================================= */
+
+function showSortie(){
+
+    $("sortiePanel").classList.remove("hidden");
+    $("entreePanel").classList.add("hidden");
+
+    $("stageSortie").classList.add("active");
+    $("stageEntree").classList.remove("active");
+}
+
+
+/* =========================================================
+   SHOW ENTREE
+========================================================= */
+
+function showEntree(){
+
+    if(!currentMission){
+
+        alertMsg(
+            "Aucune mission sélectionnée.",
+            "warning"
+        );
+
+        return;
     }
 
-    /* =========================================================
-       SAVE ENTRY TIME
-    ========================================================= */
+    $("sortiePanel").classList.add("hidden");
+    $("entreePanel").classList.remove("hidden");
 
-    async function saveEntryTime() {
+    $("stageSortie").classList.add("done");
+    $("stageSortie").classList.remove("active");
 
-        if (!currentMission?.id) {
-            return;
-        }
+    $("stageEntree").classList.add("active");
 
-        const date =
-            $("dateEntree").value
-            || getNowDate();
+    $("p1Display").textContent =
+        `${fmt(num("poidsSortie"))} KG`;
 
-        const time =
-            $("heureEntree").value
-            || getNowTime();
+    calculateNet();
+    updateComparison();
+    calculateDuration();
+}
 
-        const { data, error } =
+
+/* =========================================================
+   CALCUL NET
+========================================================= */
+
+function calculateNet(){
+
+    const p1 =
+        num("poidsSortie");
+
+    const p2 =
+        num("poidsRetour");
+
+    let net=0;
+
+    if(p2 >= p1 && p1>0)
+        net=p2-p1;
+
+    $("poidsNet").textContent =
+        `${fmt(net)} KG`;
+
+    updateComparison();
+}
+
+
+/* =========================================================
+   COMPARISON
+========================================================= */
+
+function updateComparison(){
+
+    const prevEffectif =
+        num("effectifPrevu");
+
+    const realEffectif =
+        num("effectifReel");
+
+    const prevTonnage =
+        num("tonnagePrevu");
+
+    const p1 =
+        num("poidsSortie");
+
+    const p2 =
+        num("poidsRetour");
+
+    const realTonnage =
+        p2 >= p1
+            ? p2-p1
+            : 0;
+
+    $("compareEffectifPrevu").textContent =
+        fmt(prevEffectif,0);
+
+    $("compareEffectifReel").textContent =
+        fmt(realEffectif,0);
+
+    $("compareTonnagePrevu").textContent =
+        `${fmt(prevTonnage)} KG`;
+
+    $("compareTonnageReel").textContent =
+        `${fmt(realTonnage)} KG`;
+}
+
+
+/* =========================================================
+   DURATION
+========================================================= */
+
+function calculateDuration(){
+
+    const date1 =
+        $("dateSortie").value;
+
+    const time1 =
+        $("heureSortie").value;
+
+    const date2 =
+        $("dateEntree").value;
+
+    const time2 =
+        $("heureEntree").value;
+
+    if(!date1 || !time1 || !date2 || !time2){
+
+        $("dureeTrajet").textContent="—";
+
+        return;
+    }
+
+    const a =
+        new Date(`${date1}T${time1}`);
+
+    const b =
+        new Date(`${date2}T${time2}`);
+
+    let diff =
+        Math.max(
+            0,
+            b.getTime()-a.getTime()
+        );
+
+    const minutes =
+        Math.floor(diff/60000);
+
+    const h =
+        Math.floor(minutes/60);
+
+    const m =
+        minutes%60;
+
+    $("dureeTrajet").textContent =
+        `${h}h ${String(m).padStart(2,"0")} min`;
+}
+
+
+/* =========================================================
+   SAVE ENTREE
+========================================================= */
+
+async function saveEntree(){
+
+    if(!currentMission?.id){
+
+        alertMsg(
+            "Sélectionnez une mission.",
+            "warning"
+        );
+
+        return;
+    }
+
+    const p1 =
+        num("poidsSortie");
+
+    const p2 =
+        num("poidsRetour");
+
+    if(!p2){
+
+        alertMsg(
+            "Veuillez saisir le poids P2 de retour.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(p2 < p1){
+
+        alertMsg(
+            "P2 ne peut pas être inférieur à P1.",
+            "error"
+        );
+
+        return;
+    }
+
+    if(!$("dateEntree").value)
+        $("dateEntree").value=today();
+
+    if(!$("heureEntree").value)
+        $("heureEntree").value=timeNow();
+
+    loading(true);
+
+    try{
+
+        const net =
+            p2-p1;
+
+        const {data:mission,error:missionError} =
             await db
-                .from(TABLE_CAMIONS)
+                .from(TABLE_MISSION)
                 .update({
-                    date_entree: date,
-                    heure_entree: time,
-                    updated_at: new Date().toISOString()
+
+                    date_entree:
+                        $("dateEntree").value,
+
+                    heure_entree:
+                        $("heureEntree").value,
+
+                    observation_entree:
+                        $("observationEntree").value || null,
+
+                    statut:
+                        "RECEPTIONNE",
+
+                    updated_at:
+                        new Date().toISOString()
+
                 })
-                .eq("id", currentMission.id)
+                .eq("id",currentMission.id)
                 .select()
                 .single();
 
-        if (error) throw error;
+        if(missionError)
+            throw missionError;
 
-        currentMission = {
-            ...currentMission,
-            ...data
+        currentMission=mission;
+
+
+        const detailPayload={
+
+            effectif_reel:
+                num("effectifReel"),
+
+            calibre_reel:
+                num("calibreReel"),
+
+            lot_reel:
+                $("lotReel").value || null,
+
+            type_reel:
+                $("typeReel").value || null,
+
+            quantite_reelle:
+                net
         };
 
-        $("dateEntree").value = date;
-        $("heureEntree").value = time;
 
-        calculateDuration();
-    }
+        if(currentDetail?.id){
 
-    /* =========================================================
-       SAVE PESEE
-    ========================================================= */
-
-    async function savePesee() {
-
-        if (!currentMission?.id) {
-            showAlert(
-                "La mission doit être enregistrée avant la pesée.",
-                "warning"
-            );
-
-            return false;
-        }
-
-        const ticket =
-            $("numeroTicket")
-                .value
-                .trim();
-
-        const p1 =
-            numberValue("poidsP1");
-
-        const p2 =
-            numberValue("poidsP2");
-
-        const effectif =
-            numberValue("effectifReel");
-
-        if (!ticket) {
-
-            showAlert(
-                "Veuillez saisir le numéro du ticket de pesée.",
-                "warning"
-            );
-
-            $("numeroTicket").focus();
-
-            return false;
-        }
-
-        if (p1 <= 0) {
-
-            showAlert(
-                "Veuillez saisir P1.",
-                "warning"
-            );
-
-            $("poidsP1").focus();
-
-            return false;
-        }
-
-        if (p2 <= 0) {
-
-            showAlert(
-                "Veuillez saisir P2.",
-                "warning"
-            );
-
-            $("poidsP2").focus();
-
-            return false;
-        }
-
-        if (p2 < p1) {
-
-            showAlert(
-                "P2 ne peut pas être inférieur à P1.",
-                "error"
-            );
-
-            return false;
-        }
-
-        if (effectif <= 0) {
-
-            showAlert(
-                "Veuillez saisir l'effectif réel.",
-                "warning"
-            );
-
-            $("effectifReel").focus();
-
-            return false;
-        }
-
-        const date1 =
-            currentPesee?.date_pesee_1
-            || currentMission.date_depart
-            || getNowDate();
-
-        const heure1 =
-            currentPesee?.heure_pesee_1
-            || currentMission.heure_depart
-            || getNowTime();
-
-        const date2 =
-            $("dateEntree").value
-            || getNowDate();
-
-        const heure2 =
-            $("heureEntree").value
-            || getNowTime();
-
-        const poidsNet =
-            p2 - p1;
-
-        const poidsMoyen =
-            effectif > 0
-                ? poidsNet / effectif
-                : 0;
-
-        const payload = {
-
-            camion_vif_id:
-                currentMission.id,
-
-            numero_ticket:
-                ticket,
-
-            poste_pesee:
-                $("postePesee")
-                    .value
-                    .trim()
-                || null,
-
-            date_pesee_1:
-                date1,
-
-            heure_pesee_1:
-                heure1,
-
-            poids_p1:
-                p1,
-
-            date_pesee_2:
-                date2,
-
-            heure_pesee_2:
-                heure2,
-
-            poids_p2:
-                p2,
-
-            poids_moyen_tete:
-                poidsMoyen,
-
-            observations:
-                $("observations")
-                    .value
-                    .trim()
-                || null
-        };
-
-        try {
-
-            let data;
-            let error;
-
-            if (currentPesee?.id) {
-
-                ({
-                    data,
-                    error
-                } = await db
-                    .from(TABLE_PESEES)
-                    .update(payload)
-                    .eq("id", currentPesee.id)
-                    .select()
-                    .single());
-
-            } else {
-
-                ({
-                    data,
-                    error
-                } = await db
-                    .from(TABLE_PESEES)
-                    .insert(payload)
-                    .select()
-                    .single());
-            }
-
-            if (error) throw error;
-
-            currentPesee = data;
-
-            $("quantiteReelle").value =
-                poidsNet.toFixed(3);
-
-            $("calibreReel").value =
-                poidsMoyen.toFixed(3);
-
-            await saveDetail();
-
-            showAlert(
-                `Pesée enregistrée : NET ${formatNumber(poidsNet)} KG.`,
-                "success"
-            );
-
-            return true;
-
-        } catch (error) {
-
-            console.error("[VIF] savePesee:", error);
-
-            showAlert(
-                `Erreur lors de l'enregistrement de la pesée : ${error.message || error}`,
-                "error"
-            );
-
-            return false;
-        }
-    }
-
-    /* =========================================================
-       STATUS UPDATE
-    ========================================================= */
-
-    async function updateMissionStatus(
-        missionId,
-        status
-    ) {
-
-        setLoading(true);
-
-        try {
-
-            const payload = {
-                statut: status,
-                updated_at: new Date().toISOString()
-            };
-
-            const { data, error } =
+            const {data,error} =
                 await db
-                    .from(TABLE_CAMIONS)
-                    .update(payload)
-                    .eq("id", missionId)
-                    .select(`
-                        *,
-                        firma:firmas (
-                            id,
-                            code_firma,
-                            nom_firma
-                        ),
-                        fournisseur:fournisseurs (
-                            id,
-                            code_fournisseur,
-                            nom
-                        )
-                    `)
+                    .from(TABLE_DETAIL)
+                    .update(detailPayload)
+                    .eq("id",currentDetail.id)
+                    .select()
                     .single();
 
-            if (error) throw error;
+            if(error)
+                throw error;
 
-            currentMission = data;
+            currentDetail=data;
+        }
 
-            if (
-                status === "EN_ROUTE"
-                &&
-                !currentMission.date_depart
-            ) {
 
+        const peseePayload={
+
+            poids_retour:
+                p2,
+
+            poids_net:
+                net,
+
+            date_retour:
+                $("dateEntree").value,
+
+            heure_retour:
+                $("heureEntree").value
+        };
+
+
+        if(currentPesee?.id){
+
+            const {data,error} =
                 await db
-                    .from(TABLE_CAMIONS)
-                    .update({
-                        date_depart: getNowDate(),
-                        heure_depart: getNowTime()
-                    })
-                    .eq("id", missionId);
+                    .from(TABLE_PESEE)
+                    .update(peseePayload)
+                    .eq("id",currentPesee.id)
+                    .select()
+                    .single();
 
-            }
+            if(error)
+                throw error;
 
-            if (
-                status === "RETOUR"
-                &&
-                !currentMission.date_entree
-            ) {
-
-                /*
-                 * On ne remplit pas l'entrée automatiquement ici.
-                 * Elle sera enregistrée au vrai moment d'arrivée.
-                 */
-            }
-
-            await loadMissions();
-
-            updateStatusUI(status);
-
-            if (status === "EN_ROUTE") {
-
-                showAlert(
-                    "Sortie camion enregistrée. Camion EN ROUTE.",
-                    "success"
-                );
-
-            } else if (status === "RETOUR") {
-
-                showAlert(
-                    "Retour camion déclaré.",
-                    "success"
-                );
-
-            } else if (status === "ARRIVE") {
-
-                showAlert(
-                    "Entrée camion enregistrée. Vous pouvez saisir la pesée.",
-                    "success"
-                );
-
-            } else if (status === "RECEPTIONNE") {
-
-                showAlert(
-                    "Réception VIF terminée.",
-                    "success"
-                );
-            }
-
-            await openMission(missionId);
-
-        } catch (error) {
-
-            console.error(
-                "[VIF] updateMissionStatus:",
-                error
-            );
-
-            showAlert(
-                `Erreur changement statut : ${error.message || error}`,
-                "error"
-            );
-
-        } finally {
-
-            setLoading(false);
-        }
-    }
-
-    /* =========================================================
-       DURATION
-    ========================================================= */
-
-    function calculateDuration() {
-
-        if (!currentMission) {
-            $("dureeDisplay").textContent = "—";
-            return;
+            currentPesee=data;
         }
 
-        const dateDepart =
-            $("dateDepart").value;
 
-        const heureDepart =
-            $("heureDepart").value;
+        await loadMissions();
 
-        const dateEntree =
-            $("dateEntree").value;
+        updateStatus("RECEPTIONNE");
 
-        const heureEntree =
-            $("heureEntree").value;
+        $("btnSaveEntree").disabled=true;
 
-        $("departDisplay").textContent =
-            formatDateTime(
-                dateDepart,
-                heureDepart
-            );
-
-        if (
-            !dateDepart ||
-            !heureDepart ||
-            !dateEntree ||
-            !heureEntree
-        ) {
-
-            $("dureeDisplay").textContent =
-                "En attente du retour";
-
-            return;
-        }
-
-        const start =
-            new Date(
-                `${dateDepart}T${heureDepart}`
-            );
-
-        const end =
-            new Date(
-                `${dateEntree}T${heureEntree}`
-            );
-
-        if (
-            Number.isNaN(start.getTime()) ||
-            Number.isNaN(end.getTime())
-        ) {
-
-            $("dureeDisplay").textContent =
-                "—";
-
-            return;
-        }
-
-        let diff =
-            end.getTime() -
-            start.getTime();
-
-        if (diff < 0) {
-            diff = 0;
-        }
-
-        const totalMinutes =
-            Math.floor(
-                diff / 60000
-            );
-
-        const days =
-            Math.floor(
-                totalMinutes / 1440
-            );
-
-        const hours =
-            Math.floor(
-                (totalMinutes % 1440) / 60
-            );
-
-        const minutes =
-            totalMinutes % 60;
-
-        let result = "";
-
-        if (days > 0) {
-            result += `${days}j `;
-        }
-
-        result +=
-            `${String(hours).padStart(2, "0")}h ` +
-            `${String(minutes).padStart(2, "0")}min`;
-
-        $("dureeDisplay").textContent =
-            result;
-    }
-
-    $("dateEntree").addEventListener(
-        "change",
-        calculateDuration
-    );
-
-    $("heureEntree").addEventListener(
-        "change",
-        calculateDuration
-    );
-
-    $("dateDepart").addEventListener(
-        "change",
-        calculateDuration
-    );
-
-    $("heureDepart").addEventListener(
-        "change",
-        calculateDuration
-    );
-
-    /* =========================================================
-       AUTO INIT
-    ========================================================= */
-
-    if (
-        document.readyState === "loading"
-    ) {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            init
+        alertMsg(
+            `Réception terminée. Poids net : ${fmt(net)} KG.`,
+            "success"
         );
 
-    } else {
+    }catch(e){
 
-        init();
+        console.error(e);
+
+        alertMsg(
+            "Erreur lors de la réception : "+
+            (e.message || e),
+            "error"
+        );
+
+    }finally{
+
+        loading(false);
     }
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function updateStatus(status){
+
+    const badge=$("statusBadge");
+
+    if(status==="RECEPTIONNE"){
+
+        badge.className=
+            "status status-closed";
+
+        badge.textContent=
+            "RÉCEPTIONNÉ";
+
+        $("statutSortie").textContent=
+            "RÉCEPTIONNÉ";
+
+    }else if(status==="EN_ROUTE"){
+
+        badge.className=
+            "status status-route";
+
+        badge.textContent=
+            "EN ROUTE";
+
+        $("statutSortie").textContent=
+            "EN ROUTE";
+
+    }else{
+
+        badge.className=
+            "status status-prepared";
+
+        badge.textContent=
+            "PRÉPARÉ";
+
+        $("statutSortie").textContent=
+            "PRÉPARÉ";
+    }
+}
+
+
+/* =========================================================
+   PRINT BON SORTIE
+========================================================= */
+
+function printSortie(){
+
+    if(!currentMission)
+        return;
+
+    const m=currentMission;
+
+    const firmaName =
+        $("firmaId").selectedOptions[0]?.textContent.trim() || "";
+
+    const fournisseurName =
+        $("fournisseurId").selectedOptions[0]?.textContent.trim() || "";
+
+    const camion =
+        $("camionId").selectedOptions[0]?.dataset.immat || "";
+
+    const chauffeur =
+        $("chauffeurId").selectedOptions[0]?.textContent.trim() || "";
+
+    const produit =
+        $("typeProduit").value || "";
+
+    const ferme =
+        $("origineFerme").value || "";
+
+    const lot =
+        $("lot").value || "";
+
+    const effectif =
+        num("effectifPrevu");
+
+    const poids =
+        num("poidsSortie");
+
+    const win =
+        window.open(
+            "",
+            "_blank",
+            "width=800,height=900"
+        );
+
+    if(!win){
+
+        alertMsg(
+            "Le navigateur bloque la fenêtre d'impression.",
+            "warning"
+        );
+
+        return;
+    }
+
+    win.document.write(`
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+
+<title>Bon sortie VIF</title>
+
+<style>
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    padding:30px;
+    color:#111;
+}
+
+.sheet{
+    max-width:700px;
+    margin:auto;
+    border:1px solid #222;
+    padding:25px;
+}
+
+h1{
+    text-align:center;
+    margin:0 0 5px;
+    font-size:20px;
+}
+
+.subtitle{
+    text-align:center;
+    font-size:11px;
+    margin-bottom:20px;
+}
+
+.line{
+    border-bottom:1px solid #222;
+    padding:8px 0;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.label{
+    font-weight:bold;
+}
+
+.weight{
+    border:2px solid #111;
+    padding:15px;
+    margin-top:20px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.signature{
+    margin-top:45px;
+    display:flex;
+    justify-content:space-between;
+}
+
+@media print{
+    body{
+        padding:0;
+    }
+
+    .sheet{
+        border:1px solid #111;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sheet">
+
+<h1>BON DE SORTIE VIF</h1>
+
+<div class="subtitle">
+Document généré automatiquement
+</div>
+
+<div class="line">
+
+<div class="row">
+<span class="label">N° Mission</span>
+<span>${esc(m.numero_mission)}</span>
+</div>
+
+<div class="row">
+<span class="label">N° Commande</span>
+<span>${esc(m.numero_commande)}</span>
+</div>
+
+<div class="row">
+<span class="label">N° VIF / BL</span>
+<span>${esc(m.numero_vif)}</span>
+</div>
+
+<div class="row">
+<span class="label">N° Ticket pesée</span>
+<span>${esc($("numeroTicket").value)}</span>
+</div>
+
+</div>
+
+
+<div class="line">
+
+<div class="row">
+<span class="label">Firma</span>
+<span>${esc(firmaName)}</span>
+</div>
+
+<div class="row">
+<span class="label">Fournisseur</span>
+<span>${esc(fournisseurName)}</span>
+</div>
+
+</div>
+
+
+<div class="line">
+
+<div class="row">
+<span class="label">Camion</span>
+<span>${esc(camion)}</span>
+</div>
+
+<div class="row">
+<span class="label">N° transporteur</span>
+<span>${esc($("numeroTransporteur").value)}</span>
+</div>
+
+<div class="row">
+<span class="label">Transporteur</span>
+<span>${esc($("nomTransporteur").value)}</span>
+</div>
+
+<div class="row">
+<span class="label">Chauffeur</span>
+<span>${esc(chauffeur)}</span>
+</div>
+
+<div class="row">
+<span class="label">Téléphone</span>
+<span>${esc($("telephoneChauffeur").value)}</span>
+</div>
+
+</div>
+
+
+<div class="line">
+
+<div class="row">
+<span class="label">Produit</span>
+<span>${esc(produit)}</span>
+</div>
+
+<div class="row">
+<span class="label">Ferme / Origine</span>
+<span>${esc(ferme)}</span>
+</div>
+
+<div class="row">
+<span class="label">Lot</span>
+<span>${esc(lot)}</span>
+</div>
+
+<div class="row">
+<span class="label">Effectif prévu</span>
+<span>${fmt(effectif,0)} têtes</span>
+</div>
+
+</div>
+
+
+<div class="weight">
+
+POIDS SORTIE CAMION<br>
+
+${fmt(poids)} KG
+
+</div>
+
+
+<div class="line" style="margin-top:20px">
+
+<div class="row">
+<span class="label">Date sortie</span>
+<span>${esc(m.date_sortie)}</span>
+</div>
+
+<div class="row">
+<span class="label">Heure sortie</span>
+<span>${esc(m.heure_sortie)}</span>
+</div>
+
+</div>
+
+
+<div class="signature">
+
+<div>
+Signature chauffeur
+<br><br>
+________________________
+</div>
+
+<div>
+Cachet / Signature
+<br><br>
+________________________
+</div>
+
+</div>
+
+</div>
+
+<script>
+window.onload=function(){
+    window.print();
+};
+<\/script>
+
+</body>
+</html>
+`);
+
+    win.document.close();
+}
+
+
+/* =========================================================
+   CLOSE
+========================================================= */
+
+function closeForm(){
+
+    currentMission=null;
+    currentDetail=null;
+    currentPesee=null;
+
+    $("form").classList.add("hidden");
+    $("emptyState").classList.remove("hidden");
+
+    renderMissions();
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+if(document.readyState==="loading"){
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        init
+    );
+
+}else{
+
+    init();
+}
 
 })();
 </script>
