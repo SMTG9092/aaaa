@@ -1,0 +1,2121 @@
+<!-- Modules/demandes_achat.html -->
+<div class="da-page">
+  <div class="da-head">
+    <div>
+      <h2><i class="fa-solid fa-cart-plus"></i> Nouvelle demande d'achat</h2>
+      <p>Création et préparation d'une demande d'achat</p>
+    </div>
+
+    <div class="da-actions">
+      <button id="btnReset" class="btn light">
+        <i class="fa-solid fa-rotate-left"></i> Réinitialiser
+      </button>
+
+      <button id="btnSave" class="btn green">
+        <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+      </button>
+</div>
+  </div>
+
+  <div class="card">
+    <div class="ct">
+      <i class="fa-solid fa-file-circle-plus"></i>
+      Informations de la demande
+    </div>
+
+    <div class="grid">
+      <label>
+        N° Demande
+        <input id="numeroDemande" readonly>
+      </label>
+
+      <label>
+        Date
+        <input id="dateDemande" type="date">
+      </label>
+
+      <label>
+        Demandeur
+        <input id="demandeur" readonly>
+      </label>
+
+      <label>
+        Service
+        <select id="service">
+          <option value="">Sélectionner un service...</option>
+          <option>Administrateur</option>
+          <option>Direction / Audit</option>
+          <option>Gestion Stock</option>
+          <option>Magasin</option>
+          <option>Production ABS</option>
+          <option>Production ACH</option>
+          <option>Préparation / Picking</option>
+          <option>Expédition</option>
+          <option>Logistique</option>
+          <option>Commercial</option>
+          <option>Achats</option>
+          <option>Qualité / Vétérinaire</option>
+          <option>Maintenance</option>
+          <option>Contrôle de Gestion</option>
+          <option>Ressources Humaines</option>
+          <option>Informatique / IT</option>
+          <option>Sécurité</option>
+          <option>Nettoyage</option>
+          <option>Administration</option>
+        </select>
+      </label>
+
+      <label>
+        Priorité
+        <select id="priorite">
+          <option>NORMALE</option>
+          <option>URGENTE</option>
+          <option>TRES_URGENTE</option>
+        </select>
+      </label>
+
+      <label>
+        Type produit
+        <select id="typeProduit">
+          <option value="">Tous</option>
+          <option>FRAIS</option>
+          <option>CONGELE</option>
+          <option>MATIERE_PREMIERE</option>
+        </select>
+      </label>
+
+      <label class="wide">
+        Motif de la demande
+        <select id="motif">
+          <option value="">Sélectionner un motif...</option>
+          <option>Nouvelle référence / nouveau produit</option>
+          <option>Réapprovisionnement du stock</option>
+          <option>Stock minimum atteint</option>
+          <option>Rupture de stock</option>
+          <option>Anticipation du besoin</option>
+          <option>Besoin urgent</option>
+          <option>Besoin de production</option>
+          <option>Besoin d'expédition</option>
+          <option>Besoin de maintenance</option>
+          <option>Remplacement d'un équipement</option>
+          <option>Remplacement d'un matériel défectueux</option>
+          <option>Renouvellement du matériel</option>
+          <option>Consommable épuisé</option>
+          <option>Augmentation de la consommation</option>
+          <option>Besoin exceptionnel</option>
+          <option>Nouvelle activité</option>
+          <option>Extension / augmentation de capacité</option>
+          <option>Demande d'un service</option>
+          <option>Demande de la Direction</option>
+          <option>Besoin qualité</option>
+          <option>Besoin hygiène</option>
+          <option>Besoin sécurité</option>
+          <option>Besoin sanitaire</option>
+          <option>Besoin informatique</option>
+          <option>Besoin administratif</option>
+          <option>Besoin logistique</option>
+          <option>Besoin opérationnel</option>
+          <option>Optimisation des coûts</option>
+          <option>Amélioration des conditions de travail</option>
+          <option>Mise en conformité</option>
+          <option>Prévention / sécurité</option>
+          <option>Commande programmée</option>
+          <option>Achat périodique</option>
+          <option>Autre</option>
+        </select>
+      </label>
+
+      <label id="motifDetailWrap" class="wide" style="display:none">
+        Précision du besoin
+        <textarea
+          id="motifDetail"
+          placeholder="Précisez le motif de la demande..."
+        ></textarea>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cardhead">
+      <div>
+        <div class="ct">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          Articles demandés
+        </div>
+
+        <small>
+          Sélectionnez les articles et indiquez les quantités nécessaires.
+        </small>
+      </div>
+
+      <button id="btnAddLine" class="btn green">
+        <i class="fa-solid fa-plus"></i>
+        Ajouter un article
+      </button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Article</th>
+            <th>Désignation</th>
+            <th>Groupe</th>
+            <th>Type</th>
+            <th>Quantité</th>
+            <th>Unité</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody id="detailsBody"></tbody>
+      </table>
+    </div>
+
+    <div id="emptyLines" class="empty">
+      <i class="fa-solid fa-box-open"></i>
+      <b>Aucun article ajouté</b>
+      <small>
+        Cliquez sur « Ajouter un article » pour commencer.
+      </small>
+    </div>
+
+    <div class="summary">
+      <span>
+        Lignes
+        <b id="lineCount">0</b>
+      </span>
+
+      <span>
+        Quantité totale
+        <b id="totalQty">0.000</b>
+      </span>
+    </div>
+  </div>
+
+  <div class="info">
+    <i class="fa-solid fa-circle-info"></i>
+    Le fournisseur et le prix d'achat seront définis après validation de la demande.
+  </div>
+</div>
+
+
+<!-- =========================================================
+     DOCUMENT PDF / IMPRESSION
+========================================================= -->
+
+<div id="daPrintSheet">
+  <div class="da-print-page">
+
+    <div class="da-doc-header">
+
+      <div class="da-brand">
+        <div class="da-brand-mark">S</div>
+
+        <div>
+          <div class="da-brand-name">SMTG</div>
+          <div class="da-brand-sub">TRAÇABILITÉ GLOBALE</div>
+        </div>
+      </div>
+
+      <div class="da-doc-title">
+        <div class="da-print-title">
+          DEMANDE D'ACHAT
+        </div>
+
+        <div class="da-print-sub">
+          Document interne — à signer avant validation
+        </div>
+
+        <div class="da-print-meta">
+          <strong>N° DEMANDE :</strong>
+          <span id="printNumero">—</span>
+          <br>
+
+          <strong>DATE :</strong>
+          <span id="printDate">—</span>
+          <br>
+
+          <strong>STATUT :</strong>
+          <span id="printStatut">BROUILLON</span>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="da-info-title">
+      Informations de la demande
+    </div>
+
+
+    <div class="da-print-grid">
+
+      <div class="da-print-field">
+        <b>Demandeur :</b>
+        <span id="printDemandeur">—</span>
+      </div>
+
+      <div class="da-print-field">
+        <b>Service :</b>
+        <span id="printService">—</span>
+      </div>
+
+      <div class="da-print-field">
+        <b>Priorité :</b>
+        <span id="printPriorite">—</span>
+      </div>
+
+      <div class="da-print-field">
+        <b>Motif :</b>
+        <span id="printMotif">—</span>
+      </div>
+
+      <div
+        class="da-print-field"
+        style="grid-column:1/-1;border-bottom:none"
+      >
+        <b>Précision :</b>
+        <span id="printMotifDetail">—</span>
+      </div>
+
+    </div>
+
+
+    <div class="da-section-head">
+      Articles demandés
+    </div>
+
+
+    <div class="da-summary-strip">
+
+      <div>
+        <span>Nombre de lignes</span>
+        <strong id="printLineCount">0</strong>
+      </div>
+
+      <div>
+        <span>Quantité totale</span>
+        <strong id="printSummaryQty">0,000</strong>
+      </div>
+
+      <div>
+        <span>Priorité</span>
+        <strong id="printSummaryPriority">NORMALE</strong>
+      </div>
+
+      <div>
+        <span>Décision</span>
+        <strong>À VALIDER</strong>
+      </div>
+
+    </div>
+
+
+    <table class="da-print-table">
+
+      <thead>
+        <tr>
+          <th style="width:15%">Article</th>
+          <th style="width:29%">Désignation</th>
+          <th style="width:16%">Groupe</th>
+          <th style="width:14%">Type</th>
+          <th style="width:14%">Quantité</th>
+          <th style="width:12%">Unité</th>
+        </tr>
+      </thead>
+
+      <tbody id="printDetails"></tbody>
+
+      <tfoot>
+        <tr class="da-total-row">
+          <td colspan="4">
+            TOTAL DEMANDÉ
+          </td>
+
+          <td
+            class="qty"
+            id="printTotalQty"
+          >
+            0,000
+          </td>
+
+          <td id="printTotalUnit">
+            —
+          </td>
+        </tr>
+      </tfoot>
+
+    </table>
+
+
+    <div class="da-note">
+
+      <strong>Objet du document :</strong>
+
+      La présente demande est soumise à signature du demandeur,
+      avis du responsable du service concerné,
+      puis validation de la Direction Générale avant lancement de l'achat.
+
+    </div>
+
+
+    <div class="da-approval-title">
+      Circuit de signature et validation
+    </div>
+
+
+    <div class="da-approval-grid">
+
+      <div class="da-approval">
+
+        <h4>
+          1. Demandeur
+        </h4>
+
+        <div class="role">
+          Création de la demande d'achat
+        </div>
+
+        <div class="da-sign-line"></div>
+
+        <div class="da-sign-label">
+          Signature
+        </div>
+
+        <div class="da-date-label">
+          Date : __________________
+        </div>
+
+      </div>
+
+
+      <div class="da-approval">
+
+        <h4>
+          2. Responsable du service
+        </h4>
+
+        <div class="role">
+          Avis / besoin confirmé
+        </div>
+
+        <div class="da-sign-line"></div>
+
+        <div class="da-sign-label">
+          Signature + cachet
+        </div>
+
+        <div class="da-date-label">
+          Date : __________________
+        </div>
+
+      </div>
+
+
+      <div class="da-approval">
+
+        <h4>
+          3. Direction Générale
+        </h4>
+
+        <div class="role">
+          Validation de la demande d'achat
+        </div>
+
+        <div class="da-sign-line"></div>
+
+        <div class="da-sign-label">
+          Signature + cachet
+        </div>
+
+        <div class="da-date-label">
+          Date : __________________
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="da-doc-footer">
+      <span>
+        SMTG — Demande d'achat
+      </span>
+
+      <span>
+        Document généré automatiquement
+      </span>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =========================================================
+     MODAL ARTICLES
+========================================================= -->
+
+<div id="articleModal" class="modal">
+
+  <div class="modalbox">
+
+    <div class="modalhead">
+      <b>Sélectionner un article</b>
+
+      <button id="closeModal">
+        ×
+      </button>
+    </div>
+
+    <div class="modalsearch">
+      <input
+        id="articleSearch"
+        placeholder="Rechercher par code ou désignation..."
+      >
+    </div>
+
+    <div id="articleList"></div>
+
+  </div>
+
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
+<style>
+
+.da-page{
+  padding:24px 28px 40px;
+  color:#17212b
+}
+
+.da-head,
+.card{
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:16px;
+  box-shadow:0 5px 22px #1018280b
+}
+
+.da-head{
+  padding:17px 19px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:15px
+}
+
+.da-head h2{
+  font-size:17px;
+  margin:0;
+  font-weight:800
+}
+
+.da-head h2 i,
+.ct i{
+  color:#008746
+}
+
+.da-head p{
+  font-size:11px;
+  color:#7a867f;
+  margin:4px 0 0
+}
+
+.da-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+.btn{
+  border:1px solid transparent;
+  border-radius:9px;
+  padding:9px 13px;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer
+}
+
+.btn.light{
+  background:#fff;
+  border-color:#dce2de;
+  color:#536159
+}
+
+.btn.green{
+  background:#eaf8f1;
+  border-color:#ccebd9;
+  color:#087f3e
+}
+
+.btn.primary{
+  background:#008746;
+  color:#fff
+}
+
+.card{
+  margin-bottom:15px;
+  overflow:hidden
+}
+
+.ct{
+  font-size:14px;
+  font-weight:800;
+  padding:17px 19px 0;
+  display:flex;
+  gap:9px;
+  align-items:center
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:13px;
+  padding:17px 19px 19px
+}
+
+.grid label{
+  font-size:10px;
+  font-weight:800;
+  color:#59665f;
+  text-transform:uppercase
+}
+
+.grid input,
+.grid select,
+.grid textarea{
+  display:block;
+  width:100%;
+  margin-top:6px;
+  border:1px solid #dce2de;
+  border-radius:9px;
+  padding:9px;
+  font:12px inherit;
+  color:#344139;
+  background:#fff;
+  outline:0
+}
+
+.grid input,
+.grid select{
+  height:39px;
+  padding-top:0;
+  padding-bottom:0
+}
+
+.grid textarea{
+  min-height:60px;
+  resize:vertical
+}
+
+.grid input:focus,
+.grid select:focus,
+.grid textarea:focus{
+  border-color:#82c7a5;
+  box-shadow:0 0 0 3px #00874612
+}
+
+.grid .wide{
+  grid-column:1/-1
+}
+
+.cardhead{
+  padding:17px 19px;
+  border-bottom:1px solid #eef1ef;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px
+}
+
+.cardhead small{
+  color:#8a9690;
+  font-size:10px
+}
+
+.tablewrap{
+  overflow:auto
+}
+
+table{
+  width:100%;
+  min-width:950px;
+  border-collapse:collapse
+}
+
+th{
+  background:#f8faf9;
+  padding:11px 12px;
+  text-align:left;
+  font-size:9px;
+  color:#75817a;
+  text-transform:uppercase;
+  border-bottom:1px solid #e8ece9
+}
+
+td{
+  padding:9px 12px;
+  border-bottom:1px solid #eef1ef;
+  font-size:11px
+}
+
+.pick{
+  width:100%;
+  height:36px;
+  border:1px solid #dce2de;
+  background:#fff;
+  border-radius:8px;
+  text-align:left;
+  padding:0 9px;
+  color:#344139
+}
+
+.qty,
+.unit{
+  height:36px;
+  border:1px solid #dce2de;
+  border-radius:8px;
+  padding:0 8px;
+  width:100%
+}
+
+.code{
+  color:#1377b5;
+  font:800 11px monospace
+}
+
+.meta{
+  display:block;
+  color:#89958e;
+  font-size:9px;
+  margin-top:3px
+}
+
+.del{
+  width:31px;
+  height:31px;
+  border:1px solid #f0d1cd;
+  border-radius:8px;
+  background:#fff7f6;
+  color:#c93c32;
+  cursor:pointer
+}
+
+.empty{
+  text-align:center;
+  padding:30px;
+  color:#8a9690
+}
+
+.empty i{
+  display:block;
+  font-size:23px;
+  margin-bottom:8px;
+  color:#b5c0ba
+}
+
+.empty b{
+  display:block;
+  font-size:12px;
+  color:#68756e
+}
+
+.empty small{
+  font-size:10px
+}
+
+.summary{
+  background:#fbfcfb;
+  border-top:1px solid #e9eeeb;
+  padding:12px 19px;
+  display:flex;
+  justify-content:flex-end;
+  gap:35px;
+  font-size:9px;
+  color:#7b8780;
+  text-transform:uppercase
+}
+
+.summary b{
+  display:block;
+  color:#008746;
+  font:800 15px monospace;
+  margin-top:2px
+}
+
+.info{
+  background:#eef7ff;
+  border:1px solid #d8e9f8;
+  border-radius:11px;
+  padding:11px 13px;
+  color:#45677e;
+  font-size:10px
+}
+
+.info i{
+  color:#1677b5;
+  margin-right:7px
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#0f172a55;
+  z-index:9999;
+  align-items:center;
+  justify-content:center;
+  padding:20px
+}
+
+.modalbox{
+  width:min(620px,100%);
+  max-height:80vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:16px
+}
+
+.modalhead{
+  padding:15px 18px;
+  border-bottom:1px solid #eee;
+  display:flex;
+  justify-content:space-between
+}
+
+.modalhead button{
+  border:0;
+  border-radius:7px;
+  background:#f4f6f5;
+  width:30px;
+  height:30px
+}
+
+.modalsearch{
+  padding:12px 18px;
+  border-bottom:1px solid #eee
+}
+
+.modalsearch input{
+  width:100%;
+  height:38px;
+  border:1px solid #dce2de;
+  border-radius:8px;
+  padding:0 10px
+}
+
+.article{
+  width:100%;
+  border:0;
+  background:#fff;
+  padding:11px;
+  text-align:left;
+  border-radius:8px;
+  cursor:pointer
+}
+
+.article:hover{
+  background:#f1f8f4
+}
+
+.article strong{
+  font-size:11px
+}
+
+.article small{
+  display:block;
+  color:#89958e;
+  margin-top:3px
+}
+
+.toast{
+  display:none;
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  background:#087f3e;
+  color:#fff;
+  padding:12px 15px;
+  border-radius:10px;
+  z-index:10000;
+  font-size:11px;
+  font-weight:700
+}
+
+@media(max-width:1000px){
+  .grid{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .da-head{
+    flex-direction:column;
+    align-items:flex-start
+  }
+}
+
+@media(max-width:600px){
+  .grid{
+    grid-template-columns:1fr
+  }
+
+  .grid .wide{
+    grid-column:auto
+  }
+
+  .da-actions{
+    width:100%
+  }
+
+  .btn{
+    flex:1
+  }
+}
+
+</style>
+
+
+<style id="da-print-style">
+
+@page{
+  size:A4 landscape;
+  margin:10mm 11mm 10mm 11mm
+}
+
+@media print{
+
+  body *{
+    visibility:hidden !important
+  }
+
+  #daPrintSheet,
+  #daPrintSheet *{
+    visibility:visible !important
+  }
+
+  #daPrintSheet{
+    display:block !important;
+    position:absolute;
+    inset:0;
+    width:100%;
+    background:#fff;
+    color:#17212b
+  }
+
+}
+
+#daPrintSheet{
+  display:none;
+  background:#fff;
+  color:#17212b
+}
+
+.da-print-page{
+  width:100%;
+  max-width:275mm;
+  margin:0 auto;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:9px;
+  line-height:1.3
+}
+
+.da-doc-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  border-bottom:2px solid #087f4f;
+  padding-bottom:9px;
+  margin-bottom:12px
+}
+
+.da-brand{
+  display:flex;
+  align-items:flex-start;
+  gap:10px
+}
+
+.da-brand-mark{
+  width:30px;
+  height:30px;
+  border-radius:7px;
+  background:#087f4f;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:13px
+}
+
+.da-brand-name{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.3px;
+  color:#087f4f
+}
+
+.da-brand-sub{
+  font-size:8px;
+  color:#667085;
+  margin-top:2px
+}
+
+.da-doc-title{
+  text-align:right
+}
+
+.da-print-title{
+  font-size:18px;
+  font-weight:800;
+  color:#17212b;
+  letter-spacing:.3px
+}
+
+.da-print-sub{
+  font-size:8px;
+  color:#667085;
+  margin-top:2px
+}
+
+.da-print-meta{
+  margin-top:6px;
+  font-size:8.5px;
+  line-height:1.6
+}
+
+.da-print-meta strong{
+  color:#087f4f
+}
+
+.da-info-title{
+  font-size:10px;
+  font-weight:800;
+  color:#087f4f;
+  margin:0 0 6px;
+  text-transform:uppercase;
+  letter-spacing:.2px
+}
+
+.da-print-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  overflow:hidden;
+  margin-bottom:13px
+}
+
+.da-print-field{
+  padding:6px 8px;
+  min-height:26px;
+  border-bottom:1px solid #e5e9e6;
+  font-size:9px
+}
+
+.da-print-field:nth-child(odd){
+  border-right:1px solid #e5e9e6
+}
+
+.da-print-field:nth-last-child(-n+2){
+  border-bottom:none
+}
+
+.da-print-field b{
+  display:inline-block;
+  min-width:75px;
+  color:#667085;
+  font-weight:700
+}
+
+.da-summary-strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  border:1px solid #cfd8d3;
+  border-top:none;
+  margin-bottom:0
+}
+
+.da-summary-strip div{
+  padding:7px 9px;
+  border-right:1px solid #d7ded9;
+  background:#fbfcfb
+}
+
+.da-summary-strip div:last-child{
+  border-right:none
+}
+
+.da-summary-strip span{
+  display:block;
+  font-size:7px;
+  color:#667085;
+  text-transform:uppercase;
+  letter-spacing:.25px
+}
+
+.da-summary-strip strong{
+  display:block;
+  margin-top:2px;
+  font-size:11px;
+  color:#087f4f
+}
+
+.da-section-head{
+  background:#f1f7f4;
+  border:1px solid #d7ded9;
+  border-bottom:none;
+  padding:7px 8px;
+  font-size:9px;
+  font-weight:800;
+  color:#087f4f;
+  text-transform:uppercase
+}
+
+.da-print-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:0 0 13px
+}
+
+.da-print-table th,
+.da-print-table td{
+  border:1px solid #cfd8d3;
+  padding:8px 9px;
+  font-size:9px;
+  text-align:left
+}
+
+.da-print-table th{
+  background:#eaf4ef;
+  color:#344054;
+  font-weight:800;
+  text-transform:uppercase;
+  font-size:7.5px
+}
+
+.da-print-table td.qty{
+  text-align:right;
+  font-weight:700
+}
+
+.da-total-row td{
+  background:#f1f7f4;
+  font-weight:800
+}
+
+.da-note{
+  border:1px solid #d7e7df;
+  background:#f7fbf9;
+  border-radius:5px;
+  padding:7px 8px;
+  font-size:8.5px;
+  margin-bottom:15px
+}
+
+.da-approval-title{
+  font-size:10px;
+  font-weight:800;
+  color:#087f4f;
+  margin-bottom:7px;
+  text-transform:uppercase
+}
+
+.da-approval-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:7px
+}
+
+.da-approval{
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  min-height:105px;
+  padding:8px;
+  position:relative
+}
+
+.da-approval h4{
+  margin:0;
+  font-size:9px;
+  color:#17212b
+}
+
+.da-approval .role{
+  margin-top:2px;
+  color:#667085;
+  font-size:7.5px
+}
+
+.da-sign-line{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:30px;
+  border-bottom:1px solid #667085
+}
+
+.da-sign-label{
+  position:absolute;
+  left:8px;
+  bottom:15px;
+  color:#98a2b3;
+  font-size:7.5px
+}
+
+.da-date-label{
+  position:absolute;
+  left:8px;
+  bottom:4px;
+  color:#98a2b3;
+  font-size:7px
+}
+
+.da-doc-footer{
+  margin-top:13px;
+  padding-top:6px;
+  border-top:1px solid #d7ded9;
+  display:flex;
+  justify-content:space-between;
+  color:#98a2b3;
+  font-size:7px
+}
+
+</style>
+
+
+<script type="module">
+
+import supabase from "../assets/js/core/supabase.js";
+
+const S={
+  articles:[],
+  lines:[],
+  user:null,
+  id:null
+};
+
+const $=x=>document.getElementById(x);
+
+const esc=x=>
+  String(x??'').replace(
+    /[&<>"]/g,
+    m=>({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;'
+    }[m])
+  );
+
+function toast(m,t='ok'){
+  const e=$('toast');
+
+  e.textContent=m;
+
+  e.style.background=
+    t==='error'
+      ? '#d92d20'
+      : t==='warn'
+        ? '#b77900'
+        : '#087f3e';
+
+  e.style.display='block';
+
+  clearTimeout(window._t);
+
+  window._t=setTimeout(
+    ()=>e.style.display='none',
+    3200
+  );
+}
+
+function today(){
+  return new Date(
+    Date.now()-
+    new Date().getTimezoneOffset()*60000
+  ).toISOString().slice(0,10);
+}
+
+function number(){
+  const d=new Date();
+
+  return `DA-${
+    d.getFullYear()
+  }${
+    String(d.getMonth()+1).padStart(2,'0')
+  }${
+    String(d.getDate()).padStart(2,'0')
+  }-${
+    Math.floor(1000+Math.random()*9000)
+  }`;
+}
+
+async function initUser(){
+
+  const {
+    data:{user}
+  }=await supabase.auth.getUser();
+
+  S.user=user;
+
+  if(!user)return;
+
+  const {data}=await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('id',user.id)
+    .maybeSingle();
+
+  if(data){
+
+    $('demandeur').value=
+      data.nom_complet||
+      [data.prenom,data.nom]
+        .filter(Boolean)
+        .join(' ')||
+      data.username||
+      user.email||
+      '';
+
+    $('service').value=data.service||'';
+  }
+}
+
+async function loadArticles(){
+
+  const {
+    data,
+    error
+  }=await supabase
+    .from('articles')
+    .select(
+      'id,article,designation,groupe,type_produit,date_limite_vente'
+    )
+    .order('article');
+
+  if(error)throw error;
+
+  S.articles=data||[];
+}
+
+function openModal(){
+
+  $('articleModal').style.display='flex';
+
+  $('articleSearch').value='';
+
+  renderArticles();
+
+  setTimeout(
+    ()=>$('articleSearch').focus(),
+    50
+  );
+}
+
+function closeModal(){
+  $('articleModal').style.display='none';
+}
+
+function renderArticles(q=''){
+
+  q=q.toLowerCase().trim();
+
+  const a=S.articles
+    .filter(x=>
+      !q||
+      `${x.article} ${
+        x.designation
+      } ${
+        x.groupe||''
+      } ${
+        x.type_produit||''
+      }`
+      .toLowerCase()
+      .includes(q)
+    )
+    .slice(0,100);
+
+  $('articleList').innerHTML=
+    a.length
+      ? a.map(x=>`
+        <button
+          class="article"
+          data-id="${esc(x.id)}"
+        >
+          <strong>
+            <span class="code">
+              ${esc(x.article)}
+            </span>
+            —
+            ${esc(x.designation)}
+          </strong>
+
+          <small>
+            Groupe :
+            ${esc(x.groupe||'—')}
+            |
+            Type :
+            ${esc(x.type_produit||'—')}
+          </small>
+        </button>
+      `).join('')
+      : `<div class="empty">Aucun article trouvé.</div>`;
+}
+
+function addLine(a=null){
+
+  S.lines.push({
+    uid:Date.now()+Math.random(),
+    article_id:a?.id||'',
+    article:a?.article||'',
+    designation:a?.designation||'',
+    groupe:a?.groupe||'',
+    type_produit:a?.type_produit||'',
+    quantite:'',
+    unite:'KG'
+  });
+
+  render();
+}
+
+function render(){
+
+  const b=$('detailsBody');
+
+  $('lineCount').textContent=S.lines.length;
+
+  if(!S.lines.length){
+
+    b.innerHTML='';
+
+    $('emptyLines').style.display='block';
+
+    $('totalQty').textContent='0.000';
+
+    return;
+  }
+
+  $('emptyLines').style.display='none';
+
+  b.innerHTML=S.lines.map(l=>`
+
+    <tr>
+
+      <td>
+
+        <button
+          class="pick"
+          data-pick="${l.uid}"
+        >
+
+          ${
+            l.article
+              ? `
+                <span class="code">
+                  ${esc(l.article)}
+                </span>
+
+                <span class="meta">
+                  ${esc(l.designation)}
+                </span>
+              `
+              : 'Sélectionner un article...'
+          }
+
+        </button>
+
+      </td>
+
+      <td>
+        ${esc(l.designation||'—')}
+      </td>
+
+      <td>
+        ${esc(l.groupe||'—')}
+      </td>
+
+      <td>
+        ${esc(l.type_produit||'—')}
+      </td>
+
+      <td>
+
+        <input
+          class="qty"
+          type="number"
+          min="0"
+          step="0.001"
+          data-qty="${l.uid}"
+          value="${esc(l.quantite)}"
+        >
+
+      </td>
+
+      <td>
+
+        <select
+          class="unit"
+          data-unit="${l.uid}"
+        >
+
+          <option ${
+            l.unite==='KG'
+              ? 'selected'
+              : ''
+          }>
+            KG
+          </option>
+
+          <option ${
+            l.unite==='PCS'
+              ? 'selected'
+              : ''
+          }>
+            PCS
+          </option>
+
+          <option ${
+            l.unite==='L'
+              ? 'selected'
+              : ''
+          }>
+            L
+          </option>
+
+          <option ${
+            l.unite==='UN'
+              ? 'selected'
+              : ''
+          }>
+            UN
+          </option>
+
+        </select>
+
+      </td>
+
+      <td>
+
+        <button
+          class="del"
+          data-del="${l.uid}"
+        >
+          <i class="fa-solid fa-trash"></i>
+        </button>
+
+      </td>
+
+    </tr>
+
+  `).join('');
+
+  $('totalQty').textContent=
+    S.lines
+      .reduce(
+        (n,l)=>n+(Number(l.quantite)||0),
+        0
+      )
+      .toLocaleString(
+        'fr-FR',
+        {
+          minimumFractionDigits:3,
+          maximumFractionDigits:3
+        }
+      );
+}
+
+$('btnAddLine').onclick=()=>{
+  window.pickLine=null;
+  openModal();
+};
+
+$('closeModal').onclick=closeModal;
+
+$('articleModal').onclick=e=>{
+  if(e.target===$('articleModal'))
+    closeModal();
+};
+
+$('articleSearch').oninput=e=>
+  renderArticles(e.target.value);
+
+$('articleList').onclick=e=>{
+
+  const b=e.target.closest('[data-id]');
+
+  if(!b)return;
+
+  const a=S.articles.find(
+    x=>String(x.id)===String(b.dataset.id)
+  );
+
+  if(window.pickLine){
+
+    const l=S.lines.find(
+      x=>String(x.uid)===String(window.pickLine)
+    );
+
+    if(l){
+
+      Object.assign(l,{
+        article_id:a.id,
+        article:a.article,
+        designation:a.designation,
+        groupe:a.groupe||'',
+        type_produit:a.type_produit||''
+      });
+
+    }
+
+  }else{
+
+    addLine(a);
+
+  }
+
+  window.pickLine=null;
+
+  closeModal();
+
+  render();
+};
+
+$('detailsBody').onclick=e=>{
+
+  const p=e.target.closest('[data-pick]');
+
+  if(p){
+
+    window.pickLine=p.dataset.pick;
+
+    openModal();
+  }
+
+  const d=e.target.closest('[data-del]');
+
+  if(d){
+
+    S.lines=
+      S.lines.filter(
+        x=>String(x.uid)!==String(d.dataset.del)
+      );
+
+    render();
+  }
+};
+
+
+/* =========================================================
+   QUANTITE
+   FIX : NE PAS FAIRE render() PENDANT LA SAISIE
+========================================================= */
+
+$('detailsBody').oninput=e=>{
+
+  const q=e.target.closest('[data-qty]');
+
+  if(q){
+
+    const l=S.lines.find(
+      x=>String(x.uid)===String(q.dataset.qty)
+    );
+
+    if(l){
+
+      l.quantite=q.value;
+
+      updateTotalOnly();
+    }
+  }
+};
+
+function updateTotalOnly(){
+
+  $('totalQty').textContent=
+    S.lines
+      .reduce(
+        (n,l)=>n+(Number(l.quantite)||0),
+        0
+      )
+      .toLocaleString(
+        'fr-FR',
+        {
+          minimumFractionDigits:3,
+          maximumFractionDigits:3
+        }
+      );
+}
+
+$('detailsBody').onchange=e=>{
+
+  const q=e.target.closest('[data-unit]');
+
+  if(q){
+
+    const l=S.lines.find(
+      x=>String(x.uid)===String(q.dataset.unit)
+    );
+
+    if(l)
+      l.unite=q.value;
+  }
+};
+
+
+/* =========================================================
+   PDF / PRINT
+========================================================= */
+
+function fillPrintSheet(status){
+
+  $('printNumero').textContent=
+    $('numeroDemande').value||'—';
+
+  $('printDate').textContent=
+    $('dateDemande').value||'—';
+
+  $('printStatut').textContent=
+    status||'BROUILLON';
+
+  $('printDemandeur').textContent=
+    $('demandeur').value||'—';
+
+  $('printService').textContent=
+    $('service').value||'—';
+
+  $('printPriorite').textContent=
+    $('priorite').value||'—';
+
+  $('printMotif').textContent=
+    $('motif').value||'—';
+
+  $('printMotifDetail').textContent=
+    $('motifDetail').value.trim()||'—';
+
+
+  $('printDetails').innerHTML=
+    S.lines.map(l=>`
+
+      <tr>
+
+        <td>
+          ${esc(l.article||'—')}
+        </td>
+
+        <td>
+          ${esc(l.designation||'—')}
+        </td>
+
+        <td>
+          ${esc(l.groupe||'—')}
+        </td>
+
+        <td>
+          ${esc(l.type_produit||'—')}
+        </td>
+
+        <td class="qty">
+          ${esc(l.quantite||'0')}
+        </td>
+
+        <td>
+          ${esc(l.unite||'—')}
+        </td>
+
+      </tr>
+
+    `).join('');
+
+
+  const total=
+    S.lines.reduce(
+      (n,l)=>n+(Number(l.quantite)||0),
+      0
+    );
+
+
+  $('printTotalQty').textContent=
+    total.toLocaleString(
+      'fr-FR',
+      {
+        minimumFractionDigits:3,
+        maximumFractionDigits:3
+      }
+    );
+
+
+  const units=[
+    ...new Set(
+      S.lines
+        .map(l=>l.unite)
+        .filter(Boolean)
+    )
+  ];
+
+  $('printTotalUnit').textContent=
+    units.length===1
+      ? units[0]
+      : '—';
+
+
+  $('printLineCount').textContent=
+    String(S.lines.length);
+
+
+  $('printSummaryQty').textContent=
+    total.toLocaleString(
+      'fr-FR',
+      {
+        minimumFractionDigits:3,
+        maximumFractionDigits:3
+      }
+    );
+
+
+  $('printSummaryPriority').textContent=
+    $('priorite').value||'NORMALE';
+}
+
+function printDemande(status){
+
+  fillPrintSheet(status);
+
+  setTimeout(()=>{
+    window.print();
+  },150);
+}
+
+
+/* =========================================================
+   VALIDATION
+========================================================= */
+
+function valid(){
+
+  if(!$('service').value.trim())
+    return toast(
+      'Le service est obligatoire.',
+      'warn'
+    ),false;
+
+  if(!S.lines.length)
+    return toast(
+      'Ajoutez au moins un article.',
+      'warn'
+    ),false;
+
+  for(let i=0;i<S.lines.length;i++){
+
+    if(!S.lines[i].article_id)
+      return toast(
+        `Ligne ${i+1} : sélectionnez un article.`,
+        'warn'
+      ),false;
+
+    if(!(Number(S.lines[i].quantite)>0))
+      return toast(
+        `Ligne ${i+1} : quantité invalide.`,
+        'warn'
+      ),false;
+  }
+
+  return true;
+}
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+async function save(status){
+
+  if(!valid())return;
+
+  const btn=$('btnSave');
+
+  btn.disabled=true;
+
+  try{
+
+    const payload={
+
+      numero_demande:
+        $('numeroDemande').value,
+
+      date_demande:
+        $('dateDemande').value,
+
+      demandeur_id:
+        S.user?.id||null,
+
+      demandeur:
+        $('demandeur').value,
+
+      service:
+        $('service').value,
+
+      priorite:
+        $('priorite').value,
+
+      motif:(()=>{
+        const motif=$('motif').value;
+        const detail=$('motifDetail').value.trim();
+
+        return motif==='Autre'&&detail
+          ? `Autre — ${detail}`
+          : motif;
+      })(),
+
+      statut:'BROUILLON'
+
+    };
+
+
+    let id=S.id;
+
+
+    if(id){
+
+      let r=
+        await supabase
+          .from('demandes_achat')
+          .update(payload)
+          .eq('id',id);
+
+      if(r.error)
+        throw r.error;
+
+
+      let d=
+        await supabase
+          .from('demandes_achat_details')
+          .delete()
+          .eq('demande_achat_id',id);
+
+      if(d.error)
+        throw d.error;
+
+    }else{
+
+      let r=
+        await supabase
+          .from('demandes_achat')
+          .insert(payload)
+          .select('id')
+          .single();
+
+      if(r.error)
+        throw r.error;
+
+      id=r.data.id;
+
+      S.id=id;
+    }
+
+
+    const details=
+      S.lines.map(l=>({
+
+        demande_achat_id:id,
+
+        article_id:l.article_id,
+
+        article:l.article,
+
+        designation:l.designation,
+
+        groupe:l.groupe,
+
+        type_produit:l.type_produit,
+
+        quantite:Number(l.quantite),
+
+        unite:l.unite
+
+      }));
+
+
+    let r=
+      await supabase
+        .from('demandes_achat_details')
+        .insert(details);
+
+    if(r.error)
+      throw r.error;
+
+
+    toast('Demande enregistrée en brouillon.');
+
+
+    /* =====================================================
+       PDF / IMPRESSION
+    ===================================================== */
+
+    printDemande(status);
+
+
+    /* =====================================================
+       NOUVELLE DEMANDE
+       SANS SORTIR DU DASHBOARD
+    ===================================================== */
+
+    setTimeout(()=>{
+
+      S.id=null;
+
+      S.lines=[];
+
+      $('numeroDemande').value=
+        number();
+
+      $('dateDemande').value=
+        today();
+
+
+      // On conserve demandeur + service
+
+      $('priorite').value=
+        'NORMALE';
+
+      $('typeProduit').value=
+        '';
+
+      $('motif').value=
+        '';
+
+      $('motifDetail').value=
+        '';
+
+      $('motifDetailWrap').style.display=
+        'none';
+
+
+      render();
+
+
+      const content=
+        document.querySelector('.main-content')||
+        document.querySelector('.content')||
+        document.querySelector('.dashboard-content');
+
+
+      if(content){
+
+        content.scrollTo({
+          top:0,
+          behavior:'smooth'
+        });
+
+      }
+
+    },700);
+
+
+  }catch(e){
+
+    console.error(e);
+
+    toast(
+      e.message||
+      'Erreur d’enregistrement.',
+      'error'
+    );
+
+  }finally{
+
+    btn.disabled=false;
+  }
+}
+
+
+/* =========================================================
+   MOTIF AUTRE
+========================================================= */
+
+$('motif').onchange=()=>{
+
+  const show=
+    $('motif').value==='Autre';
+
+  $('motifDetailWrap').style.display=
+    show
+      ? 'block'
+      : 'none';
+
+  if(!show)
+    $('motifDetail').value='';
+};
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+$('btnSave').onclick=()=>save('BROUILLON');
+$('btnReset').onclick=()=>{
+
+  S.lines=[];
+
+  S.id=null;
+
+  $('numeroDemande').value=
+    number();
+
+  $('dateDemande').value=
+    today();
+
+  $('motif').value='';
+
+  $('motifDetail').value='';
+
+  $('motifDetailWrap').style.display=
+    'none';
+
+  $('priorite').value=
+    'NORMALE';
+
+  render();
+};
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+(async()=>{
+
+  try{
+
+    $('numeroDemande').value=
+      number();
+
+    $('dateDemande').value=
+      today();
+
+    await Promise.all([
+      initUser(),
+      loadArticles()
+    ]);
+
+    render();
+
+  }catch(e){
+
+    console.error(e);
+
+    toast(
+      e.message||
+      'Erreur de chargement des articles.',
+      'error'
+    );
+  }
+
+})();
+
+</script>

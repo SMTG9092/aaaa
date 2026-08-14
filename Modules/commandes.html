@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Gestion des Commandes Excel - SoufStock WMS
+    </title>
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+
+        tailwind.config = {
+
+            darkMode: 'class',
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        slate: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            100: '#f1f5f9'
+                        },
+
+                        emerald: {
+                            600: '#059669',
+                            500: '#10b981',
+                            400: '#34d399',
+                            300: '#6ee7b7'
+                        },
+
+                        amber: {
+                            500: '#f59e0b',
+                            400: '#fbbf24'
+                        },
+
+                        rose: {
+                            500: '#f43f5e',
+                            400: '#fb7185'
+                        },
+
+                        sky: {
+                            500: '#0ea5e9',
+                            400: '#38bdf8'
+                        }
+
+                    }
+
+                }
+
+            }
+
+        };
+
+    </script>
+
+
+    <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Inter,Arial,sans-serif;background:#f7f9f8;color:#0f172a}
+    body{overflow-x:hidden}
+    button,input,select{font-family:inherit}
+
+    .products-page{width:100%;padding:10px 14px 14px;min-height:100%;}
+
+    .products-header{
+        width:100%;background:#fff;border:1px solid #e7ece9;border-radius:16px;
+        padding:18px 22px;display:flex;align-items:center;justify-content:space-between;
+        gap:16px;box-shadow:0 3px 14px rgba(15,23,42,.055);
+    }
+    .products-title{display:flex;align-items:center;gap:15px}
+    .products-title-icon{
+        width:54px;height:54px;border-radius:16px;background:#ecf8f2;color:#059669;
+        display:flex;align-items:center;justify-content:center;font-size:25px;flex:none;
+    }
+    .products-title h1{margin:0;font-size:24px;line-height:1.15;font-weight:800;color:#0b1020}
+    .products-title p{margin:6px 0 0;color:#64748b;font-size:12px}
+    .header-actions{display:flex;align-items:center;gap:10px}
+    .btn{
+        height:46px;border-radius:11px;padding:0 17px;border:1px solid #d8e2dd;
+        background:#fff;color:#087f4d;font-size:12px;font-weight:700;cursor:pointer;
+        display:inline-flex;align-items:center;justify-content:center;gap:8px;
+        transition:.18s ease;
+    }
+    .btn:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(15,23,42,.07)}
+    .btn-refresh{background:#fff;color:#087f4d}
+    .btn-refresh:hover{background:#f1faf5;border-color:#b9dccb}
+    #btnRefresh{background:#059669;color:#fff;border-color:#059669;min-width:118px}
+    #btnRefresh:hover{background:#047857;border-color:#047857}
+    #btnRefresh:disabled{opacity:.7;cursor:wait;transform:none}
+
+    .stats-grid{
+        margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;
+    }
+    .stat-card{
+        min-height:108px;background:#fff;border:1px solid #e8ecea;border-radius:16px;
+        padding:20px 20px;display:flex;align-items:center;justify-content:space-between;
+        box-shadow:0 3px 14px rgba(15,23,42,.05);
+    }
+    .stat-left{display:flex;align-items:center;gap:14px}
+    .stat-icon{
+        width:60px;height:60px;border-radius:17px;display:flex;align-items:center;
+        justify-content:center;font-size:25px;flex:none;
+    }
+    .stat-icon.green{background:#edf9f3;color:#0aa56c}
+    .stat-icon.blue{background:#eff5ff;color:#3b82f6}
+    .stat-icon.purple{background:#f6efff;color:#8b45e8}
+    .stat-label{display:block;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.035em;font-weight:700}
+    .stat-value{display:block;margin-top:8px;font-size:27px;line-height:1;font-weight:800}
+    #kpiTotalCmd{color:#059669}
+    #kpiTotalKg{color:#173a92}
+    #kpiTotalPieces{color:#7438c7}
+    .stat-spark{width:120px;height:34px;opacity:.95}
+
+    .filters-card{
+        margin-top:14px;background:#fff;border:1px solid #e8ecea;border-radius:16px;
+        padding:16px 20px 17px;box-shadow:0 3px 14px rgba(15,23,42,.05);
+        display:block;
+    }
+    .search-row{width:100%}
+    .search-box{position:relative;width:100%}
+    .search-box i{
+        position:absolute;left:16px;top:50%;transform:translateY(-50%);
+        color:#64748b;font-size:16px;pointer-events:none;
+    }
+    #searchInput{
+        width:100%;height:46px;border:1px solid #d5dee0;border-radius:10px;
+        background:#fff;color:#0f172a;padding:0 16px 0 44px;font-size:13px;outline:none;
+    }
+    #searchInput::placeholder{color:#94a3b8}
+    #searchInput:focus,.filter-control:focus,.date-box:focus-within{
+        border-color:#9acfb8;box-shadow:0 0 0 3px rgba(5,150,105,.08);outline:none;
+    }
+    .filters-row{
+        margin-top:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    }
+    .date-box{
+        height:44px;min-width:265px;border:1px solid #d5dee0;border-radius:10px;
+        background:#fff;display:flex;align-items:center;gap:12px;padding:0 12px;
+    }
+    .date-box i{color:#64748b;font-size:14px}
+    .date-box label{font-size:12px;color:#475569;font-weight:700}
+    .date-box input{
+        min-width:0;flex:1;border:0;outline:0;background:transparent;color:#0f172a;
+        font-size:12px;font-weight:600;
+    }
+    .date-box input::-webkit-calendar-picker-indicator{opacity:.65;cursor:pointer}
+    .filter-control{
+        height:44px;width:265px;border:1px solid #d5dee0;border-radius:10px;
+        background:#fff;color:#334155;padding:0 13px;font-size:12px;outline:none;
+    }
+
+    .products-container{
+        margin-top:14px;background:#fff;border:1px solid #e8ecea;border-radius:16px;
+        box-shadow:0 3px 14px rgba(15,23,42,.05);overflow:hidden;
+    }
+    .table-scroll{width:100%;overflow-x:auto}
+    table{width:100%;min-width:1160px;border-collapse:separate;border-spacing:0;table-layout:auto}
+    thead th{
+        height:45px;padding:0 12px;background:#f4f7f6;border-bottom:1px solid #dbe3df;
+        border-right:1px solid #e1e8e5;color:#0b1020!important;font-size:10px;
+        text-transform:uppercase;letter-spacing:.02em;font-weight:800;text-align:center!important;
+        vertical-align:middle;white-space:nowrap;
+    }
+    thead th:first-child{border-left:0}
+    thead th:last-child{border-right:0}
+    tbody td{
+        min-height:48px;padding:10px 11px;border-bottom:1px solid #e4eae7;
+        border-right:1px solid #e4eae7;color:#0b1020!important;font-size:11px;
+        line-height:1.25;font-weight:650;text-align:center!important;vertical-align:middle!important;
+        background:#fff;
+    }
+    tbody td:last-child{border-right:0}
+    tbody tr:nth-child(even) td{background:#fbfdfc}
+    tbody tr:hover td{background:#f1faf5}
+    tbody tr.selected-row td{background:#e9f8f0}
+    .products-container table tbody td,
+    .products-container table tbody td span,
+    .products-container table tbody td div,
+    .products-container table tbody td button,
+    .products-container table tbody td i{color:#0b1020!important}
+
+    .document-cell,.article-cell,.date-cell,.time-cell,.quantity-cell,.pieces-cell,.status-cell,.action-cell{
+        white-space:nowrap;
+    }
+    .client-cell{min-width:190px;max-width:210px;white-space:normal}
+    .designation-cell{min-width:250px;white-space:normal}
+    .route-cell{min-width:190px;max-width:220px;white-space:normal}
+    .type-badge{
+        display:inline-flex;align-items:center;justify-content:center;min-width:60px;
+        padding:5px 9px;border-radius:999px;font-size:9px;font-weight:800;
+        border:1px solid #d4cfae;white-space:nowrap;color:#0b1020!important;
+    }
+    .action-cell{width:66px}
+    .row-action{
+        width:32px;height:32px;border-radius:9px;border:1px solid #cbd8d2;
+        background:#f7faf9;color:#0b1020!important;cursor:pointer;
+        display:inline-flex;align-items:center;justify-content:center;
+    }
+    .row-action:hover{background:#eaf7f0;border-color:#9fcab4}
+    .empty-state,.error-state{padding:55px 20px;text-align:center;color:#64748b}
+    .error-state{color:#d92d20}
+
+    .table-footer{
+        min-height:66px;padding:12px 12px 12px 20px;display:flex;align-items:center;
+        justify-content:space-between;gap:15px;background:#fff;
+    }
+    .results-info{font-size:12px;color:#64748b}
+    .pagination{display:flex;align-items:center;gap:8px}
+    .page-btn{
+        min-width:36px;height:36px;padding:0 10px;border:1px solid #dbe3df;
+        background:#fff;border-radius:9px;color:#0f172a;font-size:12px;font-weight:700;
+        cursor:pointer;
+    }
+    .page-btn:hover:not(:disabled){background:#f1faf5;border-color:#a9d9c0}
+    .page-btn.active{background:#d8f7e8;border-color:#a8e5c7;color:#059669}
+    .page-btn:disabled{opacity:.4;cursor:not-allowed}
+    .page-ellipsis{padding:0 2px;color:#64748b;font-weight:700}
+
+    @media(max-width:1000px){
+        .stats-grid{grid-template-columns:1fr}
+        .stat-spark{display:none}
+        .products-header{align-items:flex-start;flex-direction:column}
+        .header-actions{width:100%;justify-content:flex-end}
+    }
+    @media(max-width:700px){
+        .products-page{padding:8px}
+        .products-title h1{font-size:20px}
+        .filters-row{display:grid;grid-template-columns:1fr}
+        .date-box,.filter-control{width:100%;min-width:0}
+        .table-footer{align-items:flex-start;flex-direction:column}
+        .pagination{width:100%;justify-content:flex-end}
+    }
+</style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="products-header">
+
+        <div class="products-title">
+
+            <div class="products-title-icon">
+
+                <i class="fa-solid fa-file-invoice"></i>
+
+            </div>
+
+
+            <div>
+
+                <h1>
+                    Gestion des Commandes
+                </h1>
+
+                <p>
+                    Suivi et gestion des commandes Excel
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <button
+                id="btnResetFilters"
+                class="btn btn-refresh"
+            >
+
+                <i class="fas fa-filter-circle-xmark"></i>
+
+                Réinitialiser Filtres Date
+
+            </button>
+
+
+            <!-- ACTUALISER : PAGE COMMANDES UNIQUEMENT -->
+
+            <button
+                id="btnRefresh"
+                type="button"
+                class="btn btn-refresh"
+            >
+
+                <i class="fas fa-rotate"></i>
+
+                <span id="btnRefreshText">
+                    Actualiser
+                </span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <div class="products-page">
+
+
+        <!-- =================================================
+             KPI
+             ================================================= -->
+
+        <div
+            class="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0"
+        >
+
+
+            <!-- TOTAL COMMANDES -->
+
+            <div class="stat-card">
+
+                <div>
+
+                    <span class="stat-label">
+                        Total Commandes Filtrées
+                    </span>
+
+                    <span
+                        id="kpiTotalCmd"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"
+                >
+
+                    <i class="fas fa-file-invoice text-base"></i>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- TOTAL KG -->
+
+            <div class="stat-card">
+
+                <div>
+
+                    <span class="stat-label">
+                        Quantité Totale (KG)
+                    </span>
+
+                    <span
+                        id="kpiTotalKg"
+                        class="stat-value"
+                    >
+                        0.00
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"
+                >
+
+                    <i class="fas fa-weight-scale text-base"></i>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- TOTAL PIECES -->
+
+            <div class="stat-card">
+
+                <div>
+
+                    <span class="stat-label">
+                        Total Pièces
+                    </span>
+
+                    <span
+                        id="kpiTotalPieces"
+                        class="stat-value"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400"
+                >
+
+                    <i class="fas fa-cubes text-base"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             FILTERS
+             ================================================= -->
+
+        
+<div class="filters-card">
+
+    <div class="search-row">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Rechercher par Document de vente, Article, Client..."
+            >
+        </div>
+    </div>
+
+    <div class="filters-row">
+
+        <div class="date-box">
+            <i class="far fa-calendar"></i>
+            <label for="filterDateDebut">Du</label>
+            <input type="date" id="filterDateDebut">
+            <i class="far fa-calendar"></i>
+        </div>
+
+        <div class="date-box">
+            <i class="far fa-calendar"></i>
+            <label for="filterDateFin">Au</label>
+            <input type="date" id="filterDateFin">
+            <i class="far fa-calendar"></i>
+        </div>
+
+        <select id="filterStatut" class="filter-control">
+            <option value="">Tous les statuts</option>
+            <option value="IMPORTEE">IMPORTEE</option>
+            <option value="CONTROLEE">CONTROLEE</option>
+            <option value="LANCEE">LANCEE</option>
+            <option value="EN_PICKING">EN_PICKING</option>
+            <option value="PREPAREE">PREPAREE</option>
+            <option value="EXPEDIEE">EXPEDIEE</option>
+            <option value="ANNULEE">ANNULEE</option>
+        </select>
+
+    </div>
+</div>
+
+<!-- =================================================
+             TABLE
+             ================================================= -->
+
+        <div class="products-container">
+
+            <div class="table-scroll">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Doc Vente
+                            </th>
+
+                            <th>
+                                Poste
+                            </th>
+
+                            <th>
+                                Client / Réceptionnaire
+                            </th>
+
+                            <th>
+                                Article
+                            </th>
+
+                            <th>
+                                Désignation
+                            </th>
+
+                            <th>
+                                Itinéraire
+                            </th>
+
+                            <th>
+                                Date Livraison
+                            </th>
+
+                            <th>
+                                Heure
+                            </th>
+
+                            <th>
+                                Qte (KG)
+                            </th>
+
+                            <th>
+                                Pièces
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="commandesTableBody"
+                    >
+
+                        <tr>
+
+                            <td colspan="12">
+
+                                Chargement des données
+                                depuis Supabase...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+            <div class="table-footer">
+
+                <div id="resultsInfo" class="results-info">
+                    Affichage de 0 à 0 sur 0 résultats
+                </div>
+
+                <div id="pagination" class="pagination"></div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SCRIPT
+         ===================================================== -->
+
+    <script type="module">
+
+        import supabase
+            from '../assets/js/core/supabase.js';
+
+
+        let allCommandes = [];
+
+        let selectedRowId = null;
+
+        let refreshInProgress = false;
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let currentFilteredCommandes = [];
+/* =====================================================
+           DEFAULT DATES
+           ===================================================== */
+
+        function initDefaultDates() {
+
+            const today =
+                new Date();
+
+
+            const tomorrow =
+                new Date();
+
+
+            tomorrow.setDate(
+                today.getDate() + 1
+            );
+
+
+            const formatDate =
+                d =>
+                    d.toISOString()
+                        .split('T')[0];
+
+
+            document.getElementById(
+                "filterDateDebut"
+            ).value =
+                formatDate(today);
+
+
+            document.getElementById(
+                "filterDateFin"
+            ).value =
+                formatDate(tomorrow);
+
+        }
+
+
+        /* =====================================================
+           FETCH COMMANDES
+           
+           IMPORTANT :
+           Cette fonction ne recharge PAS la page.
+           Elle recharge uniquement les données Commandes.
+           ===================================================== */
+
+        async function fetchCommandes() {
+
+            const {
+                data,
+                error
+            } = await supabase
+
+                .from('commandes_excel')
+
+                .select('*')
+
+                .order(
+                    'date_livraison',
+                    {
+                        ascending: true
+                    }
+                )
+
+                .order(
+                    'document_vente',
+                    {
+                        ascending: true
+                    }
+                )
+
+                .order(
+                    'Poste',
+                    {
+                        ascending: true
+                    }
+                );
+
+
+            if (error) {
+
+                throw error;
+
+            }
+
+
+            allCommandes =
+                data || [];
+
+
+            /*
+             * On réaffiche uniquement le tableau
+             * et les KPI de cette page.
+             */
+            applyFilters();
+
+        }
+
+
+        /* =====================================================
+           KPI
+           ===================================================== */
+
+        function updateKPIs(data) {
+
+            const totalCmd =
+                data.length;
+
+
+            const totalKg =
+                data.reduce(
+                    (acc, curr) =>
+                        acc +
+                        (
+                            Number(
+                                curr.quantite_commandee
+                            ) || 0
+                        ),
+                    0
+                );
+
+
+            const totalPieces =
+                data.reduce(
+                    (acc, curr) =>
+                        acc +
+                        (
+                            Number(
+                                curr.nombre_pieces
+                            ) || 0
+                        ),
+                    0
+                );
+
+
+            document.getElementById(
+                "kpiTotalCmd"
+            ).textContent =
+                totalCmd.toLocaleString();
+
+
+            document.getElementById(
+                "kpiTotalKg"
+            ).textContent =
+                totalKg.toLocaleString(
+                    'fr-FR',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+
+            document.getElementById(
+                "kpiTotalPieces"
+            ).textContent =
+                totalPieces.toLocaleString();
+
+        }
+
+
+        /* =====================================================
+           RENDER TABLE
+           ===================================================== */
+
+        function renderTable(data) {
+
+            currentFilteredCommandes = data || [];
+
+            const tbody = document.getElementById("commandesTableBody");
+            const total = currentFilteredCommandes.length;
+            const totalPages = Math.max(1, Math.ceil(total / rowsPerPage));
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+
+            if (total === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="empty-state">
+                            Aucune commande trouvée pour cette période.
+                        </td>
+                    </tr>
+                `;
+
+                updatePagination(0, 0);
+                return;
+            }
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = Math.min(start + rowsPerPage, total);
+            const pageData = currentFilteredCommandes.slice(start, end);
+
+            let html = "";
+
+            pageData.forEach(item => {
+
+                let badgeColor = "#fff4d8";
+
+                if (item.statut === 'IMPORTEE') {
+                    badgeColor = "#dff3e6";
+                } else if (item.statut === 'EXPEDIEE') {
+                    badgeColor = "#e1efff";
+                } else if (item.statut === 'ANNULEE') {
+                    badgeColor = "#ffe5e2";
+                } else if (
+                    item.statut === 'EN_PICKING' ||
+                    item.statut === 'LANCEE'
+                ) {
+                    badgeColor = "#fff4d8";
+                }
+
+                const isSelected = selectedRowId === item.id;
+                const rowClass = isSelected ? "selected-row" : "";
+
+                html += `
+                    <tr
+                        class="${rowClass}"
+                        onclick="window.selectRow('${item.id}')"
+                    >
+
+                        <td class="document-cell">
+                            ${item.document_vente || '-'}
+                        </td>
+
+                        <td>
+                            ${item.Poste || '-'}
+                        </td>
+
+                        <td class="client-cell">
+                            ${item.nom_receptionnaire || '-'}
+                        </td>
+
+                        <td class="article-cell">
+                            ${item.article || '-'}
+                        </td>
+
+                        <td class="designation-cell">
+                            ${item.designation_article || '-'}
+                        </td>
+
+                        <td class="route-cell">
+                            ${item.itineraire || '-'}
+                        </td>
+
+                        <td class="date-cell">
+                            ${item.date_livraison || '-'}
+                        </td>
+
+                        <td class="time-cell">
+                            ${item.heure_livraison || '-'}
+                        </td>
+
+                        <td class="quantity-cell">
+                            ${Number(item.quantite_commandee || 0).toFixed(2)}
+                        </td>
+
+                        <td class="pieces-cell">
+                            ${item.nombre_pieces || 0}
+                        </td>
+
+                        <td class="status-cell">
+                            <span
+                                class="type-badge"
+                                style="background:${badgeColor};"
+                            >
+                                ${item.statut || '-'}
+                            </span>
+                        </td>
+
+                        <td
+                            class="action-cell"
+                            onclick="event.stopPropagation()"
+                        >
+                            <button
+                                class="row-action"
+                                onclick="window.filterBySameDate('${item.date_livraison || ''}')"
+                                title="Filtrer par cette date"
+                            >
+                                <i class="fas fa-calendar-day"></i>
+                            </button>
+                        </td>
+
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+
+            updatePagination(start + 1, end);
+        }
+
+
+        function updatePagination(start, end) {
+
+            const total = currentFilteredCommandes.length;
+            const totalPages = Math.max(1, Math.ceil(total / rowsPerPage));
+            const pagination = document.getElementById("pagination");
+            const info = document.getElementById("resultsInfo");
+
+            if (!total) {
+                info.textContent = "Affichage de 0 à 0 sur 0 résultats";
+                pagination.innerHTML = "";
+                return;
+            }
+
+            info.textContent =
+                `Affichage de ${start} à ${end} sur ${total} résultats`;
+
+            const buttons = [];
+
+            buttons.push(`
+                <button
+                    class="page-btn"
+                    ${currentPage === 1 ? "disabled" : ""}
+                    onclick="window.goToPage(${currentPage - 1})"
+                    aria-label="Page précédente"
+                >
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            `);
+
+            const pages = [];
+
+            if (totalPages <= 5) {
+
+                for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+
+            } else {
+
+                pages.push(1);
+
+                if (currentPage > 3) {
+                    pages.push("...");
+                }
+
+                const from = Math.max(2, currentPage - 1);
+                const to = Math.min(totalPages - 1, currentPage + 1);
+
+                for (let i = from; i <= to; i++) {
+                    if (!pages.includes(i)) pages.push(i);
+                }
+
+                if (currentPage < totalPages - 2) {
+                    pages.push("...");
+                }
+
+                pages.push(totalPages);
+            }
+
+            pages.forEach(page => {
+
+                if (page === "...") {
+
+                    buttons.push(
+                        `<span class="page-ellipsis">...</span>`
+                    );
+
+                } else {
+
+                    buttons.push(`
+                        <button
+                            class="page-btn ${page === currentPage ? "active" : ""}"
+                            onclick="window.goToPage(${page})"
+                        >
+                            ${page}
+                        </button>
+                    `);
+
+                }
+
+            });
+
+            buttons.push(`
+                <button
+                    class="page-btn"
+                    ${currentPage === totalPages ? "disabled" : ""}
+                    onclick="window.goToPage(${currentPage + 1})"
+                    aria-label="Page suivante"
+                >
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            `);
+
+            pagination.innerHTML = buttons.join("");
+        }
+
+
+        window.goToPage = function(page) {
+
+            const totalPages = Math.max(
+                1,
+                Math.ceil(currentFilteredCommandes.length / rowsPerPage)
+            );
+
+            if (page < 1 || page > totalPages) return;
+
+            currentPage = page;
+            renderTable(currentFilteredCommandes);
+
+        };
+
+
+        /* =====================================================
+           SELECT ROW
+           ===================================================== */
+
+        window.selectRow =
+            function(id) {
+
+                selectedRowId =
+                    selectedRowId === id
+                        ? null
+                        : id;
+
+                applyFilters();
+
+            };
+
+
+        /* =====================================================
+           FILTER SAME DATE
+           ===================================================== */
+
+        window.filterBySameDate =
+            function(dateStr) {
+
+                if (!dateStr) {
+
+                    return;
+
+                }
+
+
+                document.getElementById(
+                    "filterDateDebut"
+                ).value =
+                    dateStr;
+
+
+                document.getElementById(
+                    "filterDateFin"
+                ).value =
+                    dateStr;
+
+
+                applyFilters();
+
+            };
+
+
+        /* =====================================================
+           APPLY FILTERS
+           ===================================================== */
+
+        function applyFilters() {
+
+            currentPage = 1;
+
+            const query =
+                document.getElementById(
+                    "searchInput"
+                )
+                .value
+                .toLowerCase();
+
+
+            const statut =
+                document.getElementById(
+                    "filterStatut"
+                )
+                .value;
+
+
+            const dateDebut =
+                document.getElementById(
+                    "filterDateDebut"
+                )
+                .value;
+
+
+            const dateFin =
+                document.getElementById(
+                    "filterDateFin"
+                )
+                .value;
+
+
+            const filtered =
+                allCommandes.filter(
+                    item => {
+
+                        const documentVente =
+                            String(
+                                item.document_vente || ''
+                            )
+                            .toLowerCase();
+
+
+                        const article =
+                            String(
+                                item.article || ''
+                            )
+                            .toLowerCase();
+
+
+                        const client =
+                            String(
+                                item.nom_receptionnaire || ''
+                            )
+                            .toLowerCase();
+
+
+                        const designation =
+                            String(
+                                item.designation_article || ''
+                            )
+                            .toLowerCase();
+
+
+                        const matchQuery =
+
+                            documentVente.includes(query)
+
+                            ||
+
+                            article.includes(query)
+
+                            ||
+
+                            client.includes(query)
+
+                            ||
+
+                            designation.includes(query);
+
+
+                        const matchStatut =
+                            statut === "" ||
+                            item.statut === statut;
+
+
+                        let matchDate = true;
+
+
+                        if (item.date_livraison) {
+
+                            if (
+                                dateDebut &&
+                                item.date_livraison <
+                                dateDebut
+                            ) {
+
+                                matchDate = false;
+
+                            }
+
+
+                            if (
+                                dateFin &&
+                                item.date_livraison >
+                                dateFin
+                            ) {
+
+                                matchDate = false;
+
+                            }
+
+                        }
+
+                        else if (
+                            dateDebut ||
+                            dateFin
+                        ) {
+
+                            matchDate = false;
+
+                        }
+
+
+                        return (
+                            matchQuery &&
+                            matchStatut &&
+                            matchDate
+                        );
+
+                    }
+                );
+
+
+            renderTable(filtered);
+
+            updateKPIs(filtered);
+
+        }
+
+
+        /* =====================================================
+           EVENTS : SEARCH
+           ===================================================== */
+
+        document
+            .getElementById("searchInput")
+            .addEventListener(
+                "input",
+                applyFilters
+            );
+
+
+        /* =====================================================
+           EVENTS : STATUS
+           ===================================================== */
+
+        document
+            .getElementById("filterStatut")
+            .addEventListener(
+                "change",
+                applyFilters
+            );
+
+
+        /* =====================================================
+           EVENTS : DATE DEBUT
+           ===================================================== */
+
+        document
+            .getElementById("filterDateDebut")
+            .addEventListener(
+                "change",
+                applyFilters
+            );
+
+
+        /* =====================================================
+           EVENTS : DATE FIN
+           ===================================================== */
+
+        document
+            .getElementById("filterDateFin")
+            .addEventListener(
+                "change",
+                applyFilters
+            );
+
+
+        /* =====================================================
+           RESET FILTERS
+           ===================================================== */
+
+        document
+            .getElementById("btnResetFilters")
+            .addEventListener(
+                "click",
+                () => {
+
+                    initDefaultDates();
+
+                    document.getElementById(
+                        "searchInput"
+                    ).value = "";
+
+
+                    document.getElementById(
+                        "filterStatut"
+                    ).value = "";
+
+
+                    selectedRowId = null;
+
+
+                    applyFilters();
+
+                }
+            );
+
+
+        /* =====================================================
+           ACTUALISER — COMMANDES UNIQUEMENT
+           
+           IMPORTANT :
+           - Pas de location.reload()
+           - Pas de window.location
+           - Pas de refresh Dashboard
+           - Pas de navigation
+           - Seulement fetchCommandes()
+           ===================================================== */
+
+        document
+            .getElementById("btnRefresh")
+            .addEventListener(
+                "click",
+                async () => {
+
+                    if (refreshInProgress) {
+
+                        return;
+
+                    }
+
+
+                    refreshInProgress = true;
+
+
+                    const btn =
+                        document.getElementById(
+                            "btnRefresh"
+                        );
+
+
+                    const btnText =
+                        document.getElementById(
+                            "btnRefreshText"
+                        );
+
+
+                    const originalIcon =
+                        btn.querySelector("i");
+
+
+                    try {
+
+                        /*
+                         * Désactiver le bouton
+                         * pendant la récupération.
+                         */
+
+                        btn.disabled = true;
+
+
+                        if (originalIcon) {
+
+                            originalIcon.className =
+                                "fas fa-spinner fa-spin";
+
+                        }
+
+
+                        btnText.textContent =
+                            "Actualisation...";
+
+
+                        /*
+                         * IMPORTANT :
+                         * Cette fonction recharge uniquement
+                         * les commandes de cette page.
+                         */
+
+                        await fetchCommandes();
+
+
+                    }
+
+                    catch (error) {
+
+                        console.error(
+                            "[COMMANDES] Erreur actualisation :",
+                            error
+                        );
+
+
+                        const tbody =
+                            document.getElementById(
+                                "commandesTableBody"
+                            );
+
+
+                        tbody.innerHTML = `
+
+                            <tr>
+
+                                <td colspan="12">
+
+                                    Erreur lors de
+                                    l'actualisation
+                                    des commandes.
+
+                                </td>
+
+                            </tr>
+
+                        `;
+
+                    }
+
+                    finally {
+
+                        /*
+                         * Restaurer le bouton
+                         */
+
+                        btn.disabled = false;
+
+
+                        btnText.textContent =
+                            "Actualiser";
+
+
+                        if (originalIcon) {
+
+                            originalIcon.className =
+                                "fas fa-rotate";
+
+                        }
+
+
+                        refreshInProgress = false;
+
+                    }
+
+                }
+            );
+
+
+        /* =====================================================
+           INITIALISATION
+           ===================================================== */
+
+        let commandesInitialized = false;
+
+
+        async function initCommandesPage() {
+
+            if (commandesInitialized) {
+
+                return;
+
+            }
+
+
+            commandesInitialized = true;
+
+
+            try {
+
+                initDefaultDates();
+
+                await fetchCommandes();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "[SMTG COMMANDES] Initialisation :",
+                    error
+                );
+
+
+                commandesInitialized = false;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           DASHBOARD DYNAMIC LOAD
+           ===================================================== */
+
+        window.initCommandesPage =
+            initCommandesPage;
+
+
+        /* =====================================================
+           DOM READY
+           ===================================================== */
+
+        if (
+            document.readyState ===
+            "loading"
+        ) {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                initCommandesPage,
+                {
+                    once: true
+                }
+            );
+
+        }
+
+        else {
+
+            initCommandesPage();
+
+        }
+
+    </script>
+
+</body>
+
+</html>

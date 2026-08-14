@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mouvements de stock - SMTG</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: #f4f7f5;
+            color: #101828;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        .products-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 18px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .products-header {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .products-title {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .products-title-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #eaf7ef;
+            color: #087f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .products-title h1 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 700;
+            color: #101828;
+        }
+
+        .products-title p {
+            margin: 3px 0 0;
+            color: #667085;
+            font-size: 11px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            height: 36px;
+            border: 0;
+            border-radius: 9px;
+            padding: 0 13px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .btn-refresh {
+            background: #f2f6f3;
+            color: #087f3e;
+            border: 1px solid #e2ebe5;
+        }
+
+        .btn-refresh:hover {
+            background: #e8f3eb;
+        }
+
+        .btn-excel {
+            background: #eef9f2;
+            color: #087f3e;
+            border: 1px solid #d8efdf;
+        }
+
+        .btn-excel:hover {
+            background: #e0f3e6;
+        }
+
+        .btn-pdf {
+            background: #fff3f2;
+            color: #d92d20;
+            border: 1px solid #f5d6d3;
+        }
+
+        .btn-pdf:hover {
+            background: #ffe8e6;
+        }
+
+        /* =========================
+           FILTERS
+        ========================= */
+
+        .filters-card {
+            margin-top: 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 13px 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            color: #667085;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .filter-control {
+            height: 36px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #344054;
+            padding: 0 10px;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .filter-control:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, .08);
+        }
+
+        .filter-search {
+            position: relative;
+            width: 290px;
+            max-width: 100%;
+        }
+
+        .filter-search i {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #98a2b3;
+            font-size: 12px;
+        }
+
+        .filter-search input {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            padding: 0 10px 0 32px;
+            outline: none;
+            font-size: 11px;
+        }
+
+        .filter-search input:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, .08);
+        }
+
+        .filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* =========================
+           STATS
+        ========================= */
+
+        .stats-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #667085;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: #eaf7ef;
+            color: #087f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-value {
+            margin-top: 9px;
+            font-size: 21px;
+            font-weight: 700;
+            color: #101828;
+        }
+
+        .stat-subtitle {
+            margin-top: 3px;
+            font-size: 10px;
+            color: #667085;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .products-container {
+            margin-top: 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            padding: 13px 15px;
+            border-bottom: 1px solid #eaecf0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .table-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #344054;
+        }
+
+        .table-title i {
+            color: #087f3e;
+        }
+
+        .result-count {
+            color: #667085;
+            font-size: 10px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1180px;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            height: 42px;
+            padding: 0 12px;
+            background: #f8faf9;
+            border-bottom: 1px solid #eaecf0;
+            color: #667085;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .035em;
+            font-weight: 700;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 11px 12px;
+            border-bottom: 1px solid #f0f2f4;
+            font-size: 10px;
+            color: #344054;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #fafcfb;
+        }
+
+        .date-cell {
+            white-space: nowrap;
+            color: #667085;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .type-entree {
+            color: #087f3e;
+            background: #eaf7ef;
+            border-color: #d4eddd;
+        }
+
+        .type-consommation {
+            color: #d92d20;
+            background: #fff0ef;
+            border-color: #f7d5d2;
+        }
+
+        .type-transfert {
+            color: #175cd3;
+            background: #eef4ff;
+            border-color: #d8e4ff;
+        }
+
+        .type-other {
+            color: #667085;
+            background: #f2f4f7;
+            border-color: #e4e7ec;
+        }
+
+        .article-code {
+            color: #087f3e;
+            font-weight: 700;
+        }
+
+        .designation {
+            margin-top: 3px;
+            color: #667085;
+            font-size: 9px;
+            max-width: 280px;
+        }
+
+        .lot {
+            color: #475467;
+            font-family: "Inter", monospace;
+        }
+
+        .flow {
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        .flow-entree {
+            color: #087f3e;
+        }
+
+        .flow-consommation {
+            color: #d92d20;
+        }
+
+        .flow-transfert {
+            color: #175cd3;
+        }
+
+        .quantity {
+            text-align: right;
+            white-space: nowrap;
+            font-weight: 700;
+            color: #175cd3;
+        }
+
+        .unit {
+            color: #98a2b3;
+            font-size: 8px;
+            margin-left: 3px;
+        }
+
+        .user {
+            color: #344054;
+            white-space: nowrap;
+        }
+
+        .comment {
+            max-width: 220px;
+            color: #667085;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+            color: #98a2b3;
+        }
+
+        .empty-state i {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state h3 {
+            margin: 0;
+            color: #475467;
+            font-size: 13px;
+        }
+
+        .empty-state p {
+            margin: 5px 0 0;
+            font-size: 10px;
+        }
+
+        .error-state {
+            padding: 45px 20px;
+            text-align: center;
+            color: #d92d20;
+        }
+
+        /* =========================
+           PAGINATION
+        ========================= */
+
+        .products-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 15px;
+            border-top: 1px solid #eaecf0;
+            background: #ffffff;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            font-size: 10px;
+            color: #667085;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 9px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #087f3e;
+            color: #087f3e;
+            background: #f4fbf6;
+        }
+
+        .pagination-btn.active {
+            background: #087f3e;
+            border-color: #087f3e;
+            color: #ffffff;
+        }
+
+        .pagination-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .pagination-ellipsis {
+            min-width: 24px;
+            text-align: center;
+            color: #98a2b3;
+            font-size: 12px;
+        }
+
+        .pagination-size {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 10px;
+            color: #667085;
+        }
+
+        .pagination-size select {
+            height: 32px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            padding: 0 8px;
+            font-size: 10px;
+            outline: none;
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            min-width: 290px;
+            max-width: 420px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: #101828;
+            color: #ffffff;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, .20);
+            font-size: 11px;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: .2s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #087f3e;
+        }
+
+        .toast.error {
+            border-left: 4px solid #d92d20;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .products-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .filters-card {
+                align-items: stretch;
+            }
+
+            .filter-left,
+            .filter-actions {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .products-page {
+                padding: 10px;
+            }
+
+            .products-pagination {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pagination-info,
+            .pagination-controls,
+            .pagination-size {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .products-title h1 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="products-page">
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="products-header">
+
+        <div class="products-title">
+
+            <div class="products-title-icon">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            </div>
+
+            <div>
+                <h1>Mouvements de stock</h1>
+                <p>Historique réel des mouvements de stock</p>
+            </div>
+
+        </div>
+
+        <div class="header-actions">
+
+            <button
+                type="button"
+                class="btn btn-excel"
+                id="btnExcel"
+                data-permission-action="Imprimer"
+            >
+                <i class="fa-solid fa-file-excel"></i>
+                Exporter Excel
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-pdf"
+                id="btnPdf"
+                data-permission-action="Imprimer"
+            >
+                <i class="fa-solid fa-file-pdf"></i>
+                Exporter PDF
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-refresh"
+                id="btnRefresh"
+            >
+                <i class="fa-solid fa-rotate"></i>
+                Actualiser
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         FILTERS
+    ========================= -->
+
+    <div class="filters-card">
+
+        <div class="filter-left">
+
+            <span class="filter-label">
+                <i class="fa-solid fa-filter"></i>
+                Filtres
+            </span>
+
+            <select
+                id="filterTypeSelect"
+                class="filter-control"
+            >
+                <option value="">Tous les types</option>
+                <option value="ENTREE">ENTRÉE</option>
+                <option value="CONSOMMATION">CONSOMMATION</option>
+                <option value="TRANSFERT">TRANSFERT</option>
+            </select>
+
+            <input
+                type="date"
+                id="filterDateInput"
+                class="filter-control"
+            >
+
+            <div class="filter-search">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Rechercher document, article ou lot..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+        </div>
+
+        <div class="filter-actions">
+
+            <button
+                type="button"
+                class="btn btn-refresh"
+                id="btnResetFilters"
+            >
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+                Réinitialiser
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         STATISTICS
+    ========================= -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Total mouvements
+                </span>
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-list"></i>
+                </div>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="totalLinesBadge"
+            >
+                0
+            </div>
+
+            <div class="stat-subtitle">
+                Résultats correspondant aux filtres
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Quantité totale
+                </span>
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-weight-hanging"></i>
+                </div>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="totalQtyBadge"
+            >
+                0.000
+            </div>
+
+            <div class="stat-subtitle">
+                Somme des quantités affichées selon les filtres
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Page actuelle
+                </span>
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+
+            </div>
+
+            <div
+                class="stat-value"
+                id="pageBadge"
+            >
+                1 / 1
+            </div>
+
+            <div class="stat-subtitle">
+                Navigation des mouvements
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         TABLE
+    ========================= -->
+
+    <div class="products-container">
+
+        <div class="table-toolbar">
+
+            <div class="table-title">
+
+                <i class="fa-solid fa-clock-rotate-left"></i>
+
+                <span>
+                    Historique des mouvements
+                </span>
+
+            </div>
+
+            <span
+                id="resultCount"
+                class="result-count"
+            >
+                0 mouvement
+            </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Date / Heure</th>
+
+                        <th>Type</th>
+
+                        <th>Document / Réf</th>
+
+                        <th>Article / Désignation</th>
+
+                        <th>Lot</th>
+
+                        <th>Flux Magasin</th>
+
+                        <th style="text-align:right">
+                            Quantité
+                        </th>
+
+                        <th>Utilisateur</th>
+
+                        <th>Commentaire</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody
+                    id="mouvementsTableBody"
+                >
+
+                    <tr>
+
+                        <td
+                            colspan="9"
+                            class="empty-state"
+                        >
+
+                            <i
+                                class="fa-solid fa-spinner fa-spin"
+                            ></i>
+
+                            <h3>
+                                Chargement des mouvements...
+                            </h3>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =========================
+             PAGINATION
+        ========================= -->
+
+        <div
+            class="products-pagination"
+            id="productsPagination"
+        >
+
+            <div
+                class="pagination-info"
+                id="paginationInfo"
+            >
+                Affichage 0–0 sur 0 mouvements
+            </div>
+
+            <div
+                class="pagination-controls"
+                id="paginationControls"
+            ></div>
+
+            <div class="pagination-size">
+
+                <span>
+                    Par page
+                </span>
+
+                <select
+                    id="pageSizeSelect"
+                >
+                    <option value="10">
+                        10
+                    </option>
+
+                    <option
+                        value="20"
+                        selected
+                    >
+                        20
+                    </option>
+
+                    <option value="25">
+                        25
+                    </option>
+
+                    <option value="50">
+                        50
+                    </option>
+
+                    <option value="100">
+                        100
+                    </option>
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="toast"
+    class="toast"
+></div>
+
+
+<!-- =========================
+     SCRIPT
+========================= -->
+
+<script type="module">
+
+"use strict";
+
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+import supabase from "./assets/js/core/supabase.js";
+import {
+    canPageAction,
+    applyPageActionPermissions
+} from "./assets/js/core/permissions-page.js";
+
+const MOUVEMENTS_PAGE = "mouvements";
+
+function hasMouvementsPermission(action) {
+    return canPageAction(MOUVEMENTS_PAGE, action);
+}
+
+function ensureMouvementsPermission(action) {
+    if (!hasMouvementsPermission(action)) {
+        showToast(
+            `Vous n'avez pas la permission : ${action}.`,
+            "warning"
+        );
+        return false;
+    }
+    return true;
+}
+
+function refreshMouvementsPermissions() {
+    applyPageActionPermissions(MOUVEMENTS_PAGE);
+}
+
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let currentPage = 1;
+
+let pageSize = 20;
+
+let totalRecords = 0;
+
+let currentSearch = "";
+
+let currentDateFilter = "";
+
+let currentTypeFilter = "";
+
+let currentTableData = [];
+
+let allExportData = [];
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const tbody =
+    document.getElementById(
+        "mouvementsTableBody"
+    );
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+const dateInput =
+    document.getElementById(
+        "filterDateInput"
+    );
+
+const typeSelect =
+    document.getElementById(
+        "filterTypeSelect"
+    );
+
+const resultCount =
+    document.getElementById(
+        "resultCount"
+    );
+
+const paginationInfo =
+    document.getElementById(
+        "paginationInfo"
+    );
+
+const paginationControls =
+    document.getElementById(
+        "paginationControls"
+    );
+
+const pageSizeSelect =
+    document.getElementById(
+        "pageSizeSelect"
+    );
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function formatNumber(
+    value,
+    decimals = 0
+) {
+
+    return Number(
+        value || 0
+    ).toLocaleString(
+        "fr-FR",
+        {
+            minimumFractionDigits:
+                decimals,
+
+            maximumFractionDigits:
+                decimals
+        }
+    );
+}
+
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function showToast(
+    message,
+    type = "success"
+) {
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.className =
+        `toast show ${type}`;
+
+    clearTimeout(
+        showToast.timer
+    );
+
+    showToast.timer =
+        setTimeout(
+            () => {
+                toast.className =
+                    "toast";
+            },
+            3500
+        );
+}
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+function applyFilters(query) {
+
+    if (currentDateFilter) {
+
+        const startOfDay =
+            `${currentDateFilter}T00:00:00`;
+
+        const endOfDay =
+            `${currentDateFilter}T23:59:59`;
+
+        query =
+            query
+                .gte(
+                    "date_mouvement",
+                    startOfDay
+                )
+                .lte(
+                    "date_mouvement",
+                    endOfDay
+                );
+    }
+
+
+    if (currentTypeFilter) {
+
+        query =
+            query.eq(
+                "type_mouvement",
+                currentTypeFilter
+            );
+    }
+
+
+    if (currentSearch) {
+
+        const safeSearch =
+            currentSearch
+                .replaceAll(",", " ")
+                .replaceAll("(", " ")
+                .replaceAll(")", " ");
+
+        query =
+            query.or(
+                [
+                    `document_vente.ilike.%${safeSearch}%`,
+                    `article.ilike.%${safeSearch}%`,
+                    `lot.ilike.%${safeSearch}%`,
+                    `designation_article.ilike.%${safeSearch}%`
+                ].join(",")
+            );
+    }
+
+
+    return query;
+}
+
+
+/* =========================================================
+   LOAD DATA
+========================================================= */
+
+async function loadData() {
+
+    if (!tbody) {
+        return;
+    }
+
+
+    tbody.innerHTML = `
+        <tr>
+            <td
+                colspan="9"
+                class="empty-state"
+            >
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <h3>Chargement des mouvements...</h3>
+            </td>
+        </tr>
+    `;
+
+
+    try {
+
+        let query =
+            supabase
+                .from(
+                    "mouvements_stock"
+                )
+                .select(
+                    `
+                    id,
+                    stock_id,
+                    document_vente,
+                    type_mouvement,
+                    article,
+                    designation_article,
+                    lot,
+                    magasin_source,
+                    magasin_destination,
+                    quantite,
+                    unite,
+                    utilisateur,
+                    commentaire,
+                    date_mouvement,
+                    user_profiles:utilisateur (
+                        nom_complet,
+                        username
+                    )
+                    `,
+                    {
+                        count: "exact"
+                    }
+                );
+
+
+        query =
+            applyFilters(
+                query
+            );
+
+
+        const start =
+            (
+                currentPage - 1
+            ) * pageSize;
+
+
+        const end =
+            start +
+            pageSize -
+            1;
+
+
+        query =
+            query
+                .order(
+                    "date_mouvement",
+                    {
+                        ascending:
+                            false
+                    }
+                )
+                .range(
+                    start,
+                    end
+                );
+
+
+        const {
+            data,
+            count,
+            error
+        } =
+            await query;
+
+
+        if (error) {
+
+            console.error(
+                "[SMTG MOUVEMENTS]",
+                error
+            );
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="9"
+                        class="error-state"
+                    >
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h3>Erreur lors du chargement</h3>
+                        <p>${escapeHtml(error.message)}</p>
+                    </td>
+                </tr>
+            `;
+
+            showToast(
+                "Erreur lors du chargement des mouvements : " +
+                error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        totalRecords =
+            count || 0;
+
+        currentTableData =
+            data || [];
+
+
+        renderTable(
+            currentTableData
+        );
+
+
+        updatePagination();
+
+
+        await fetchGlobalStats();
+
+    } catch (error) {
+
+        console.error(
+            "[SMTG MOUVEMENTS] Erreur technique",
+            error
+        );
+
+        tbody.innerHTML = `
+            <tr>
+                <td
+                    colspan="9"
+                    class="error-state"
+                >
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <h3>Erreur de connexion</h3>
+                    <p>Impossible de charger les mouvements.</p>
+                </td>
+            </tr>
+        `;
+
+        showToast(
+            "Impossible de charger les mouvements.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   GLOBAL STATS
+========================================================= */
+
+async function fetchGlobalStats() {
+
+    try {
+
+        let query =
+            supabase
+                .from(
+                    "mouvements_stock"
+                )
+                .select(
+                    `
+                    id,
+                    type_mouvement,
+                    document_vente,
+                    article,
+                    designation_article,
+                    lot,
+                    magasin_source,
+                    magasin_destination,
+                    quantite,
+                    unite,
+                    commentaire,
+                    date_mouvement
+                    `
+                );
+
+
+        query =
+            applyFilters(
+                query
+            );
+
+
+        const {
+            data,
+            error
+        } =
+            await query
+                .limit(
+                    10000
+                );
+
+
+        if (error) {
+
+            console.error(
+                "[SMTG MOUVEMENTS] Stats",
+                error
+            );
+
+            return;
+        }
+
+
+        allExportData =
+            data || [];
+
+
+        let totalQty = 0;
+
+
+        allExportData.forEach(
+            item => {
+
+                totalQty +=
+                    Number(
+                        item.quantite || 0
+                    );
+            }
+        );
+
+
+        document.getElementById(
+            "totalLinesBadge"
+        ).textContent =
+            formatNumber(
+                totalRecords
+            );
+
+
+        document.getElementById(
+            "totalQtyBadge"
+        ).textContent =
+            formatNumber(
+                totalQty,
+                3
+            );
+
+    } catch (error) {
+
+        console.error(
+            "[SMTG MOUVEMENTS] Stats",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   RENDER TABLE
+========================================================= */
+
+function renderTable(
+    data
+) {
+
+    if (
+        !data ||
+        data.length === 0
+    ) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td
+                    colspan="9"
+                    class="empty-state"
+                >
+
+                    <i class="fa-solid fa-box-open"></i>
+
+                    <h3>
+                        Aucun mouvement trouvé
+                    </h3>
+
+                    <p>
+                        Aucun mouvement ne correspond aux filtres.
+                    </p>
+
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tbody.innerHTML =
+        data
+            .map(
+                renderRow
+            )
+            .join("");
+}
+
+
+function renderRow(
+    item
+) {
+
+    const type =
+        String(
+            item.type_mouvement ||
+            ""
+        )
+            .toUpperCase();
+
+
+    let typeClass =
+        "type-other";
+
+
+    if (
+        type === "ENTREE"
+    ) {
+
+        typeClass =
+            "type-entree";
+
+    } else if (
+        type === "CONSOMMATION"
+    ) {
+
+        typeClass =
+            "type-consommation";
+
+    } else if (
+        type === "TRANSFERT"
+    ) {
+
+        typeClass =
+            "type-transfert";
+    }
+
+
+    let flowHtml =
+        "-";
+
+
+    if (
+        type === "ENTREE"
+    ) {
+
+        flowHtml = `
+            <span class="flow flow-entree">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                Entrée vers :
+                <b>
+                    ${escapeHtml(
+                        item.magasin_destination ||
+                        "-"
+                    )}
+                </b>
+            </span>
+        `;
+
+    } else if (
+        type === "CONSOMMATION"
+    ) {
+
+        flowHtml = `
+            <span class="flow flow-consommation">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Consommé depuis :
+                <b>
+                    ${escapeHtml(
+                        item.magasin_source ||
+                        "-"
+                    )}
+                </b>
+            </span>
+        `;
+
+    } else if (
+        type === "TRANSFERT"
+    ) {
+
+        flowHtml = `
+            <span class="flow flow-transfert">
+
+                <b>
+                    ${escapeHtml(
+                        item.magasin_source ||
+                        "-"
+                    )}
+                </b>
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+                <b>
+                    ${escapeHtml(
+                        item.magasin_destination ||
+                        "-"
+                    )}
+                </b>
+
+            </span>
+        `;
+    }
+
+
+    let userName =
+        "-";
+
+
+    if (
+        item.user_profiles
+    ) {
+
+        userName =
+            item.user_profiles.nom_complet ||
+            item.user_profiles.username ||
+            "-";
+    }
+
+
+    const date =
+        item.date_mouvement
+            ? new Date(
+                item.date_mouvement
+            ).toLocaleString(
+                "fr-FR"
+            )
+            : "-";
+
+
+    return `
+        <tr>
+
+            <td class="date-cell">
+                ${escapeHtml(date)}
+            </td>
+
+
+            <td>
+
+                <span
+                    class="type-badge ${typeClass}"
+                >
+                    ${escapeHtml(
+                        type || "-"
+                    )}
+                </span>
+
+            </td>
+
+
+            <td>
+
+                <span
+                    class="article-code"
+                >
+                    ${escapeHtml(
+                        item.document_vente ||
+                        "-"
+                    )}
+                </span>
+
+            </td>
+
+
+            <td>
+
+                <div class="article-code">
+                    ${escapeHtml(
+                        item.article ||
+                        "-"
+                    )}
+                </div>
+
+                <div class="designation">
+                    ${escapeHtml(
+                        item.designation_article ||
+                        "-"
+                    )}
+                </div>
+
+            </td>
+
+
+            <td class="lot">
+                ${escapeHtml(
+                    item.lot ||
+                    "-"
+                )}
+            </td>
+
+
+            <td>
+                ${flowHtml}
+            </td>
+
+
+            <td class="quantity">
+
+                ${formatNumber(
+                    item.quantite,
+                    3
+                )}
+
+                <span class="unit">
+                    ${escapeHtml(
+                        item.unite ||
+                        "KG"
+                    )}
+                </span>
+
+            </td>
+
+
+            <td class="user">
+                ${escapeHtml(
+                    userName
+                )}
+            </td>
+
+
+            <td class="comment">
+                ${escapeHtml(
+                    item.commentaire ||
+                    "-"
+                )}
+            </td>
+
+        </tr>
+    `;
+}
+
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+function updatePagination() {
+
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                totalRecords /
+                pageSize
+            )
+        );
+
+
+    if (
+        currentPage >
+        totalPages
+    ) {
+
+        currentPage =
+            totalPages;
+    }
+
+
+    const startItem =
+        totalRecords === 0
+            ? 0
+            : (
+                (
+                    currentPage - 1
+                ) *
+                pageSize
+            ) + 1;
+
+
+    const endItem =
+        Math.min(
+            currentPage *
+            pageSize,
+            totalRecords
+        );
+
+
+    paginationInfo.textContent =
+        `Affichage ${formatNumber(startItem)}–${formatNumber(endItem)} sur ${formatNumber(totalRecords)} mouvements`;
+
+
+    resultCount.textContent =
+        totalRecords === 1
+            ? "1 mouvement"
+            : `${formatNumber(totalRecords)} mouvements`;
+
+
+    document.getElementById(
+        "pageBadge"
+    ).textContent =
+        `${currentPage} / ${totalPages}`;
+
+
+    renderPaginationButtons(
+        totalPages
+    );
+}
+
+
+function renderPaginationButtons(
+    totalPages
+) {
+
+    paginationControls.innerHTML =
+        "";
+
+
+    paginationControls.appendChild(
+        createPaginationButton(
+            "‹",
+            currentPage - 1,
+            currentPage <= 1,
+            false,
+            "Page précédente"
+        )
+    );
+
+
+    getPaginationPages(
+        currentPage,
+        totalPages
+    ).forEach(
+        page => {
+
+            if (
+                page === "..."
+            ) {
+
+                const span =
+                    document.createElement(
+                        "span"
+                    );
+
+                span.className =
+                    "pagination-ellipsis";
+
+                span.textContent =
+                    "…";
+
+                paginationControls.appendChild(
+                    span
+                );
+
+                return;
+            }
+
+
+            paginationControls.appendChild(
+                createPaginationButton(
+                    String(page),
+                    page,
+                    false,
+                    page === currentPage,
+                    `Aller à la page ${page}`
+                )
+            );
+        }
+    );
+
+
+    paginationControls.appendChild(
+        createPaginationButton(
+            "›",
+            currentPage + 1,
+            currentPage >= totalPages,
+            false,
+            "Page suivante"
+        )
+    );
+}
+
+
+function getPaginationPages(
+    current,
+    total
+) {
+
+    if (
+        total <= 7
+    ) {
+
+        return Array.from(
+            {
+                length:
+                    total
+            },
+            (
+                _,
+                index
+            ) =>
+                index + 1
+        );
+    }
+
+
+    if (
+        current <= 4
+    ) {
+
+        return [
+            1,
+            2,
+            3,
+            4,
+            5,
+            "...",
+            total
+        ];
+    }
+
+
+    if (
+        current >=
+        total - 3
+    ) {
+
+        return [
+            1,
+            "...",
+            total - 4,
+            total - 3,
+            total - 2,
+            total - 1,
+            total
+        ];
+    }
+
+
+    return [
+        1,
+        "...",
+        current - 1,
+        current,
+        current + 1,
+        "...",
+        total
+    ];
+}
+
+
+function createPaginationButton(
+    label,
+    targetPage,
+    disabled,
+    active,
+    title
+) {
+
+    const button =
+        document.createElement(
+            "button"
+        );
+
+
+    button.type =
+        "button";
+
+
+    button.className =
+        "pagination-btn";
+
+
+    button.textContent =
+        label;
+
+
+    button.title =
+        title;
+
+
+    button.disabled =
+        disabled;
+
+
+    if (
+        active
+    ) {
+
+        button.classList.add(
+            "active"
+        );
+    }
+
+
+    if (
+        !disabled
+    ) {
+
+        button.addEventListener(
+            "click",
+            async () => {
+
+                currentPage =
+                    targetPage;
+
+                await loadData();
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            }
+        );
+    }
+
+
+    return button;
+}
+
+
+/* =========================================================
+   EXPORT EXCEL
+========================================================= */
+
+async function exportToExcel() {
+
+    if (!ensureMouvementsPermission("Imprimer")) {
+        return;
+    }
+
+    try {
+
+        if (
+            !allExportData ||
+            allExportData.length === 0
+        ) {
+
+            showToast(
+                "Aucune donnée à exporter.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const exportData =
+            allExportData.map(
+                item => ({
+
+                    "Date Mouvement":
+                        item.date_mouvement,
+
+                    "Type Mouvement":
+                        item.type_mouvement,
+
+                    "Document Vente":
+                        item.document_vente,
+
+                    "Article":
+                        item.article,
+
+                    "Désignation":
+                        item.designation_article,
+
+                    "Lot":
+                        item.lot,
+
+                    "Magasin Source":
+                        item.magasin_source,
+
+                    "Magasin Destination":
+                        item.magasin_destination,
+
+                    "Quantité":
+                        item.quantite,
+
+                    "Unité":
+                        item.unite,
+
+                    "Commentaire":
+                        item.commentaire
+                })
+            );
+
+
+        const worksheet =
+            XLSX.utils.json_to_sheet(
+                exportData
+            );
+
+
+        const workbook =
+            XLSX.utils.book_new();
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Mouvements"
+        );
+
+
+        XLSX.writeFile(
+            workbook,
+            `Mouvements_Stock_${new Date().toISOString().slice(0,10)}.xlsx`
+        );
+
+
+        showToast(
+            "Export Excel terminé."
+        );
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        showToast(
+            "Erreur lors de l'export Excel.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   EXPORT PDF
+========================================================= */
+
+async function exportToPDF() {
+
+    if (!ensureMouvementsPermission("Imprimer")) {
+        return;
+    }
+
+    try {
+
+        if (
+            !allExportData ||
+            allExportData.length === 0
+        ) {
+
+            showToast(
+                "Aucune donnée à exporter.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const {
+            jsPDF
+        } =
+            window.jspdf;
+
+
+        const doc =
+            new jsPDF(
+                "l",
+                "mm",
+                "a4"
+            );
+
+
+        doc.setFontSize(
+            16
+        );
+
+
+        doc.text(
+            "SMTG - Historique des mouvements de stock",
+            14,
+            15
+        );
+
+
+        doc.setFontSize(
+            9
+        );
+
+
+        doc.text(
+            `Date d'export : ${new Date().toLocaleDateString("fr-FR")}`,
+            14,
+            22
+        );
+
+
+        const columns = [
+            "Date",
+            "Type",
+            "Document",
+            "Article",
+            "Lot",
+            "Source",
+            "Destination",
+            "Quantité",
+            "Commentaire"
+        ];
+
+
+        const rows =
+            allExportData.map(
+                item => [
+
+                    item.date_mouvement
+                        ? new Date(
+                            item.date_mouvement
+                        ).toLocaleString(
+                            "fr-FR"
+                        )
+                        : "",
+
+                    item.type_mouvement ||
+                        "",
+
+                    item.document_vente ||
+                        "",
+
+                    item.article ||
+                        "",
+
+                    item.lot ||
+                        "",
+
+                    item.magasin_source ||
+                        "",
+
+                    item.magasin_destination ||
+                        "",
+
+                    Number(
+                        item.quantite ||
+                        0
+                    ).toFixed(3),
+
+                    item.commentaire ||
+                        ""
+                ]
+            );
+
+
+        doc.autoTable({
+
+            head: [
+                columns
+            ],
+
+            body:
+                rows,
+
+            startY:
+                28,
+
+            theme:
+                "grid",
+
+            styles: {
+                fontSize:
+                    7,
+                cellPadding:
+                    2
+            },
+
+            headStyles: {
+                fillColor: [
+                    8,
+                    127,
+                    62
+                ]
+            }
+        });
+
+
+        doc.save(
+            `Mouvements_Stock_${new Date().toISOString().slice(0,10)}.pdf`
+        );
+
+
+        showToast(
+            "Export PDF terminé."
+        );
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        showToast(
+            "Erreur lors de l'export PDF.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+document
+    .getElementById(
+        "btnRefresh"
+    )
+    .addEventListener(
+        "click",
+        async () => {
+
+            currentPage =
+                1;
+
+            await loadData();
+        }
+    );
+
+
+document
+    .getElementById(
+        "btnExcel"
+    )
+    .addEventListener(
+        "click",
+        exportToExcel
+    );
+
+
+document
+    .getElementById(
+        "btnPdf"
+    )
+    .addEventListener(
+        "click",
+        exportToPDF
+    );
+
+
+document
+    .getElementById(
+        "btnResetFilters"
+    )
+    .addEventListener(
+        "click",
+        async () => {
+
+            currentSearch =
+                "";
+
+            currentTypeFilter =
+                "";
+
+            searchInput.value =
+                "";
+
+            typeSelect.value =
+                "";
+
+            /*
+             * Réinitialisation vers la date du jour.
+             */
+            initializeTodayFilter();
+
+            currentPage =
+                1;
+
+            await loadData();
+        }
+    );
+
+
+typeSelect.addEventListener(
+    "change",
+    async event => {
+
+        currentTypeFilter =
+            event.target.value;
+
+        currentPage =
+            1;
+
+        await loadData();
+    }
+);
+
+
+dateInput.addEventListener(
+    "change",
+    async event => {
+
+        currentDateFilter =
+            event.target.value;
+
+        currentPage =
+            1;
+
+        await loadData();
+    }
+);
+
+
+let searchTimer;
+
+
+searchInput.addEventListener(
+    "input",
+    event => {
+
+        clearTimeout(
+            searchTimer
+        );
+
+
+        searchTimer =
+            setTimeout(
+                async () => {
+
+                    currentSearch =
+                        event.target.value.trim();
+
+                    currentPage =
+                        1;
+
+                    await loadData();
+
+                },
+                300
+            );
+    }
+);
+
+
+pageSizeSelect.addEventListener(
+    "change",
+    async event => {
+
+        pageSize =
+            Number(
+                event.target.value
+            );
+
+        currentPage =
+            1;
+
+        await loadData();
+    }
+);
+
+
+/* =========================================================
+   PERMISSIONS UI
+========================================================= */
+
+window.addEventListener(
+    "permissionsLoaded",
+    refreshMouvementsPermissions
+);
+
+window.addEventListener(
+    "permissionsUpdated",
+    refreshMouvementsPermissions
+);
+
+if (window.permissionsLoaded === true) {
+    refreshMouvementsPermissions();
+}
+
+
+/* =========================================================
+   INIT / AUTO LOAD
+========================================================= */
+
+let mouvementsInitialized = false;
+
+function getTodayLocalISO() {
+
+    const now = new Date();
+
+    const year = now.getFullYear();
+
+    const month = String(
+        now.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+        now.getDate()
+    ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+function initializeTodayFilter() {
+
+    const today = getTodayLocalISO();
+
+    currentDateFilter = today;
+
+    if (dateInput) {
+        dateInput.value = today;
+    }
+}
+
+
+async function initMouvementsPage() {
+
+    if (mouvementsInitialized) {
+        return;
+    }
+
+    mouvementsInitialized = true;
+
+    try {
+
+        /*
+         * À chaque ouverture de la page,
+         * on sélectionne automatiquement la date du jour.
+         */
+        currentPage = 1;
+        initializeTodayFilter();
+
+        /*
+         * Chargement immédiat des mouvements du jour depuis Supabase.
+         */
+        await loadData();
+
+    } catch (error) {
+
+        console.error(
+            "[SMTG MOUVEMENTS] Initialisation :",
+            error
+        );
+
+        mouvementsInitialized = false;
+    }
+}
+
+/*
+ * Le dashboard charge cette page dynamiquement.
+ * On expose donc l'initialisation au router du dashboard.
+ */
+window.initMouvementsPage =
+    initMouvementsPage;
+
+/*
+ * Si la page est ouverte directement, DOMContentLoaded
+ * permet de démarrer après la création du DOM.
+ *
+ * Si la page est chargée dynamiquement par dashboard.html,
+ * DOMContentLoaded est déjà passé : on démarre immédiatement.
+ */
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initMouvementsPage,
+        { once: true }
+    );
+
+} else {
+
+    initMouvementsPage();
+}
+
+
+</script>
+
+</body>
+</html>

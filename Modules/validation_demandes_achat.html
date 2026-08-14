@@ -1,0 +1,3465 @@
+<!-- Modules/validation_demandes_achat.html -->
+<div class="vda-page">
+
+  <div class="vda-head">
+    <div>
+      <h2><i class="fa-solid fa-file-circle-check"></i> Validation des demandes d'achat</h2>
+      <p>Consultation, contrôle et validation des demandes d'achat en brouillon</p>
+    </div>
+
+    <div class="vda-actions">
+      <button id="vdaRefresh" class="vda-btn vda-light">
+        <i class="fa-solid fa-rotate"></i> Actualiser
+      </button>
+    </div>
+  </div>
+
+  <div class="vda-stats">
+    <div class="vda-stat">
+      <span>À traiter</span>
+      <strong id="statSoumises">0</strong>
+      <small>Demandes en brouillon à traiter</small>
+    </div>
+    <div class="vda-stat">
+      <span>Urgentes</span>
+      <strong id="statUrgentes">0</strong>
+      <small>Priorité urgente</small>
+    </div>
+    <div class="vda-stat">
+      <span>Validées</span>
+      <strong id="statValidees">0</strong>
+      <small>Demandes validées</small>
+    </div>
+    <div class="vda-stat">
+      <span>Rejetées</span>
+      <strong id="statRejetees">0</strong>
+      <small>Demandes rejetées</small>
+    </div>
+  </div>
+
+  <div class="vda-layout">
+
+    <section class="vda-card vda-list-card">
+
+      <div class="vda-card-head">
+        <div>
+          <h3><i class="fa-solid fa-list-check"></i> Demandes à traiter</h3>
+          <small>Sélectionnez une demande pour afficher son contenu.</small>
+        </div>
+
+        <select id="vdaStatusFilter" class="vda-select">
+          <option value="BROUILLON">Brouillons</option>
+          <option value="TOUTES">Toutes</option>
+          <option value="SOUMISE">Soumises</option>
+          <option value="DEVIS_DEMANDE">Devis demandés</option>
+          <option value="DEVIS_RECU">Devis reçus</option>
+          <option value="DEVIS_VALIDE">Devis validés</option>
+          <option value="DEVIS_REJETE">Devis rejetés</option>
+          <option value="VALIDEE">Validées</option>
+          <option value="REJETEE">Rejetées</option>
+        </select>
+      </div>
+
+      <div class="vda-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="vdaSearch" placeholder="Rechercher N° demande, demandeur ou service...">
+      </div>
+
+      <div id="vdaList" class="vda-list">
+        <div class="vda-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          Chargement...
+        </div>
+      </div>
+
+    </section>
+
+
+    <section class="vda-card vda-detail-card">
+
+      <div id="vdaEmpty" class="vda-empty">
+        <i class="fa-solid fa-file-circle-check"></i>
+        <b>Sélectionnez une demande</b>
+        <span>Les informations détaillées apparaîtront ici.</span>
+      </div>
+
+      <div id="vdaDetail" style="display:none">
+
+        <div class="vda-detail-head">
+
+          <div>
+            <div class="vda-detail-number" id="detailNumero">—</div>
+            <div class="vda-detail-date">
+              Date : <span id="detailDate">—</span>
+            </div>
+          </div>
+
+          <div id="detailStatus" class="vda-badge">—</div>
+
+        </div>
+
+
+        <div class="vda-info-grid">
+
+          <div>
+            <span>Demandeur</span>
+            <b id="detailDemandeur">—</b>
+          </div>
+
+          <div>
+            <span>Service</span>
+            <b id="detailService">—</b>
+          </div>
+
+          <div>
+            <span>Priorité</span>
+            <b id="detailPriorite">—</b>
+          </div>
+
+          <div>
+            <span>Motif</span>
+            <b id="detailMotif">—</b>
+          </div>
+
+        </div>
+
+
+        <div class="vda-section-title">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          Articles demandés
+          <span id="detailLinesCount">0 ligne</span>
+        </div>
+
+
+        <div class="vda-table-wrap">
+
+          <table class="vda-table">
+
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Désignation</th>
+                <th>Groupe</th>
+                <th>Type</th>
+                <th>Quantité</th>
+                <th>Unité</th>
+              </tr>
+            </thead>
+
+            <tbody id="detailLines"></tbody>
+
+            <tfoot>
+              <tr>
+                <td colspan="4">TOTAL</td>
+                <td id="detailTotal" class="vda-total">0,000</td>
+                <td id="detailUnit">—</td>
+              </tr>
+            </tfoot>
+
+          </table>
+
+        </div>
+
+
+        <div class="vda-motif-box">
+          <span>Motif / précision</span>
+          <p id="detailMotifFull">—</p>
+        </div>
+
+
+
+        <div id="devisReceivedBox" class="vda-devis-received" style="display:none">
+
+          <div class="vda-section-title">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            Devis reçu
+          </div>
+
+          <div class="vda-devis-received-grid">
+
+            <div><span>Fournisseur</span><b id="detailDevisFournisseur">—</b></div>
+            <div><span>N° Devis</span><b id="detailDevisNumero">—</b></div>
+            <div><span>Date devis</span><b id="detailDevisDate">—</b></div>
+            <div><span>Validité</span><b id="detailDevisValidite">—</b></div>
+            <div><span>Montant HT</span><b id="detailDevisHT">0,00</b></div>
+            <div><span>Remise</span><b id="detailDevisRemise">0,00</b></div>
+            <div><span>TVA</span><b id="detailDevisTVA">0,00 %</b></div>
+            <div><span>Montant TTC</span><b id="detailDevisTTC">0,00</b></div>
+            <div><span>Délai livraison</span><b id="detailDevisDelai">—</b></div>
+            <div><span>Paiement</span><b id="detailDevisPaiement">—</b></div>
+            <div><span>Document</span><b id="detailDevisFichier">—</b></div>
+            <div class="wide"><span>Observations</span><b id="detailDevisObservations">—</b></div>
+
+          </div>
+
+        </div>
+
+
+        <div class="vda-section-title">
+          <i class="fa-solid fa-truck-field"></i> Fournisseurs consultés
+          <span id="supplierSummary">0 fournisseur</span>
+        </div>
+        <div class="vda-table-wrap">
+          <table class="vda-table supplier-table">
+            <thead><tr><th>Fournisseur</th><th>Code</th><th>État</th><th>N° devis</th><th>Montant TTC</th><th>Action</th></tr></thead>
+            <tbody id="supplierRows"></tbody>
+          </table>
+        </div>
+        <div id="vdaComparisonBox" style="display:none">
+          <div class="vda-section-title"><i class="fa-solid fa-scale-balanced"></i> Comparaison des devis reçus <span id="comparisonSummary">0 devis</span></div>
+          <div id="vdaComparisonGrid" class="vda-comparison-grid"></div>
+        </div>
+
+        <div class="vda-footer-actions">
+
+          <button id="btnPrint" class="vda-btn vda-print">
+            <i class="fa-solid fa-print"></i>
+            Imprimer
+          </button>
+
+          <div class="vda-decision-actions">
+
+            <button id="btnReject" class="vda-btn vda-danger">
+              <i class="fa-solid fa-xmark"></i>
+              Rejeter
+            </button>
+
+            <button id="btnValidate" class="vda-btn vda-primary">
+              <i class="fa-solid fa-check"></i>
+              Accepter
+            </button>
+
+            <button id="btnSendSupplier" class="vda-btn vda-primary" style="display:none">
+              <i class="fa-solid fa-paper-plane"></i>
+              Envoyer au fournisseur
+            </button>
+
+            <button id="btnReceiveDevis" class="vda-btn vda-primary" style="display:none">
+              <i class="fa-solid fa-file-circle-check"></i>
+              Réceptionner le devis
+            </button>
+
+            <button id="btnValidateDevis" class="vda-btn vda-primary" style="display:none">
+              <i class="fa-solid fa-check-double"></i>
+              Valider le devis
+            </button>
+
+            <button id="btnRejectDevis" class="vda-btn vda-danger" style="display:none">
+              <i class="fa-solid fa-xmark"></i>
+              Rejeter le devis
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <div id="vdaToast" class="vda-toast"></div>
+
+</div>
+
+
+<!-- =========================================================
+     PRINT VERSION
+========================================================= -->
+
+<div id="vdaPrintSheet">
+
+  <div class="vda-print-page">
+
+    <div class="vda-print-header">
+
+      <div class="vda-print-brand">
+        <div class="vda-print-logo">S</div>
+        <div>
+          <strong>SMTG</strong>
+          <small>TRAÇABILITÉ GLOBALE</small>
+        </div>
+      </div>
+
+      <div class="vda-print-title">
+        <h1>DEMANDE D'ACHAT</h1>
+        <span>Validation / contrôle</span>
+      </div>
+
+      <div class="vda-print-meta">
+        <b id="pNumero">—</b>
+        <span>Date : <em id="pDate">—</em></span>
+        <span>Statut : <em id="pStatus">—</em></span>
+      </div>
+
+    </div>
+
+
+    <div class="vda-print-info">
+
+      <div><span>Demandeur</span><b id="pDemandeur">—</b></div>
+      <div><span>Service</span><b id="pService">—</b></div>
+      <div><span>Priorité</span><b id="pPriorite">—</b></div>
+      <div><span>Motif</span><b id="pMotif">—</b></div>
+
+    </div>
+
+
+    <table class="vda-print-table">
+
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th>Désignation</th>
+          <th>Groupe</th>
+          <th>Type</th>
+          <th>Quantité</th>
+          <th>Unité</th>
+        </tr>
+      </thead>
+
+      <tbody id="pLines"></tbody>
+
+      <tfoot>
+        <tr>
+          <td colspan="4">TOTAL DEMANDÉ</td>
+          <td id="pTotal">0,000</td>
+          <td id="pUnit">—</td>
+        </tr>
+      </tfoot>
+
+    </table>
+
+
+    <div class="vda-print-devis-title">
+      COMPARAISON DES DEVIS REÇUS
+    </div>
+
+    <table class="vda-print-devis-table">
+      <thead>
+        <tr>
+          <th>Choix</th>
+          <th>Fournisseur</th>
+          <th>N° Devis</th>
+          <th>Date</th>
+          <th>Montant HT</th>
+          <th>Remise</th>
+          <th>TVA</th>
+          <th>Montant TTC</th>
+          <th>Livraison</th>
+          <th>État</th>
+        </tr>
+      </thead>
+      <tbody id="pDevisRows"></tbody>
+    </table>
+
+    <div id="pDevisSelection" class="vda-print-selected">
+      Aucun devis n'est encore retenu.
+    </div>
+
+    <div class="vda-print-note">
+      La demande doit être contrôlée par le responsable du service concerné
+      et validée par la Direction Générale avant le lancement de l'achat.
+    </div>
+
+
+    <div class="vda-signatures">
+
+      <div>
+        <b>Demandeur</b>
+        <span>Signature</span>
+        <i></i>
+        <small>Date : __________________</small>
+      </div>
+
+      <div>
+        <b>Responsable du service</b>
+        <span>Avis / signature / cachet</span>
+        <i></i>
+        <small>Date : __________________</small>
+      </div>
+
+      <div>
+        <b>Direction Générale</b>
+        <span>Validation / signature / cachet</span>
+        <i></i>
+        <small>Date : __________________</small>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+<!-- MODAL CHOIX FOURNISSEURS -->
+<div id="vdaSupplierModal" class="vda-devis-modal">
+  <div class="vda-devis-box vda-supplier-box">
+    <div class="vda-devis-head">
+      <div><strong><i class="fa-solid fa-truck-field"></i> Demander des devis</strong><small id="supplierModalNumero">—</small></div>
+      <button id="closeSupplierModal" type="button">×</button>
+    </div>
+    <div class="vda-devis-body">
+      <div class="vda-devis-info">
+        <div><span>Demande</span><strong id="supplierDemandInfo">—</strong></div>
+        <div><span>Fournisseurs sélectionnés</span><strong id="selectedSupplierCount">0</strong></div>
+      </div>
+      <div class="supplier-toolbar">
+        <div class="vda-search supplier-search"><i class="fa-solid fa-magnifying-glass"></i><input id="supplierSearch" placeholder="Rechercher fournisseur..."></div>
+        <button id="selectAllSuppliers" type="button" class="vda-btn vda-light"><i class="fa-solid fa-check-double"></i> Tout sélectionner</button>
+      </div>
+      <div id="supplierChoiceList" class="supplier-choice-list"></div>
+      <div class="vda-devis-warning"><i class="fa-solid fa-circle-info"></i> Vous pouvez sélectionner <strong>10, 20 ou plus de fournisseurs</strong>. Chaque fournisseur aura son propre devis.</div>
+    </div>
+    <div class="vda-devis-footer">
+      <button id="cancelSupplier" type="button" class="vda-btn vda-light">Annuler</button>
+      <button id="confirmSupplier" type="button" class="vda-btn vda-primary"><i class="fa-solid fa-paper-plane"></i> Envoyer les demandes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CHOIX DEVIS -->
+<div id="vdaChooseDevisModal" class="vda-devis-modal">
+  <div class="vda-devis-box vda-choose-box">
+    <div class="vda-devis-head">
+      <div><strong><i class="fa-solid fa-trophy"></i> Choisir le devis retenu</strong><small id="chooseDevisNumero">—</small></div>
+      <button id="closeChooseDevisModal" type="button">×</button>
+    </div>
+    <div class="vda-devis-body">
+      <div class="vda-devis-warning"><i class="fa-solid fa-circle-info"></i> Plusieurs fournisseurs peuvent avoir envoyé un devis. Sélectionnez <strong>un seul fournisseur</strong> pour la validation finale.</div>
+      <div id="chooseDevisList" class="choose-devis-list"></div>
+    </div>
+    <div class="vda-devis-footer">
+      <button id="cancelChooseDevis" type="button" class="vda-btn vda-light">Annuler</button>
+      <button id="confirmChooseDevis" type="button" class="vda-btn vda-primary"><i class="fa-solid fa-check-double"></i> Valider le devis choisi</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECEPTION DEVIS -->
+<div id="vdaDevisModal" class="vda-devis-modal">
+  <div class="vda-devis-box vda-devis-large">
+    <div class="vda-devis-head">
+      <div><strong><i class="fa-solid fa-file-circle-check"></i> Réception du devis</strong><small id="devisNumero">—</small></div>
+      <button id="closeDevisModal" type="button">×</button>
+    </div>
+    <div class="vda-devis-body">
+      <div class="vda-devis-info">
+        <div><span>Demande</span><strong id="devisDemandInfo">—</strong></div>
+        <div><span>Fournisseur</span><strong id="devisSupplierInfo">—</strong></div>
+      </div>
+      <div class="vda-devis-grid">
+        <label>Fournisseur<select id="devisFournisseur" class="vda-input"><option value="">—</option></select></label>
+        <label>N° Devis<input id="devisNumeroInput" class="vda-input" type="text" placeholder="N° du devis"></label>
+        <label>Date du devis<input id="devisDate" class="vda-input" type="date"></label>
+        <label>Validité<input id="devisValidite" class="vda-input" type="text" placeholder="Ex. 30 jours"></label>
+        <label>Délai de livraison<input id="devisDelai" class="vda-input" type="text" placeholder="Ex. 5 jours"></label>
+        <label>Conditions de paiement<input id="devisPaiement" class="vda-input" type="text" placeholder="Ex. 30 jours"></label>
+      </div>
+      <div class="vda-section-title modal-title"><i class="fa-solid fa-tags"></i> Prix par article <span>Chaque article doit avoir son prix</span></div>
+      <div class="vda-table-wrap">
+        <table class="vda-table price-table">
+          <thead><tr><th>Article</th><th>Désignation</th><th>Qté</th><th>Unité</th><th>Prix U. HT</th><th>Remise %</th><th>TVA %</th><th>Total HT</th></tr></thead>
+          <tbody id="devisArticlesRows"></tbody>
+        </table>
+      </div>
+      <div class="devis-total-grid">
+        <div><span>Montant HT</span><strong id="devisHTAuto">0,00 MAD</strong></div>
+        <div><span>Remise</span><strong id="devisRemiseAuto">0,00 MAD</strong></div>
+        <div><span>TVA</span><strong id="devisTVAAuto">0,00 MAD</strong></div>
+        <div class="total-strong"><span>Montant TTC</span><strong id="devisTTCAuto">0,00 MAD</strong></div>
+      </div>
+      <label class="vda-wide-label">Document du devis<input id="devisFichier" class="vda-input" type="file" accept=".pdf,.jpg,.jpeg,.png"></label>
+      <label class="vda-wide-label">Observations<textarea id="devisObservations" class="vda-input" rows="3" placeholder="Observations..."></textarea></label>
+      <div class="vda-devis-warning"><i class="fa-solid fa-circle-info"></i> Le devis est enregistré pour <strong>ce fournisseur uniquement</strong>. Les autres fournisseurs restent indépendants.</div>
+    </div>
+    <div class="vda-devis-footer">
+      <button id="cancelDevis" type="button" class="vda-btn vda-light">Annuler</button>
+      <button id="confirmDevis" type="button" class="vda-btn vda-primary"><i class="fa-solid fa-floppy-disk"></i> Enregistrer le devis</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL ANNULATION DE LA DEMANDE DE DEVIS FOURNISSEUR
+========================================================= -->
+
+<div id="vdaSupplierCancelModal" class="vda-reject-modal">
+  <div class="vda-reject-box">
+
+    <div class="vda-reject-head">
+      <div>
+        <strong>
+          <i class="fa-solid fa-ban"></i>
+          Annuler la demande de devis
+        </strong>
+        <small id="supplierCancelNumero">—</small>
+      </div>
+      <button id="closeSupplierCancelModal" type="button">×</button>
+    </div>
+
+    <div class="vda-reject-body">
+
+      <div class="vda-devis-info" style="grid-template-columns:1fr;margin-bottom:14px">
+        <div>
+          <span>Fournisseur</span>
+          <strong id="supplierCancelName">—</strong>
+        </div>
+      </div>
+
+      <label class="vda-reject-label">
+        Motif de l'annulation <span>*</span>
+      </label>
+
+      <select id="supplierCancelReason" class="vda-reject-select">
+        <option value="">Sélectionner un motif...</option>
+        <option>Demande de devis annulée par le service achats</option>
+        <option>Fournisseur non retenu pour la consultation</option>
+        <option>Nombre de fournisseurs suffisant</option>
+        <option>Demandeur a modifié le besoin</option>
+        <option>Besoin annulé</option>
+        <option>Article / quantité modifié(e)</option>
+        <option>Doublon de demande de devis</option>
+        <option>Fournisseur non disponible</option>
+        <option>Autre</option>
+      </select>
+
+      <div id="supplierCancelOtherWrap" style="display:none;margin-top:14px">
+        <label class="vda-reject-label">
+          Précisez le motif <span>*</span>
+        </label>
+        <textarea id="supplierCancelOther" class="vda-reject-textarea" rows="4"
+          placeholder="Précisez le motif de l'annulation..."></textarea>
+      </div>
+
+      <div class="vda-devis-warning" style="margin-top:14px">
+        <i class="fa-solid fa-circle-info"></i>
+        Cette action est disponible uniquement lorsque le fournisseur est encore en statut
+        <strong>EN ATTENTE</strong>.
+      </div>
+
+    </div>
+
+    <div class="vda-reject-footer">
+      <button id="cancelSupplierCancel" type="button" class="vda-btn vda-light">
+        Annuler
+      </button>
+
+      <button id="confirmSupplierCancel" type="button" class="vda-btn vda-danger">
+        <i class="fa-solid fa-ban"></i>
+        Confirmer l'annulation
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL REJET DU DEVIS
+========================================================= -->
+
+<div id="vdaDevisRejectModal" class="vda-reject-modal">
+  <div class="vda-reject-box">
+
+    <div class="vda-reject-head">
+      <div>
+        <strong>
+          <i class="fa-solid fa-circle-xmark"></i>
+          Rejeter le devis
+        </strong>
+        <small id="devisRejectNumero">—</small>
+      </div>
+
+      <button id="closeDevisRejectModal" type="button">×</button>
+    </div>
+
+    <div class="vda-reject-body">
+
+      <label class="vda-reject-label">
+        Motif du rejet du devis <span>*</span>
+      </label>
+
+      <select id="devisRejectReason" class="vda-reject-select">
+        <option value="">Sélectionner un motif...</option>
+        <option>Prix trop élevé</option>
+        <option>Conditions commerciales non satisfaisantes</option>
+        <option>Délai de livraison trop long</option>
+        <option>Conditions de paiement non adaptées</option>
+        <option>Quantité non conforme</option>
+        <option>Article non conforme au besoin</option>
+        <option>Devis incomplet</option>
+        <option>Devis expiré</option>
+        <option>Fournisseur non retenu</option>
+        <option>Budget insuffisant</option>
+        <option>Autre</option>
+      </select>
+
+      <div id="devisRejectOtherWrap" style="display:none">
+        <label class="vda-reject-label">
+          Précisez le motif <span>*</span>
+        </label>
+
+        <textarea id="devisRejectOther"
+          class="vda-reject-textarea"
+          rows="4"
+          placeholder="Précisez le motif du rejet..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="vda-reject-footer">
+      <button id="cancelDevisReject" type="button" class="vda-btn vda-light">
+        Annuler
+      </button>
+
+      <button id="confirmDevisReject" type="button" class="vda-btn vda-danger">
+        <i class="fa-solid fa-xmark"></i>
+        Confirmer le rejet
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL MOTIF DU REFUS -->
+<div id="vdaRejectModal" class="vda-reject-modal">
+  <div class="vda-reject-box">
+    <div class="vda-reject-head">
+      <div>
+        <strong><i class="fa-solid fa-circle-xmark"></i> Refuser la demande</strong>
+        <small id="rejectNumero">—</small>
+      </div>
+      <button id="closeRejectModal" type="button">×</button>
+    </div>
+
+    <div class="vda-reject-body">
+      <label class="vda-reject-label">
+        Motif du refus <span>*</span>
+      </label>
+
+      <select id="rejectReason" class="vda-reject-select">
+        <option value="">Sélectionner un motif...</option>
+        <option>Besoin non justifié</option>
+        <option>Quantité demandée trop élevée</option>
+        <option>Quantité non conforme au besoin</option>
+        <option>Article déjà disponible en stock</option>
+        <option>Stock suffisant</option>
+        <option>Demande déjà traitée</option>
+        <option>Demande en double</option>
+        <option>Article non nécessaire</option>
+        <option>Article non conforme au besoin</option>
+        <option>Mauvaise référence article</option>
+        <option>Informations insuffisantes</option>
+        <option>Motif de la demande non justifié</option>
+        <option>Demande hors procédure</option>
+        <option>Budget non disponible</option>
+        <option>Dépense non autorisée</option>
+        <option>Priorité non justifiée</option>
+        <option>Demande à reporter</option>
+        <option>Demande à modifier</option>
+        <option>Validation du responsable non obtenue</option>
+        <option>Autre</option>
+      </select>
+
+      <div id="rejectOtherWrap" style="display:none">
+        <label class="vda-reject-label">
+          Précisez le motif <span>*</span>
+        </label>
+        <textarea id="rejectOther" class="vda-reject-textarea"
+          placeholder="Précisez le motif du refus..."></textarea>
+      </div>
+    </div>
+
+    <div class="vda-reject-footer">
+      <button id="cancelReject" type="button" class="vda-btn vda-light">Annuler</button>
+      <button id="confirmReject" type="button" class="vda-btn vda-danger">
+        <i class="fa-solid fa-xmark"></i> Confirmer le refus
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+
+.vda-page{
+  padding:24px 28px 40px;
+  color:#17212b;
+}
+
+.vda-head,
+.vda-card,
+.vda-stat{
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:16px;
+  box-shadow:0 5px 22px #1018280b;
+}
+
+.vda-head{
+  min-height:76px;
+  padding:15px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:15px;
+}
+
+.vda-head h2{
+  margin:0;
+  font-size:17px;
+  font-weight:800;
+}
+
+.vda-head h2 i{
+  color:#008746;
+}
+
+.vda-head p{
+  margin:4px 0 0;
+  color:#7a867f;
+  font-size:10px;
+}
+
+.vda-actions{
+  display:flex;
+  gap:8px;
+}
+
+.vda-btn{
+  height:36px;
+  padding:0 13px;
+  border-radius:9px;
+  border:1px solid transparent;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+
+.vda-light{
+  background:#eef7f2;
+  color:#087f4e;
+  border-color:#d8ebdf;
+}
+
+.vda-primary{
+  background:#008746;
+  color:#fff;
+}
+
+.vda-danger{
+  background:#fff5f4;
+  color:#c9372c;
+  border-color:#f1d0cc;
+}
+
+.vda-print{
+  background:#f5f7f6;
+  color:#44524b;
+  border-color:#dce2de;
+}
+
+.vda-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.vda-stat{
+  padding:13px 16px;
+}
+
+.vda-stat span{
+  display:block;
+  color:#7b8780;
+  text-transform:uppercase;
+  font-size:8px;
+  font-weight:800;
+}
+
+.vda-stat strong{
+  display:block;
+  color:#008746;
+  font-size:22px;
+  line-height:1.2;
+  margin-top:4px;
+}
+
+.vda-stat small{
+  color:#98a29d;
+  font-size:9px;
+}
+
+.vda-layout{
+  display:grid;
+  grid-template-columns:430px minmax(0,1fr);
+  gap:15px;
+  align-items:stretch;
+}
+
+.vda-card{
+  min-width:0;
+  overflow:hidden;
+}
+
+.vda-list-card{
+  min-height:600px;
+}
+
+.vda-detail-card{
+  min-height:600px;
+}
+
+.vda-card-head{
+  padding:15px 17px;
+  border-bottom:1px solid #edf0ee;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.vda-card-head h3{
+  margin:0;
+  font-size:13px;
+}
+
+.vda-card-head h3 i{
+  color:#008746;
+}
+
+.vda-card-head small{
+  display:block;
+  margin-top:4px;
+  color:#8a9690;
+  font-size:9px;
+}
+
+.vda-select{
+  height:34px;
+  border:1px solid #dce2de;
+  border-radius:8px;
+  background:#fff;
+  padding:0 8px;
+  font-size:10px;
+}
+
+.vda-search{
+  margin:12px;
+  height:36px;
+  border:1px solid #dce2de;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  color:#98a29d;
+}
+
+.vda-search input{
+  width:100%;
+  border:0;
+  outline:0;
+  padding-left:8px;
+  font-size:10px;
+}
+
+.vda-list{
+  max-height:480px;
+  overflow:auto;
+}
+
+.vda-item{
+  padding:12px 14px;
+  border-top:1px solid #eef1ef;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.vda-item:hover{
+  background:#f6faf8;
+}
+
+.vda-item.active{
+  background:#eef8f3;
+  border-left:3px solid #008746;
+  padding-left:11px;
+}
+
+.vda-item-top{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.vda-num{
+  color:#087f4e;
+  font-size:11px;
+  font-weight:800;
+}
+
+.vda-item-date{
+  color:#98a29d;
+  font-size:8px;
+}
+
+.vda-item-main{
+  margin-top:7px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px 10px;
+}
+
+.vda-item-main span{
+  display:block;
+  color:#9aa49f;
+  font-size:7px;
+  text-transform:uppercase;
+}
+
+.vda-item-main b{
+  display:block;
+  margin-top:2px;
+  font-size:9px;
+  color:#344139;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.vda-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:20px;
+  padding:5px 9px;
+  font-size:8px;
+  font-weight:800;
+  background:#eef1ef;
+  color:#66736c;
+}
+
+.vda-badge.soumise{
+  background:#fff4d9;
+  color:#9a6500;
+}
+
+.vda-badge.validee{
+  background:#eaf8f0;
+  color:#087f4e;
+}
+
+.vda-badge.rejetee{
+  background:#fff0ef;
+  color:#c9372c;
+}
+
+.vda-badge.brouillon{
+  background:#f1f3f2;
+  color:#66736c;
+}
+
+.vda-empty{
+  min-height:600px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#98a29d;
+  text-align:center;
+}
+
+.vda-empty i{
+  font-size:32px;
+  color:#b9c4be;
+  margin-bottom:10px;
+}
+
+.vda-empty b{
+  color:#65716b;
+  font-size:12px;
+}
+
+.vda-empty span{
+  margin-top:4px;
+  font-size:9px;
+}
+
+.vda-detail-head{
+  padding:17px 19px;
+  border-bottom:1px solid #edf0ee;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.vda-detail-number{
+  color:#008746;
+  font-size:18px;
+  font-weight:900;
+}
+
+.vda-detail-date{
+  color:#8a9690;
+  font-size:9px;
+  margin-top:4px;
+}
+
+.vda-info-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  margin:0 17px;
+  border:1px solid #e1e6e3;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:15px;
+}
+
+.vda-info-grid div{
+  padding:10px;
+  border-right:1px solid #e1e6e3;
+}
+
+.vda-info-grid div:last-child{
+  border-right:0;
+}
+
+.vda-info-grid span{
+  display:block;
+  font-size:7px;
+  color:#89958f;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.vda-info-grid b{
+  display:block;
+  margin-top:4px;
+  font-size:10px;
+  color:#344139;
+  word-break:break-word;
+}
+
+.vda-section-title{
+  margin:18px 17px 0;
+  padding-bottom:8px;
+  border-bottom:1px solid #e6eae8;
+  color:#087f4e;
+  font-size:11px;
+  font-weight:800;
+}
+
+.vda-section-title i{
+  margin-right:6px;
+}
+
+.vda-section-title span{
+  float:right;
+  color:#98a29d;
+  font-size:8px;
+  font-weight:600;
+}
+
+.vda-table-wrap{
+  margin:0 17px;
+  overflow:auto;
+}
+
+.vda-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:620px;
+}
+
+.vda-table th{
+  background:#f7f9f8;
+  color:#7a867f;
+  font-size:7px;
+  text-transform:uppercase;
+  text-align:left;
+  padding:9px;
+  border-bottom:1px solid #e4e8e6;
+}
+
+.vda-table td{
+  padding:9px;
+  font-size:9px;
+  border-bottom:1px solid #edf0ee;
+}
+
+.vda-table tfoot td{
+  background:#f0f7f3;
+  font-weight:800;
+}
+
+.vda-total{
+  color:#008746;
+  text-align:right;
+}
+
+.vda-motif-box{
+  margin:15px 17px;
+  padding:10px 12px;
+  background:#f8faf9;
+  border:1px solid #e2e7e4;
+  border-radius:9px;
+}
+
+.vda-motif-box span{
+  color:#7c8882;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.vda-motif-box p{
+  margin:5px 0 0;
+  font-size:9px;
+  color:#344139;
+}
+
+.vda-footer-actions{
+  padding:13px 17px;
+  border-top:1px solid #edf0ee;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.vda-decision-actions{
+  display:flex;
+  gap:8px;
+}
+
+.vda-loading{
+  padding:50px;
+  text-align:center;
+  color:#98a29d;
+  font-size:10px;
+}
+
+.vda-loading i{
+  display:block;
+  margin-bottom:8px;
+  color:#008746;
+}
+
+.vda-toast{
+  display:none;
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  z-index:99999;
+  padding:12px 15px;
+  border-radius:9px;
+  background:#087f4e;
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  box-shadow:0 8px 25px #0002;
+}
+
+
+
+/* ================= ENVOI AU FOURNISSEUR ================= */
+
+#btnSendSupplier{
+  background:#087f4f;
+  border-color:#087f4f;
+  color:#fff;
+}
+
+#btnSendSupplier:hover{
+  background:#076f44;
+}
+
+
+
+/* ================= DEVIS REÇU ================= */
+
+.vda-devis-received{
+  margin:15px 17px 0;
+}
+
+.vda-devis-received-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid #e1e6e3;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.vda-devis-received-grid>div{
+  padding:9px 10px;
+  border-right:1px solid #e1e6e3;
+  border-bottom:1px solid #e1e6e3;
+  min-width:0;
+}
+
+.vda-devis-received-grid>div:nth-child(4n){
+  border-right:0;
+}
+
+.vda-devis-received-grid>div.wide{
+  grid-column:1/-1;
+  border-right:0;
+}
+
+.vda-devis-received-grid span{
+  display:block;
+  color:#89958f;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.vda-devis-received-grid b{
+  display:block;
+  margin-top:4px;
+  color:#344139;
+  font-size:9px;
+  word-break:break-word;
+}
+
+@media(max-width:900px){
+  .vda-devis-received-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .vda-devis-received-grid>div:nth-child(4n){
+    border-right:1px solid #e1e6e3;
+  }
+
+  .vda-devis-received-grid>div:nth-child(2n){
+    border-right:0;
+  }
+}
+
+
+#btnValidateDevis{
+  background:#087f4f;
+  border-color:#087f4f;
+  color:#fff;
+}
+
+#btnRejectDevis{
+  background:#c9372c;
+  border-color:#c9372c;
+  color:#fff;
+}
+
+/* ================= RECEPTION DEVIS ================= */
+
+.vda-devis-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100002;
+  background:#10182866;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.vda-devis-box{
+  width:min(760px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:16px;
+  box-shadow:0 20px 60px #0003;
+}
+
+.vda-devis-head{
+  padding:15px 17px;
+  border-bottom:1px solid #edf0ee;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.vda-devis-head strong{
+  display:block;
+  color:#087f4f;
+  font-size:13px;
+}
+
+.vda-devis-head small{
+  display:block;
+  margin-top:4px;
+  color:#8a9690;
+  font-size:9px;
+}
+
+.vda-devis-head button{
+  width:31px;
+  height:31px;
+  border:0;
+  border-radius:8px;
+  background:#f5f7f6;
+  color:#66736c;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.vda-devis-body{
+  padding:17px;
+}
+
+.vda-devis-info{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.vda-devis-info>div{
+  border:1px solid #e2e8e4;
+  border-radius:9px;
+  padding:9px 10px;
+  background:#f8faf9;
+}
+
+.vda-devis-info span{
+  display:block;
+  color:#8a9690;
+  font-size:8px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.vda-devis-info strong{
+  display:block;
+  color:#087f4f;
+  font-size:11px;
+  margin-top:3px;
+}
+
+.vda-devis-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.vda-devis-grid label{
+  font-size:9px;
+  font-weight:800;
+  color:#59665f;
+  text-transform:uppercase;
+}
+
+.vda-devis-grid label.wide{
+  grid-column:1/-1;
+}
+
+.vda-devis-grid input,
+.vda-devis-grid textarea{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  margin-top:6px;
+  border:1px solid #dce2de;
+  border-radius:9px;
+  background:#fff;
+  color:#344139;
+  font:11px inherit;
+  outline:0;
+  padding:9px 10px;
+}
+
+.vda-devis-grid input{
+  height:39px;
+}
+
+.vda-devis-grid textarea{
+  resize:vertical;
+}
+
+.vda-devis-grid input:focus,
+.vda-devis-grid textarea:focus{
+  border-color:#82c7a5;
+  box-shadow:0 0 0 3px #00874612;
+}
+
+.vda-file-help{
+  display:block;
+  margin-top:5px;
+  color:#8a9690;
+  font-size:8px;
+  font-weight:400;
+  text-transform:none;
+}
+
+.vda-devis-warning{
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px solid #d7e9df;
+  border-radius:9px;
+  background:#f3faf6;
+  color:#4d685a;
+  font-size:9px;
+}
+
+.vda-devis-warning i{
+  color:#087f4f;
+  margin-right:5px;
+}
+
+.vda-devis-footer{
+  padding:12px 17px;
+  border-top:1px solid #edf0ee;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  background:#fff;
+  position:sticky;
+  bottom:0;
+  z-index:2;
+}
+
+.vda-devis-footer #cancelDevis{
+  min-width:90px;
+  background:#f5f7f6;
+  color:#44524b;
+  border-color:#dce2de;
+}
+
+.vda-devis-footer #cancelDevis:hover{
+  background:#eef1ef;
+}
+
+@media(max-width:650px){
+  .vda-devis-grid{
+    grid-template-columns:1fr;
+  }
+
+  .vda-devis-grid label.wide{
+    grid-column:auto;
+  }
+
+  .vda-devis-info{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ================= MOTIF REFUS ================= */
+.vda-reject-modal{
+  display:none;position:fixed;inset:0;z-index:100000;
+  background:#10182866;align-items:center;justify-content:center;padding:20px;
+}
+.vda-reject-box{
+  width:min(500px,100%);background:#fff;border:1px solid #e4e7ec;
+  border-radius:16px;box-shadow:0 20px 60px #0003;overflow:hidden;
+}
+.vda-reject-head{
+  padding:15px 17px;border-bottom:1px solid #edf0ee;
+  display:flex;justify-content:space-between;align-items:center;gap:15px;
+}
+.vda-reject-head strong{display:block;color:#c9372c;font-size:13px}
+.vda-reject-head small{display:block;margin-top:4px;color:#8a9690;font-size:9px}
+.vda-reject-head button{
+  width:31px;height:31px;border:0;border-radius:8px;
+  background:#f5f7f6;color:#66736c;font-size:20px;cursor:pointer;
+}
+.vda-reject-body{padding:17px}
+.vda-reject-label{
+  display:block;margin-bottom:6px;color:#59665f;
+  font-size:9px;font-weight:800;text-transform:uppercase;
+}
+.vda-reject-label span{color:#c9372c}
+.vda-reject-select,.vda-reject-textarea{
+  width:100%;box-sizing:border-box;border:1px solid #dce2de;
+  border-radius:9px;background:#fff;color:#344139;font:11px inherit;outline:0;
+}
+.vda-reject-select{height:40px;padding:0 10px}
+.vda-reject-textarea{padding:10px;resize:vertical;min-height:85px}
+.vda-reject-select:focus,.vda-reject-textarea:focus{
+  border-color:#d76a61;box-shadow:0 0 0 3px #c9372c12;
+}
+#rejectOtherWrap{margin-top:14px}
+.vda-reject-footer{
+  padding:12px 17px;border-top:1px solid #edf0ee;
+  display:flex;justify-content:flex-end;gap:8px;
+}
+
+/* ================= PRINT ================= */
+
+#vdaPrintSheet{
+  display:none;
+}
+
+@page{
+  size:A4 landscape;
+  margin:10mm 11mm;
+}
+
+@media print{
+
+  body *{
+    visibility:hidden !important;
+  }
+
+  #vdaPrintSheet,
+  #vdaPrintSheet *{
+    visibility:visible !important;
+  }
+
+  #vdaPrintSheet{
+    display:block !important;
+    position:absolute;
+    inset:0;
+    background:#fff;
+    color:#17212b;
+  }
+
+}
+
+.vda-print-page{
+  width:100%;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:9px;
+}
+
+.vda-print-header{
+  display:grid;
+  grid-template-columns:1fr 1.5fr 1fr;
+  align-items:center;
+  gap:15px;
+  border-bottom:2px solid #087f4e;
+  padding-bottom:9px;
+  margin-bottom:12px;
+}
+
+.vda-print-brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.vda-print-logo{
+  width:30px;
+  height:30px;
+  border-radius:7px;
+  background:#087f4e;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:900;
+}
+
+.vda-print-brand strong{
+  display:block;
+  color:#087f4e;
+  font-size:13px;
+}
+
+.vda-print-brand small{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+}
+
+.vda-print-title{
+  text-align:center;
+}
+
+.vda-print-title h1{
+  margin:0;
+  font-size:19px;
+}
+
+.vda-print-title span{
+  color:#7d8983;
+  font-size:8px;
+}
+
+.vda-print-meta{
+  text-align:right;
+  font-size:8px;
+}
+
+.vda-print-meta b,
+.vda-print-meta span{
+  display:block;
+  margin:2px 0;
+}
+
+.vda-print-meta em{
+  font-style:normal;
+  color:#087f4e;
+  font-weight:800;
+}
+
+.vda-print-info{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+
+.vda-print-info div{
+  padding:7px 8px;
+  border-right:1px solid #e1e6e3;
+}
+
+.vda-print-info div:last-child{
+  border-right:0;
+}
+
+.vda-print-info span{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+  text-transform:uppercase;
+}
+
+.vda-print-info b{
+  display:block;
+  margin-top:3px;
+  font-size:9px;
+}
+
+.vda-print-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.vda-print-table th,
+.vda-print-table td{
+  border:1px solid #cfd8d3;
+  padding:7px 8px;
+  font-size:8.5px;
+}
+
+.vda-print-table th{
+  background:#eaf4ef;
+  color:#344139;
+  text-transform:uppercase;
+  font-size:7px;
+}
+
+.vda-print-table tfoot td{
+  background:#f1f7f4;
+  font-weight:800;
+}
+
+.vda-print-devis-title{
+  margin-top:12px;
+  margin-bottom:5px;
+  color:#087f4e;
+  font-size:9px;
+  font-weight:900;
+  border-bottom:1px solid #087f4e;
+  padding-bottom:4px;
+}
+
+.vda-print-devis-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-bottom:7px;
+}
+
+.vda-print-devis-table th,
+.vda-print-devis-table td{
+  border:1px solid #cfd8d3;
+  padding:5px 6px;
+  font-size:7px;
+}
+
+.vda-print-devis-table th{
+  background:#eaf4ef;
+  color:#344139;
+  text-transform:uppercase;
+  font-size:6.5px;
+}
+
+.vda-print-devis-table tr.selected-devis td{
+  background:#e8f7ee;
+  font-weight:900;
+}
+
+.vda-print-devis-table .choice-mark{
+  color:#087f4e;
+  font-size:10px;
+  font-weight:900;
+  text-align:center;
+}
+
+.vda-print-selected{
+  margin:5px 0 10px;
+  border:1px solid #9ed3b4;
+  background:#f0faf4;
+  border-radius:5px;
+  padding:6px 8px;
+  color:#087f4e;
+  font-size:7.5px;
+  font-weight:900;
+}
+
+.vda-print-note{
+  margin-top:12px;
+  border:1px solid #d7e7df;
+  background:#f7fbf9;
+  border-radius:5px;
+  padding:8px;
+  font-size:8px;
+}
+
+.vda-signatures{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:15px;
+}
+
+.vda-signatures div{
+  height:105px;
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  padding:8px;
+  position:relative;
+}
+
+.vda-signatures b{
+  display:block;
+  font-size:9px;
+}
+
+.vda-signatures span{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+  margin-top:2px;
+}
+
+.vda-signatures i{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:28px;
+  border-bottom:1px solid #66736c;
+}
+
+.vda-signatures small{
+  position:absolute;
+  left:8px;
+  bottom:8px;
+  color:#98a29d;
+  font-size:7px;
+}
+
+@media(max-width:1100px){
+
+  .vda-layout{
+    grid-template-columns:1fr;
+  }
+
+  .vda-stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .vda-info-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+
+/* ===== MULTI FOURNISSEURS / COMPARAISON ===== */
+.vda-supplier-box{width:min(760px,100%)}
+.supplier-toolbar{display:flex;gap:8px;align-items:center}.supplier-search{flex:1;margin:0}
+.supplier-choice-list{max-height:430px;overflow:auto;border:1px solid #e1e6e3;border-radius:10px;margin-top:10px}
+.supplier-choice{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid #edf0ee;cursor:pointer}.supplier-choice:last-child{border-bottom:0}.supplier-choice input{width:17px;height:17px;accent-color:#087f4e}.supplier-choice-main{flex:1}.supplier-choice-main b{display:block;font-size:10px;color:#344139}.supplier-choice-main span{font-size:8px;color:#8a9690}.supplier-choice-delai{font-size:8px;color:#087f4e;font-weight:800}
+.vda-devis-large{width:min(1000px,100%)}.vda-input{display:block;width:100%;box-sizing:border-box;margin-top:6px;border:1px solid #dce2de;border-radius:9px;background:#fff;color:#344139;font:11px Arial,sans-serif;outline:0;padding:9px 10px}.vda-devis-grid select.vda-input{height:39px}.vda-wide-label{display:block;margin-top:12px;font-size:9px;font-weight:800;color:#59665f;text-transform:uppercase}.price-table{min-width:900px}.price-table td.devis-product-value{color:#17212b!important;font-weight:700!important}.price-table td.devis-product-designation{font-weight:700!important}.price-input{width:90px!important;height:31px!important;padding:5px 7px!important;margin:0!important}.devis-total-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.devis-total-grid>div{border:1px solid #e2e8e4;border-radius:9px;padding:9px;background:#f8faf9}.devis-total-grid span{display:block;color:#8a9690;font-size:7px;text-transform:uppercase}.devis-total-grid strong{display:block;margin-top:4px;font-size:11px;color:#344139}.devis-total-grid .total-strong{background:#edf8f1;border-color:#cde7d7}.devis-total-grid .total-strong strong{color:#087f4e;font-size:13px}
+.supplier-table td:last-child{white-space:nowrap}.supplier-actions{display:flex;align-items:center;gap:6px}.supplier-action,.supplier-cancel-action{height:28px;padding:0 9px;font-size:8px}.supplier-cancel-action{background:#fff5f4;color:#c9372c;border-color:#f1d0cc}.supplier-state{font-size:8px;font-weight:800}.state-wait{color:#9a6500}.state-received{color:#087f4e}.state-selected{color:#057642}.state-rejected{color:#c9372c}
+.vda-comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:10px 17px}.vda-compare-card{border:1px solid #dfe7e2;border-radius:11px;padding:11px;background:#fbfdfc}.vda-compare-card.selected{border:2px solid #008746;background:#f1faf5}.vda-compare-card>div{display:flex;justify-content:space-between;gap:8px}.vda-compare-card b{font-size:10px;color:#344139}.vda-compare-card strong{font-size:11px;color:#087f4e}.vda-compare-card span{display:block;margin-top:8px;font-size:8px;color:#8a9690}.vda-compare-card em{display:block;margin-top:8px;color:#087f4e;font-size:8px;font-style:normal;font-weight:900}
+.choose-devis-list{display:grid;gap:8px;margin-top:12px}.choose-devis-option{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #dfe7e2;border-radius:10px;cursor:pointer}.choose-devis-option:hover{background:#f6faf8}.choose-devis-option input{accent-color:#087f4e}.choose-devis-option div{flex:1}.choose-devis-option b{display:block;font-size:10px;color:#344139}.choose-devis-option span{display:block;margin-top:3px;font-size:8px;color:#8a9690}.choose-devis-option>strong{font-size:12px;color:#087f4e}
+@media(max-width:700px){.supplier-toolbar{flex-direction:column;align-items:stretch}.devis-total-grid{grid-template-columns:1fr 1fr}.vda-devis-grid{grid-template-columns:1fr}}
+
+</style>
+
+
+<script type="module">
+
+import supabase from "../assets/js/core/supabase.js";
+
+const VDA={
+  demandes:[],
+  selected:null,
+  details:[],
+  devis:[],
+  fournisseurs:[]
+};
+
+const $=id=>document.getElementById(id);
+
+const esc=value =>
+  String(value ?? '')
+    .replace(/[&<>"]/g, char => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;'
+    }[char]));
+
+
+function toast(message,type='ok'){
+
+  const el=$('vdaToast');
+
+  el.textContent=message;
+
+  el.style.background=
+    type==='error'
+      ? '#d92d20'
+      : type==='warn'
+        ? '#b77900'
+        : '#087f4e';
+
+  el.style.display='block';
+
+  clearTimeout(window.__vdaToast);
+
+  window.__vdaToast=setTimeout(
+    ()=>el.style.display='none',
+    3200
+  );
+}
+
+
+function formatDate(value){
+
+  if(!value)return '—';
+
+  try{
+    return new Date(value).toLocaleDateString(
+      'fr-FR'
+    );
+  }catch{
+    return value;
+  }
+}
+
+
+function money(value){
+
+  const n=Number(value);
+
+  return (Number.isFinite(n)?n:0).toLocaleString('fr-FR',{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+
+function statusLabel(status){
+
+  const map={
+    SOUMISE:'SOUMISE',
+    DEVIS_DEMANDE:'DEVIS DEMANDÉ',
+    DEVIS_RECU:'DEVIS REÇU',
+    DEVIS_VALIDE:'DEVIS VALIDÉ',
+    DEVIS_REJETE:'DEVIS REJETÉ',
+    ANNULE:'ANNULÉ',
+    VALIDEE:'VALIDÉE',
+    REJETEE:'REJETÉE',
+    BROUILLON:'BROUILLON'
+  };
+
+  return map[status]||status||'—';
+}
+
+
+function statusClass(status){
+
+  return String(status||'')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'');
+}
+
+
+/* =========================================================
+   CHARGEMENT
+========================================================= */
+
+async function loadDemandes(){
+
+  $('vdaList').innerHTML=`
+    <div class="vda-loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      Chargement des demandes...
+    </div>
+  `;
+
+  const {
+    data,
+    error
+  }=await supabase
+    .from('demandes_achat')
+    .select('*')
+    .order('created_at',{ascending:false});
+
+  if(error)
+    throw error;
+
+  VDA.demandes=data||[];
+
+  updateStats();
+
+  renderList();
+
+}
+
+
+async function loadDetails(id){
+
+  const {
+    data,
+    error
+  }=await supabase
+    .from('demandes_achat_details')
+    .select('*')
+    .eq('demande_achat_id',id)
+    .order('id');
+
+  if(error)
+    throw error;
+
+  VDA.details=data||[];
+
+  // Enrichir les lignes avec les informations de l'article.
+  // Certaines lignes de demandes_achat_details ne contiennent que article_id.
+  const articleIds=[...new Set(
+    VDA.details
+      .map(x=>x.article_id)
+      .filter(x=>x!==null && x!==undefined && x!=='')
+      .map(Number)
+      .filter(Number.isFinite)
+  )];
+
+  if(articleIds.length){
+    try{
+      const {data:articles,error:articlesError}=await supabase
+        .from('articles')
+        .select('*')
+        .in('id',articleIds);
+
+      if(!articlesError && Array.isArray(articles)){
+        const articleMap=new Map(articles.map(a=>[String(a.id),a]));
+
+        VDA.details=VDA.details.map(line=>{
+          const a=articleMap.get(String(line.article_id));
+          if(!a) return line;
+
+          return {
+            ...line,
+            article: line.article || a.article || a.code_article || a.code || a.reference || a.reference_article || a.code,
+            designation: line.designation || a.designation || a.designation_article || a.nom,
+            groupe: line.groupe || a.groupe || a.groupe_article || a.famille,
+            type_produit: line.type_produit || a.type_produit || a.type || a.categorie,
+            unite: line.unite || a.unite || a.unite_mesure || a.unit
+          };
+        });
+      }
+    }catch(articleLoadError){
+      console.warn('Informations article non enrichies:',articleLoadError);
+    }
+  }
+
+  renderDetail();
+
+}
+
+
+async function loadDevis(id){
+
+  const demandeId=Number(id);
+
+  if(!Number.isFinite(demandeId)){
+    VDA.devis=[];
+    renderSupplierRows();
+    return;
+  }
+
+  const {data,error}=await supabase
+    .from('devis_achat')
+    .select('*')
+    .eq('demande_achat_id',demandeId)
+    .order('created_at',{ascending:false});
+
+  if(error) throw error;
+
+  VDA.devis=Array.isArray(data)?data:[];
+
+  // On force l'affichage de la liste des fournisseurs juste après
+  // la lecture de la base, sans dépendre d'un ancien état du DOM.
+  renderSupplierRows();
+  renderComparison();
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(){
+  $('statSoumises').textContent=VDA.demandes.filter(x=>x.statut==='SOUMISE').length;
+  $('statUrgentes').textContent=VDA.devis?.length||0;
+  $('statValidees').textContent=VDA.devis?.filter(x=>x.statut==='RECU').length||0;
+  $('statRejetees').textContent=VDA.devis?.filter(x=>x.statut==='VALIDE').length||0;
+}
+
+
+/* =========================================================
+   LISTE
+========================================================= */
+
+function renderList(){
+
+  const filter=$('vdaStatusFilter').value;
+  const q=$('vdaSearch').value
+    .toLowerCase()
+    .trim();
+
+  let list=VDA.demandes;
+
+  if(filter!=='TOUTES'){
+
+    list=list.filter(
+      x=>x.statut===filter
+    );
+
+  }
+
+  if(q){
+
+    list=list.filter(x=>
+      String(x.numero_demande||'')
+        .toLowerCase()
+        .includes(q) ||
+
+      String(x.demandeur||'')
+        .toLowerCase()
+        .includes(q) ||
+
+      String(x.service||'')
+        .toLowerCase()
+        .includes(q)
+    );
+
+  }
+
+  if(!list.length){
+
+    $('vdaList').innerHTML=`
+      <div class="vda-empty" style="min-height:300px">
+        <i class="fa-solid fa-inbox"></i>
+        <b>Aucune demande</b>
+        <span>Aucune demande ne correspond aux critères.</span>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  $('vdaList').innerHTML=list.map(d=>`
+
+    <div
+      class="vda-item ${
+        VDA.selected?.id===d.id
+          ? 'active'
+          : ''
+      }"
+      data-id="${esc(d.id)}"
+    >
+
+      <div class="vda-item-top">
+
+        <span class="vda-num">
+          ${esc(d.numero_demande||'—')}
+        </span>
+
+        <span class="
+          vda-badge
+          ${statusClass(d.statut)}
+        ">
+          ${esc(statusLabel(d.statut))}
+        </span>
+
+      </div>
+
+
+      <div class="vda-item-date">
+        ${formatDate(d.date_demande)}
+      </div>
+
+
+      <div class="vda-item-main">
+
+        <div>
+          <span>Demandeur</span>
+          <b>${esc(d.demandeur||'—')}</b>
+        </div>
+
+        <div>
+          <span>Service</span>
+          <b>${esc(d.service||'—')}</b>
+        </div>
+
+        <div>
+          <span>Priorité</span>
+          <b>${esc(d.priorite||'—')}</b>
+        </div>
+
+        <div>
+          <span>Motif</span>
+          <b>${esc(d.motif||'—')}</b>
+        </div>
+
+      </div>
+
+    </div>
+
+  `).join('');
+
+}
+
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+function renderDetail(){
+
+  const d=VDA.selected;
+
+  if(!d){
+
+    $('vdaEmpty').style.display='flex';
+    $('vdaDetail').style.display='none';
+
+    return;
+  }
+
+  $('vdaEmpty').style.display='none';
+  $('vdaDetail').style.display='block';
+
+
+  $('detailNumero').textContent=
+    d.numero_demande||'—';
+
+  $('detailDate').textContent=
+    formatDate(d.date_demande);
+
+  $('detailDemandeur').textContent=
+    d.demandeur||'—';
+
+  $('detailService').textContent=
+    d.service||'—';
+
+  $('detailPriorite').textContent=
+    d.priorite||'—';
+
+  $('detailMotif').textContent=
+    d.motif||'—';
+
+  $('detailMotifFull').textContent=
+    d.statut==='REJETEE' && d.motif_refus
+      ? `Motif du refus : ${d.motif_refus}`
+      : (d.motif||'—');
+
+  const devis=Array.isArray(VDA.devis)?VDA.devis:[];
+
+  renderSupplierRows();
+  renderComparison();
+
+
+  const badge=$('detailStatus');
+
+  badge.textContent=
+    statusLabel(d.statut);
+
+  badge.className=
+    `vda-badge ${statusClass(d.statut)}`;
+
+
+  $('detailLinesCount').textContent=
+    `${VDA.details.length} ${
+      VDA.details.length>1
+        ? 'lignes'
+        : 'ligne'
+    }`;
+
+
+  $('detailLines').innerHTML=
+    VDA.details.length
+      ? VDA.details.map(l=>`
+
+        <tr>
+
+          <td>${esc(l.article||'—')}</td>
+
+          <td>${esc(l.designation||'—')}</td>
+
+          <td>${esc(l.groupe||'—')}</td>
+
+          <td>${esc(l.type_produit||'—')}</td>
+
+          <td style="text-align:right">
+            ${Number(l.quantite||0).toLocaleString(
+              'fr-FR',
+              {
+                minimumFractionDigits:3,
+                maximumFractionDigits:3
+              }
+            )}
+          </td>
+
+          <td>${esc(l.unite||'—')}</td>
+
+        </tr>
+
+      `).join('')
+      : `
+        <tr>
+          <td colspan="6" style="text-align:center">
+            Aucun article
+          </td>
+        </tr>
+      `;
+
+
+  const total=
+    VDA.details.reduce(
+      (sum,l)=>sum+(Number(l.quantite)||0),
+      0
+    );
+
+  const units=[
+    ...new Set(
+      VDA.details
+        .map(x=>x.unite)
+        .filter(Boolean)
+    )
+  ];
+
+
+  $('detailTotal').textContent=
+    total.toLocaleString(
+      'fr-FR',
+      {
+        minimumFractionDigits:3,
+        maximumFractionDigits:3
+      }
+    );
+
+  $('detailUnit').textContent=
+    units.length===1
+      ? units[0]
+      : '—';
+
+
+  const canDecide=
+    d.statut==='BROUILLON';
+
+  $('btnValidate').style.display=
+    canDecide
+      ? 'inline-flex'
+      : 'none';
+
+  $('btnReject').style.display=
+    canDecide
+      ? 'inline-flex'
+      : 'none';
+
+  const canSendSupplier=d.statut==='SOUMISE';
+  $('btnSendSupplier').style.display=canSendSupplier?'inline-flex':'none';
+
+  const canReceiveDevis=d.statut==='DEVIS_DEMANDE' || d.statut==='DEVIS_RECU';
+  $('btnReceiveDevis').style.display='none';
+
+  const canValidateDevis=d.statut==='DEVIS_RECU' && devis.some(x=>x.statut==='RECU');
+  $('btnValidateDevis').style.display=canValidateDevis?'inline-flex':'none';
+  $('btnRejectDevis').style.display='none';
+
+}
+
+
+/* =========================================================
+   SELECT DEMANDE
+========================================================= */
+
+$('vdaList').onclick=async e=>{
+
+  const item=
+    e.target.closest('[data-id]');
+
+  if(!item)return;
+
+  const id=item.dataset.id;
+
+  const d=
+    VDA.demandes.find(
+      x=>String(x.id)===String(id)
+    );
+
+  if(!d)return;
+
+  VDA.selected=d;
+
+  renderList();
+
+  try{
+
+    await loadDetails(id);
+    await loadDevis(id);
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error.message||
+      'Impossible de charger les détails.',
+      'error'
+    );
+
+  }
+
+};
+
+
+/* =========================================================
+   FILTRES
+========================================================= */
+
+$('vdaStatusFilter').onchange=
+  renderList;
+
+$('vdaSearch').oninput=
+  renderList;
+
+$('vdaRefresh').onclick=async()=>{
+
+  try{
+
+    await loadDemandes();
+
+    if(VDA.selected){
+      await loadDetails(VDA.selected.id);
+      await loadDevis(VDA.selected.id);
+    }
+
+    toast('Données actualisées.');
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error.message||
+      'Erreur de chargement.',
+      'error'
+    );
+
+  }
+
+};
+
+
+/* =========================================================
+   VALIDATION
+========================================================= */
+
+$('btnValidate').onclick=async()=>{
+
+  const d=VDA.selected;
+
+  if(!d)return;
+
+  if(d.statut!=='BROUILLON'){
+
+    toast(
+      'Cette demande n’est plus à traiter.',
+      'warn'
+    );
+
+    return;
+  }
+
+  const ok=confirm(
+    `Accepter la demande ${d.numero_demande} et la passer à SOUMISE ?`
+  );
+
+  if(!ok)return;
+
+
+  const btn=$('btnValidate');
+
+  btn.disabled=true;
+
+
+  try{
+
+    const {
+      error
+    }=await supabase
+      .from('demandes_achat')
+      .update({
+        statut:'SOUMISE'
+      })
+      .eq('id',d.id);
+
+
+    if(error)
+      throw error;
+
+
+    d.statut='SOUMISE';
+
+    toast(
+      'Demande acceptée : statut SOUMISE.'
+    );
+
+    updateStats();
+
+    renderList();
+
+    renderDetail();
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error.message||
+      'Erreur pendant la validation.',
+      'error'
+    );
+
+  }finally{
+
+    btn.disabled=false;
+
+  }
+
+};
+
+
+/* =========================================================
+   ENVOI AU FOURNISSEUR / CHOIX MULTIPLE
+========================================================= */
+
+let selectedSupplierIds=new Set();
+
+async function openSupplierModal(){
+  const d=VDA.selected;
+  if(!d||d.statut!=='SOUMISE') return;
+
+  const {data,error}=await supabase
+    .from('fournisseurs')
+    .select('id,code_fournisseur,nom,telephone,email,ville,pays,devise,delai_paiement,delai_livraison,actif')
+    .eq('actif',true)
+    .order('nom');
+
+  if(error){ toast(error.message||'Erreur fournisseurs.','error'); return; }
+
+  VDA.fournisseurs=data||[];
+  selectedSupplierIds=new Set();
+
+  $('supplierModalNumero').textContent=d.numero_demande||'—';
+  $('supplierDemandInfo').textContent=d.numero_demande||'—';
+  $('supplierSearch').value='';
+  renderSupplierChoices();
+  $('vdaSupplierModal').style.display='flex';
+}
+
+function renderSupplierChoices(){
+  const q=$('supplierSearch').value.toLowerCase().trim();
+  const list=VDA.fournisseurs.filter(f=>!q||String(f.nom||'').toLowerCase().includes(q)||String(f.code_fournisseur||'').toLowerCase().includes(q)||String(f.ville||'').toLowerCase().includes(q));
+
+  $('selectedSupplierCount').textContent=selectedSupplierIds.size;
+  $('supplierChoiceList').innerHTML=list.length?list.map(f=>`
+    <label class="supplier-choice">
+      <input type="checkbox" value="${esc(f.id)}" ${selectedSupplierIds.has(String(f.id))?'checked':''}>
+      <div class="supplier-choice-main"><b>${esc(f.nom)}</b><span>${esc(f.code_fournisseur)} · ${esc(f.ville||'')} · ${esc(f.telephone||'')}</span></div>
+      <div class="supplier-choice-delai">${f.delai_livraison!=null?esc(f.delai_livraison)+' jours':'—'}</div>
+    </label>`).join(''):'<div class="vda-loading">Aucun fournisseur trouvé.</div>';
+}
+
+$('supplierChoiceList').onclick=e=>{
+  if(!e.target.matches('input[type="checkbox"]')) return;
+  const id=String(e.target.value);
+  if(e.target.checked) selectedSupplierIds.add(id); else selectedSupplierIds.delete(id);
+  $('selectedSupplierCount').textContent=selectedSupplierIds.size;
+};
+$('supplierSearch').oninput=renderSupplierChoices;
+$('selectAllSuppliers').onclick=()=>{
+  const q=$('supplierSearch').value.toLowerCase().trim();
+  VDA.fournisseurs.filter(f=>!q||String(f.nom||'').toLowerCase().includes(q)||String(f.code_fournisseur||'').toLowerCase().includes(q)).forEach(f=>selectedSupplierIds.add(String(f.id)));
+  renderSupplierChoices();
+};
+
+function closeSupplierModal(){ $('vdaSupplierModal').style.display='none'; }
+$('closeSupplierModal').onclick=closeSupplierModal;
+$('cancelSupplier').onclick=closeSupplierModal;
+$('vdaSupplierModal').onclick=e=>{ if(e.target===$('vdaSupplierModal')) closeSupplierModal(); };
+
+$('btnSendSupplier').onclick=openSupplierModal;
+
+$('confirmSupplier').onclick=async()=>{
+  const d=VDA.selected;
+  if(!d||selectedSupplierIds.size===0){ toast('Sélectionnez au moins un fournisseur.','warn'); return; }
+  if(!confirm(`Envoyer une demande de devis à ${selectedSupplierIds.size} fournisseur(s) ?`)) return;
+
+  const btn=$('confirmSupplier'); btn.disabled=true;
+  try{
+    const rows=[...selectedSupplierIds].map(id=>{
+      const f=VDA.fournisseurs.find(x=>String(x.id)===id);
+      return {
+        demande_achat_id:d.id,
+        fournisseur_id:Number(f.id),
+        fournisseur_nom:f.nom,
+        numero_devis:null,
+        date_devis:null,
+        validite:null,
+        montant_ht:0,
+        remise:0,
+        tva:20,
+        montant_ttc:0,
+        delai_livraison:f.delai_livraison!=null?String(f.delai_livraison):null,
+        conditions_paiement:f.delai_paiement||null,
+        fichier_devis:null,
+        nom_fichier:null,
+        observations:null,
+        statut:'DEMANDE',
+        articles_devis:[]
+      };
+    });
+
+    const {error}=await supabase.from('devis_achat').insert(rows);
+    if(error) throw error;
+
+    const {error:statusError}=await supabase.from('demandes_achat').update({statut:'DEVIS_DEMANDE'}).eq('id',d.id);
+    if(statusError) throw statusError;
+
+    d.statut='DEVIS_DEMANDE';
+    closeSupplierModal();
+    await loadDevis(d.id);
+    toast(`${rows.length} demande(s) de devis enregistrée(s).`);
+    renderList(); renderDetail();
+  }catch(error){ console.error(error); toast(error.message||'Erreur lors de la demande de devis.','error'); }
+  finally{ btn.disabled=false; }
+};
+
+
+/* =========================================================
+   RECEPTION DU DEVIS
+========================================================= */
+
+let currentDevisId=null;
+
+async function openDevisModal(devisId){
+  const d=VDA.selected;
+  const devis=(Array.isArray(VDA.devis)?VDA.devis:[])
+    .find(x=>String(x.id)===String(devisId));
+
+  if(!d){
+    toast('Veuillez sélectionner une demande.','warn');
+    return;
+  }
+
+  if(!devis){
+    toast('Le devis de ce fournisseur est introuvable.','error');
+    return;
+  }
+
+  if(devis.statut!=='DEMANDE' && devis.statut!=='RECU'){
+    toast('Ce devis ne peut plus être réceptionné.','warn');
+    return;
+  }
+
+  currentDevisId=devis.id;
+
+  // Ouvrir immédiatement le formulaire : le clic sur Réceptionner
+  // doit toujours donner un retour visuel, même pendant le chargement.
+  $('devisNumero').textContent=d.numero_demande||'—';
+  $('devisDemandInfo').textContent=d.numero_demande||'—';
+  $('devisSupplierInfo').textContent=devis.fournisseur_nom||'—';
+  $('devisFournisseur').innerHTML=`<option value="${esc(devis.fournisseur_id)}">${esc(devis.fournisseur_nom)}</option>`;
+  $('devisFournisseur').value=String(devis.fournisseur_id);
+  $('devisNumeroInput').value=devis.numero_devis||'';
+  $('devisDate').value=devis.date_devis||new Date().toISOString().slice(0,10);
+  $('devisValidite').value=devis.validite||'';
+  $('devisDelai').value=devis.delai_livraison||'';
+  $('devisPaiement').value=devis.conditions_paiement||'';
+  $('devisFichier').value='';
+  $('devisObservations').value=devis.observations||'';
+  $('devisArticlesRows').innerHTML=`<tr><td colspan="8" style="text-align:center;padding:25px">Chargement des articles...</td></tr>`;
+  $('vdaDevisModal').style.display='flex';
+
+  try{
+    // Toujours recharger les détails de la demande afin d'éviter
+    // d'utiliser une ancienne liste ou une liste vide lors du changement de fournisseur.
+    await loadDetails(d.id);
+
+    renderDevisArticleRows(devis.articles_devis||[]);
+
+  }catch(error){
+    console.error(error);
+    $('devisArticlesRows').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#c9372c;padding:25px">Impossible de charger les articles.</td></tr>`;
+    toast(error.message||'Impossible de charger les articles de la demande.','error');
+  }
+}
+
+function closeDevisModal(){ $('vdaDevisModal').style.display='none'; currentDevisId=null; }
+$('closeDevisModal').onclick=closeDevisModal;
+$('cancelDevis').onclick=closeDevisModal;
+$('vdaDevisModal').onclick=e=>{ if(e.target===$('vdaDevisModal')) closeDevisModal(); };
+
+function renderDevisArticleRows(saved){
+  const savedMap=new Map((Array.isArray(saved)?saved:[]).map(x=>[String(x.article_id??x.article??x.code??''),x]));
+  const details=Array.isArray(VDA.details)?VDA.details:[];
+
+  $('devisArticlesRows').innerHTML=details.length?details.map((l,i)=>{
+    const article=l.article ?? l.code_article ?? l.code ?? l.reference ?? l.reference_article ?? l.article_id ?? '—';
+    const designation=l.designation ?? l.designation_article ?? l.nom ?? '—';
+    const quantite=Number(l.quantite ?? l.qte ?? l.quantite_demandee ?? 0);
+    const unite=l.unite ?? l.unite_mesure ?? l.unit ?? '—';
+    const key=String(l.article_id ?? l.article ?? l.code_article ?? l.code ?? i);
+    const old=savedMap.get(key)||{};
+
+    return `<tr data-price-row="${esc(key)}">
+      <td class="devis-product-value">${esc(article)}</td>
+      <td class="devis-product-value devis-product-designation">${esc(designation)}</td>
+      <td class="devis-product-value" style="text-align:right">${quantite.toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3})}</td>
+      <td class="devis-product-value">${esc(unite)}</td>
+      <td><input class="price-input vda-input" data-f="prix_unitaire" type="number" min="0" step="0.001" value="${esc(old.prix_unitaire??'')}"></td>
+      <td><input class="price-input vda-input" data-f="remise" type="number" min="0" step="0.001" value="${esc(old.remise??0)}"></td>
+      <td><input class="price-input vda-input" data-f="tva" type="number" min="0" step="0.01" value="${esc(old.tva??20)}"></td>
+      <td class="line-ht" style="text-align:right;font-weight:800;color:#087f4e">0,00</td>
+    </tr>`;
+  }).join(''):`<tr><td colspan="8" style="text-align:center">Aucun article.</td></tr>`;
+
+  recalcDevis();
+}
+
+function recalcDevis(){
+  let ht=0,remise=0,tva=0,ttc=0;
+  [...$('devisArticlesRows').querySelectorAll('[data-price-row]')].forEach((row,i)=>{
+    const l=VDA.details[i]; if(!l) return;
+    const q=Number(l.quantite||0), p=Number(row.querySelector('[data-f="prix_unitaire"]').value||0), r=Number(row.querySelector('[data-f="remise"]').value||0), tv=Number(row.querySelector('[data-f="tva"]').value||0);
+    const brut=q*p, ra=brut*r/100, lineHt=Math.max(0,brut-ra), ta=lineHt*tv/100;
+    ht+=lineHt; remise+=ra; tva+=ta; ttc+=lineHt+ta;
+    row.querySelector('.line-ht').textContent=money(lineHt);
+  });
+  $('devisHTAuto').textContent=money(ht)+' MAD';
+  $('devisRemiseAuto').textContent=money(remise)+' MAD';
+  $('devisTVAAuto').textContent=money(tva)+' MAD';
+  $('devisTTCAuto').textContent=money(ttc)+' MAD';
+}
+$('devisArticlesRows').oninput=recalcDevis;
+
+function collectDevisArticles(){
+  return [...$('devisArticlesRows').querySelectorAll('[data-price-row]')].map((row,i)=>{
+    const l=VDA.details[i];
+    const q=Number(l.quantite||0), p=Number(row.querySelector('[data-f="prix_unitaire"]').value||0), r=Number(row.querySelector('[data-f="remise"]').value||0), tv=Number(row.querySelector('[data-f="tva"]').value||0);
+    const brut=q*p, rem=brut*r/100, h=Math.max(0,brut-rem), ta=h*tv/100;
+    return {article_id:l.article_id??null,article:l.article??null,designation:l.designation??null,groupe:l.groupe??null,type_produit:l.type_produit??null,quantite:q,unite:l.unite??null,prix_unitaire:p,remise:r,tva:tv,montant_ht:Number(h.toFixed(2)),montant_ttc:Number((h+ta).toFixed(2))};
+  });
+}
+
+$('supplierRows').onclick=async e=>{
+  const receiveBtn=e.target.closest('button[data-receive]');
+  const cancelBtn=e.target.closest('button[data-cancel]');
+
+  if(receiveBtn){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const devisId=receiveBtn.getAttribute('data-receive');
+    if(!devisId){
+      toast('Identifiant du devis introuvable.','error');
+      return;
+    }
+
+    receiveBtn.disabled=true;
+    try{
+      await openDevisModal(devisId);
+    }catch(error){
+      console.error(error);
+      toast(error.message||'Impossible d’ouvrir le formulaire du devis.','error');
+    }finally{
+      receiveBtn.disabled=false;
+    }
+    return;
+  }
+
+  if(cancelBtn){
+    e.preventDefault();
+    e.stopPropagation();
+    openSupplierCancelModal(cancelBtn.getAttribute('data-cancel'));
+  }
+};
+
+// Sécurité supplémentaire : si le conteneur est rerendu, le clic
+// sur Réceptionner reste fonctionnel grâce à la délégation document.
+document.addEventListener('click', async e=>{
+  const btn=e.target.closest('button[data-receive]');
+  if(!btn || !document.body.contains(btn)) return;
+  if(btn.closest('#supplierRows')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const id=btn.getAttribute('data-receive');
+  if(id) await openDevisModal(id);
+}, true);
+
+let currentSupplierCancelId=null;
+
+function openSupplierCancelModal(devisId){
+  const d=VDA.selected;
+  const devis=(Array.isArray(VDA.devis)?VDA.devis:[]).find(x=>String(x.id)===String(devisId));
+
+  if(!d||!devis) return;
+
+  // Annulation autorisée uniquement pour un devis encore en attente.
+  if(devis.statut!=='DEMANDE'){
+    toast('Ce fournisseur n’est plus en attente. L’annulation n’est plus possible.','warn');
+    return;
+  }
+
+  currentSupplierCancelId=devis.id;
+  $('supplierCancelNumero').textContent=d.numero_demande||'—';
+  $('supplierCancelName').textContent=devis.fournisseur_nom||'—';
+  $('supplierCancelReason').value='';
+  $('supplierCancelOther').value='';
+  $('supplierCancelOtherWrap').style.display='none';
+  $('vdaSupplierCancelModal').style.display='flex';
+
+  setTimeout(()=>$('supplierCancelReason').focus(),50);
+}
+
+function closeSupplierCancelModal(){
+  $('vdaSupplierCancelModal').style.display='none';
+  currentSupplierCancelId=null;
+}
+
+$('closeSupplierCancelModal').onclick=closeSupplierCancelModal;
+$('cancelSupplierCancel').onclick=closeSupplierCancelModal;
+$('vdaSupplierCancelModal').onclick=e=>{
+  if(e.target===$('vdaSupplierCancelModal')) closeSupplierCancelModal();
+};
+
+$('supplierCancelReason').onchange=()=>{
+  const other=$('supplierCancelReason').value==='Autre';
+  $('supplierCancelOtherWrap').style.display=other?'block':'none';
+  if(other) $('supplierCancelOther').focus();
+  else $('supplierCancelOther').value='';
+};
+
+$('confirmSupplierCancel').onclick=async()=>{
+  const d=VDA.selected;
+  const devis=(Array.isArray(VDA.devis)?VDA.devis:[]).find(x=>String(x.id)===String(currentSupplierCancelId));
+
+  if(!d||!devis) return;
+
+  if(devis.statut!=='DEMANDE'){
+    toast('Ce fournisseur n’est plus en attente. L’annulation n’est plus possible.','warn');
+    closeSupplierCancelModal();
+    return;
+  }
+
+  const reason=$('supplierCancelReason').value;
+
+  if(!reason){
+    toast('Veuillez sélectionner un motif de l’annulation.','warn');
+    $('supplierCancelReason').focus();
+    return;
+  }
+
+  let finalReason=reason;
+
+  if(reason==='Autre'){
+    const detail=$('supplierCancelOther').value.trim();
+    if(!detail){
+      toast('Veuillez préciser le motif de l’annulation.','warn');
+      $('supplierCancelOther').focus();
+      return;
+    }
+    finalReason=`Autre — ${detail}`;
+  }
+
+  if(!confirm(`Annuler la demande de devis auprès de ${devis.fournisseur_nom} ?\n\nMotif : ${finalReason}`)) return;
+
+  const btn=$('confirmSupplierCancel');
+  btn.disabled=true;
+
+  try{
+    const previous=devis.observations?`${devis.observations}\n`:'';
+    const {error}=await supabase
+      .from('devis_achat')
+      .update({
+        statut:'ANNULE',
+        observations:`${previous}Demande de devis annulée : ${finalReason}`,
+        updated_at:new Date().toISOString()
+      })
+      .eq('id',devis.id)
+      .eq('statut','DEMANDE');
+
+    if(error) throw error;
+
+    devis.statut='ANNULE';
+    devis.observations=`${previous}Demande de devis annulée : ${finalReason}`;
+
+    closeSupplierCancelModal();
+    renderSupplierRows();
+    renderComparison();
+    toast(`Demande de devis annulée pour ${devis.fournisseur_nom}.`,'warn');
+
+  }catch(error){
+    console.error(error);
+    toast(error.message||'Erreur lors de l’annulation de la demande de devis.','error');
+  }finally{
+    btn.disabled=false;
+  }
+};
+
+$('btnReceiveDevis').onclick=async()=>{
+  const first=(Array.isArray(VDA.devis)?VDA.devis:[])
+    .find(x=>x.statut==='DEMANDE'||x.statut==='RECU');
+  if(first) await openDevisModal(first.id);
+  else toast('Aucun devis à réceptionner.','warn');
+};
+
+$('confirmDevis').onclick=async()=>{
+  const d=VDA.selected, devis=VDA.devis.find(x=>String(x.id)===String(currentDevisId));
+  if(!d||!devis) return;
+  const numero=$('devisNumeroInput').value.trim(), date=$('devisDate').value, articles=collectDevisArticles();
+  if(!numero){toast('Le N° de devis est obligatoire.','warn');return;}
+  if(!date){toast('La date du devis est obligatoire.','warn');return;}
+  if(!articles.length){toast('Aucun article.','warn');return;}
+  const missing=articles.find(x=>x.prix_unitaire<=0);
+  if(missing){toast(`Le prix de ${missing.article||missing.designation||'l’article'} est obligatoire.`,'warn');return;}
+  if(!confirm(`Confirmer la réception du devis ${numero} de ${devis.fournisseur_nom} ?`)) return;
+  const btn=$('confirmDevis'); btn.disabled=true;
+  try{
+    /*
+       IMPORTANT : devis_achat.tva est NUMERIC(5,2) et représente le TAUX TVA,
+       pas le montant de TVA. Le montant de TVA total peut dépasser 999,99
+       (ex. 3 000,00) et provoquer un numeric field overflow.
+       On conserve donc le taux TVA dans la colonne tva et les montants détaillés
+       restent dans articles_devis / montant_ht / montant_ttc.
+    */
+    const totalHT=articles.reduce((s,x)=>s+(Number(x.montant_ht)||0),0);
+    const totalTTC=articles.reduce((s,x)=>s+(Number(x.montant_ttc)||0),0);
+    const totalRemise=articles.reduce((s,x)=>s+((Number(x.quantite)||0)*(Number(x.prix_unitaire)||0)*(Number(x.remise)||0)/100),0);
+
+    /* Taux TVA pondéré par le montant HT. La colonne tva reste un taux, ex. 20.00 */
+    const baseTVA=articles.reduce((s,x)=>s+(Number(x.montant_ht)||0),0);
+    const tvaRate=baseTVA>0
+      ? articles.reduce((s,x)=>s+(Number(x.montant_ht)||0)*(Number(x.tva)||0),0)/baseTVA
+      : 0;
+
+    const safeHT=Number(totalHT.toFixed(2));
+    const safeTTC=Number(totalTTC.toFixed(2));
+    const safeRemise=Number(totalRemise.toFixed(2));
+    const safeTVARate=Number(tvaRate.toFixed(2));
+
+    if(!Number.isFinite(safeHT)||!Number.isFinite(safeTTC)||!Number.isFinite(safeRemise)||!Number.isFinite(safeTVARate)){
+      toast('Montant invalide. Vérifiez les prix, remises et TVA.','error');
+      return;
+    }
+
+    if(safeTVARate>999.99){
+      toast('Le taux de TVA ne peut pas dépasser 999,99 %.','error');
+      return;
+    }
+
+    const file=$('devisFichier').files?.[0]||null;
+    const payload={
+      fournisseur_id:Number(devis.fournisseur_id),
+      fournisseur_nom:devis.fournisseur_nom,
+      numero_devis:numero,
+      date_devis:date,
+      validite:$('devisValidite').value.trim()||null,
+      montant_ht:safeHT,
+      remise:safeRemise,
+      tva:safeTVARate,
+      montant_ttc:safeTTC,
+      delai_livraison:$('devisDelai').value.trim()||null,
+      conditions_paiement:$('devisPaiement').value.trim()||null,
+      nom_fichier:file?.name||null,
+      observations:$('devisObservations').value.trim()||null,
+      statut:'RECU',
+      articles_devis:articles
+    };
+    const {error}=await supabase.from('devis_achat').update(payload).eq('id',devis.id);
+    if(error) throw error;
+    closeDevisModal();
+    await loadDevis(d.id);
+    if(d.statut==='DEVIS_DEMANDE'){
+      const {error:e}=await supabase.from('demandes_achat').update({statut:'DEVIS_RECU'}).eq('id',d.id);
+      if(e) throw e;
+      d.statut='DEVIS_RECU';
+    }
+    toast(`Devis de ${devis.fournisseur_nom} enregistré.`);
+    renderList();renderDetail();
+  }catch(error){console.error(error);toast(error.message||'Erreur réception devis.','error');}
+  finally{btn.disabled=false;}
+};
+
+/* =========================================================
+   VALIDATION DU DEVIS
+========================================================= */
+
+function renderSupplierRows(){
+  const rows=$('supplierRows');
+  const summary=$('supplierSummary');
+  if(!rows) return;
+
+  const list=Array.isArray(VDA.devis)?VDA.devis:[];
+
+  if(!list.length){
+    rows.innerHTML='<tr><td colspan="6" style="text-align:center;color:#98a29d;padding:18px">Aucun fournisseur consulté.</td></tr>';
+    if(summary) summary.textContent='0 fournisseur';
+    return;
+  }
+
+  const normalized=list.map(v=>({...v, _statut:String(v.statut||'').trim().toUpperCase()}));
+  const received=normalized.filter(x=>x._statut==='RECU'||x._statut==='VALIDE');
+  const waiting=normalized.filter(x=>x._statut==='DEMANDE');
+  const cancelled=normalized.filter(x=>x._statut==='ANNULE');
+
+  if(summary){
+    summary.textContent=`${normalized.length} consulté(s) · ${received.length} reçu(s) · ${waiting.length} en attente${cancelled.length?` · ${cancelled.length} annulé(s)`:''}`;
+  }
+
+  rows.innerHTML=normalized.map(v=>{
+    const state=
+      v._statut==='VALIDE'
+        ? '<span class="supplier-state state-selected">DEVIS VALIDÉ</span>'
+        : v._statut==='RECU'
+          ? '<span class="supplier-state state-received">DEVIS REÇU</span>'
+          : v._statut==='REJETE'
+            ? '<span class="supplier-state state-rejected">REJETÉ</span>'
+            : v._statut==='ANNULE'
+              ? '<span class="supplier-state state-rejected">ANNULÉ</span>'
+              : '<span class="supplier-state state-wait">EN ATTENTE</span>';
+
+    const action=
+      v._statut==='DEMANDE'
+        ? `<div class="supplier-actions">
+             <button type="button" class="vda-btn vda-light supplier-action" data-receive="${esc(v.id)}">
+               <i class="fa-solid fa-file-circle-check"></i> Réceptionner
+             </button>
+             <button type="button" class="vda-btn supplier-cancel-action" data-cancel="${esc(v.id)}">
+               <i class="fa-solid fa-ban"></i> Annuler
+             </button>
+           </div>`
+        : v._statut==='RECU'
+          ? `<button type="button" class="vda-btn vda-light supplier-action" data-receive="${esc(v.id)}"><i class="fa-solid fa-file-pen"></i> Modifier</button>`
+          : '—';
+
+    return `<tr>
+      <td><b>${esc(v.fournisseur_nom||'—')}</b></td>
+      <td>${esc(v.fournisseur_id||'—')}</td>
+      <td>${state}</td>
+      <td>${esc(v.numero_devis||'—')}</td>
+      <td style="text-align:right">${v._statut!=='DEMANDE'&&v._statut!=='ANNULE'?money(v.montant_ttc)+' MAD':'—'}</td>
+      <td>${action}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderComparison(){
+  const box=$('vdaComparisonBox');
+  if(!box) return;
+
+  const received=(Array.isArray(VDA.devis)?VDA.devis:[])
+    .filter(x=>x.statut==='RECU'||x.statut==='VALIDE');
+
+  if(!received.length){
+    box.style.display='none';
+    return;
+  }
+
+  box.style.display='block';
+  $('comparisonSummary').textContent=`${received.length} devis`;
+
+  $('vdaComparisonGrid').innerHTML=received.map(v=>{
+    const selected=v.statut==='VALIDE';
+    return `
+      <div class="vda-compare-card ${selected?'selected':''}">
+        <div class="compare-main-line">
+          <b>${esc(v.fournisseur_nom||'—')}</b>
+          <strong>${money(v.montant_ttc)} MAD TTC</strong>
+        </div>
+        <div class="compare-details">
+          <span><small>N° devis</small>${esc(v.numero_devis||'—')}</span>
+          <span><small>Date</small>${formatDate(v.date_devis)}</span>
+          <span><small>Montant HT</small>${money(v.montant_ht)} MAD</span>
+          <span><small>Remise</small>${money(v.remise)} MAD</span>
+          <span><small>TVA</small>${money(v.tva)} %</span>
+          <span><small>Livraison</small>${esc(v.delai_livraison||'—')}</span>
+        </div>
+        ${selected?'<em class="compare-selected-mark">✓ DEVIS RETENU</em>':''}
+      </div>`;
+  }).join('');
+}
+
+function openChooseDevisModal(){
+  const d=VDA.selected, received=VDA.devis.filter(x=>x.statut==='RECU');
+  if(!d||!received.length){toast('Aucun devis reçu à sélectionner.','warn');return;}
+  $('chooseDevisNumero').textContent=d.numero_demande||'—';
+  $('chooseDevisList').innerHTML=received.map(v=>`<label class="choose-devis-option"><input type="radio" name="vdaChosenDevis" value="${esc(v.id)}"><div><b>${esc(v.fournisseur_nom)}</b><span>Devis ${esc(v.numero_devis)} · ${formatDate(v.date_devis)} · ${esc(v.delai_livraison||'—')}</span></div><strong>${money(v.montant_ttc)} MAD TTC</strong></label>`).join('');
+  $('vdaChooseDevisModal').style.display='flex';
+}
+function closeChooseDevisModal(){ $('vdaChooseDevisModal').style.display='none'; }
+$('closeChooseDevisModal').onclick=closeChooseDevisModal;
+$('cancelChooseDevis').onclick=closeChooseDevisModal;
+$('vdaChooseDevisModal').onclick=e=>{if(e.target===$('vdaChooseDevisModal'))closeChooseDevisModal();};
+$('btnValidateDevis').onclick=openChooseDevisModal;
+$('confirmChooseDevis').onclick=async()=>{
+  const d=VDA.selected, radio=document.querySelector('input[name="vdaChosenDevis"]:checked');
+  if(!d||!radio){toast('Sélectionnez un seul devis.','warn');return;}
+  const chosen=VDA.devis.find(x=>String(x.id)===String(radio.value));
+  if(!chosen)return;
+  if(!confirm(`Confirmer ${chosen.fournisseur_nom} comme fournisseur retenu ?`))return;
+  const btn=$('confirmChooseDevis');btn.disabled=true;
+  try{
+    const {error:e1}=await supabase.from('devis_achat').update({statut:'RECU'}).eq('demande_achat_id',d.id).eq('statut','VALIDE');if(e1)throw e1;
+    const {error:e2}=await supabase.from('devis_achat').update({statut:'VALIDE'}).eq('id',chosen.id);if(e2)throw e2;
+    const {error:e3}=await supabase.from('demandes_achat').update({statut:'DEVIS_VALIDE'}).eq('id',d.id);if(e3)throw e3;
+    d.statut='DEVIS_VALIDE';closeChooseDevisModal();await loadDevis(d.id);renderList();renderDetail();toast(`Devis de ${chosen.fournisseur_nom} validé. Prêt pour le Bon d'achat.`);
+  }catch(error){console.error(error);toast(error.message||'Erreur validation devis.','error');}
+  finally{btn.disabled=false;}
+};
+
+/* =========================================================
+   REJET DU DEVIS
+========================================================= */
+
+function openDevisRejectModal(){
+
+  const d=VDA.selected;
+
+  if(!d)return;
+
+  if(d.statut!=='DEVIS_RECU'){
+
+    toast(
+      'La demande doit être en statut DEVIS REÇU.',
+      'warn'
+    );
+
+    return;
+  }
+
+  $('devisRejectNumero').textContent=
+    d.numero_demande||'—';
+
+  $('devisRejectReason').value='';
+  $('devisRejectOther').value='';
+  $('devisRejectOtherWrap').style.display='none';
+
+  $('vdaDevisRejectModal').style.display='flex';
+
+  setTimeout(
+    ()=>$('devisRejectReason').focus(),
+    50
+  );
+}
+
+function closeDevisRejectModal(){
+
+  $('vdaDevisRejectModal').style.display='none';
+}
+
+$('btnRejectDevis').onclick=
+  openDevisRejectModal;
+
+$('closeDevisRejectModal').onclick=
+  closeDevisRejectModal;
+
+$('cancelDevisReject').onclick=
+  closeDevisRejectModal;
+
+$('vdaDevisRejectModal').onclick=e=>{
+
+  if(e.target===$('vdaDevisRejectModal'))
+    closeDevisRejectModal();
+};
+
+$('devisRejectReason').onchange=()=>{
+
+  const other=
+    $('devisRejectReason').value==='Autre';
+
+  $('devisRejectOtherWrap').style.display=
+    other
+      ? 'block'
+      : 'none';
+
+  if(other)
+    $('devisRejectOther').focus();
+};
+
+$('confirmDevisReject').onclick=async()=>{
+
+  const d=VDA.selected;
+
+  if(!d)return;
+
+  const reason=
+    $('devisRejectReason').value;
+
+  if(!reason){
+
+    toast(
+      'Veuillez sélectionner un motif du rejet.',
+      'warn'
+    );
+
+    return;
+  }
+
+  let finalReason=reason;
+
+  if(reason==='Autre'){
+
+    const detail=
+      $('devisRejectOther').value.trim();
+
+    if(!detail){
+
+      toast(
+        'Veuillez préciser le motif du rejet.',
+        'warn'
+      );
+
+      $('devisRejectOther').focus();
+
+      return;
+    }
+
+    finalReason=`Autre — ${detail}`;
+  }
+
+  if(!confirm(
+    `Confirmer le rejet du devis de ${d.numero_demande} ?`
+  ))return;
+
+  const btn=$('confirmDevisReject');
+
+  btn.disabled=true;
+
+  try{
+
+    const devis=await getReceivedDevis(d);
+
+    if(!devis){
+
+      toast(
+        'Aucun devis reçu trouvé pour cette demande.',
+        'warn'
+      );
+
+      return;
+    }
+
+    const {
+      error:devisError
+    }=await supabase
+      .from('devis_achat')
+      .update({
+        statut:'REJETE',
+        observations:
+          `${devis.observations||''}\nMotif du rejet : ${finalReason}`.trim()
+      })
+      .eq('id',devis.id);
+
+    if(devisError)
+      throw devisError;
+
+    const {
+      error:demandeError
+    }=await supabase
+      .from('demandes_achat')
+      .update({
+        statut:'DEVIS_REJETE'
+      })
+      .eq('id',d.id);
+
+    if(demandeError)
+      throw demandeError;
+
+    d.statut='DEVIS_REJETE';
+
+    closeDevisRejectModal();
+
+    toast(
+      'Devis rejeté.',
+      'warn'
+    );
+
+    updateStats();
+
+    renderList();
+
+    renderDetail();
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error.message||
+      'Erreur pendant le rejet du devis.',
+      'error'
+    );
+
+  }finally{
+
+    btn.disabled=false;
+
+  }
+};
+
+/* =========================================================
+   REJET
+========================================================= */
+
+function openRejectModal(){
+
+  const d=VDA.selected;
+  if(!d)return;
+
+  if(d.statut!=='BROUILLON'){
+    toast('Cette demande n’est plus à traiter.','warn');
+    return;
+  }
+
+  $('rejectNumero').textContent=d.numero_demande||'—';
+  $('rejectReason').value='';
+  $('rejectOther').value='';
+  $('rejectOtherWrap').style.display='none';
+  $('vdaRejectModal').style.display='flex';
+
+  setTimeout(()=>$('rejectReason').focus(),50);
+}
+
+function closeRejectModal(){
+  $('vdaRejectModal').style.display='none';
+}
+
+$('btnReject').onclick=openRejectModal;
+$('closeRejectModal').onclick=closeRejectModal;
+$('cancelReject').onclick=closeRejectModal;
+
+$('vdaRejectModal').onclick=e=>{
+  if(e.target===$('vdaRejectModal')) closeRejectModal();
+};
+
+$('rejectReason').onchange=()=>{
+  const other=$('rejectReason').value==='Autre';
+  $('rejectOtherWrap').style.display=other?'block':'none';
+  if(other) $('rejectOther').focus();
+  else $('rejectOther').value='';
+};
+
+$('confirmReject').onclick=async()=>{
+
+  const d=VDA.selected;
+  if(!d)return;
+
+  const reason=$('rejectReason').value;
+
+  if(!reason){
+    toast('Veuillez sélectionner un motif du refus.','warn');
+    $('rejectReason').focus();
+    return;
+  }
+
+  let finalReason=reason;
+
+  if(reason==='Autre'){
+    const detail=$('rejectOther').value.trim();
+
+    if(!detail){
+      toast('Veuillez préciser le motif du refus.','warn');
+      $('rejectOther').focus();
+      return;
+    }
+
+    finalReason=`Autre — ${detail}`;
+  }
+
+  if(!confirm(`Confirmer le refus de la demande ${d.numero_demande} ?`))
+    return;
+
+  const btn=$('confirmReject');
+  btn.disabled=true;
+
+  try{
+
+    const {error}=await supabase
+      .from('demandes_achat')
+      .update({
+        statut:'REJETEE',
+        motif_refus:finalReason
+      })
+      .eq('id',d.id);
+
+    if(error)throw error;
+
+    d.statut='REJETEE';
+    d.motif_refus=finalReason;
+
+    closeRejectModal();
+    toast('Demande rejetée.','warn');
+    updateStats();
+    renderList();
+    renderDetail();
+
+  }catch(error){
+
+    console.error(error);
+    toast(error.message||'Erreur pendant le rejet.','error');
+
+  }finally{
+    btn.disabled=false;
+  }
+};
+
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+function preparePrint(){
+
+  const d=VDA.selected;
+
+  if(!d)return;
+
+  $('pNumero').textContent=d.numero_demande||'—';
+  $('pDate').textContent=formatDate(d.date_demande);
+  $('pStatus').textContent=statusLabel(d.statut);
+  $('pDemandeur').textContent=d.demandeur||'—';
+  $('pService').textContent=d.service||'—';
+  $('pPriorite').textContent=d.priorite||'—';
+  $('pMotif').textContent=d.motif||'—';
+
+  $('pLines').innerHTML=VDA.details.map(l=>`
+    <tr>
+      <td>${esc(l.article||'—')}</td>
+      <td>${esc(l.designation||'—')}</td>
+      <td>${esc(l.groupe||'—')}</td>
+      <td>${esc(l.type_produit||'—')}</td>
+      <td style="text-align:right">${Number(l.quantite||0).toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3})}</td>
+      <td>${esc(l.unite||'—')}</td>
+    </tr>`).join('');
+
+  const total=VDA.details.reduce((sum,l)=>sum+(Number(l.quantite)||0),0);
+  const units=[...new Set(VDA.details.map(x=>x.unite).filter(Boolean))];
+  $('pTotal').textContent=total.toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3});
+  $('pUnit').textContent=units.length===1?units[0]:'—';
+
+  // Les devis affichés sont uniquement ceux reçus ou validés.
+  // Le devis retenu est exclusivement celui dont le statut est VALIDE.
+  const devis=Array.isArray(VDA.devis)
+    ? VDA.devis.filter(v=>v && (v.statut==='RECU' || v.statut==='VALIDE'))
+    : [];
+
+  const rows=$('pDevisRows');
+  const selection=$('pDevisSelection');
+
+  if(rows){
+    if(!devis.length){
+      rows.innerHTML=`<tr><td colspan="10" style="text-align:center">Aucun devis reçu.</td></tr>`;
+    }else{
+      rows.innerHTML=devis.map(v=>{
+        const selected=(v.statut==='VALIDE');
+
+        return `<tr class="${selected?'selected-devis':''}">
+          <td class="choice-mark">${selected?'✓':'—'}</td>
+          <td>${esc(v.fournisseur_nom || '—')}</td>
+          <td>${esc(v.numero_devis || '—')}</td>
+          <td>${formatDate(v.date_devis)}</td>
+          <td style="text-align:right">${money(v.montant_ht)} MAD</td>
+          <td style="text-align:right">${money(v.remise)} MAD</td>
+          <td style="text-align:right">${money(v.tva)} %</td>
+          <td style="text-align:right;font-weight:900">${money(v.montant_ttc)} MAD</td>
+          <td>${esc(v.delai_livraison || '—')}</td>
+          <td>${selected ? 'DEVIS RETENU' : 'DEVIS REÇU'}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  const selectedDevis=devis.find(v=>v.statut==='VALIDE') || null;
+
+  if(selection){
+    selection.innerHTML=selectedDevis
+      ? `✓ <strong>DEVIS RETENU :</strong> ${esc(selectedDevis.fournisseur_nom || '—')} — Devis ${esc(selectedDevis.numero_devis || '—')} — <strong>${money(selectedDevis.montant_ttc)} MAD TTC</strong>`
+      : `Aucun devis n'est encore retenu. La sélection sera effectuée lors de la validation.`;
+  }
+
+  window.print();
+}
+
+$('btnPrint').onclick=
+  preparePrint;
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+(async()=>{
+
+  try{
+
+    await loadDemandes();
+
+  }catch(error){
+
+    console.error(error);
+
+    $('vdaList').innerHTML=`
+      <div class="vda-loading" style="color:#d92d20">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Erreur de chargement
+        <br>
+        <small>${esc(error.message||'Erreur inconnue')}</small>
+      </div>
+    `;
+
+    toast(
+      error.message||
+      'Erreur de chargement.',
+      'error'
+    );
+
+  }
+
+})();
+
+</script>

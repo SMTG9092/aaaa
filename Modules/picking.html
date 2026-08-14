@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picking - SMTG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", Arial, sans-serif;
+            background: #f4f7f5;
+            color: #101828;
+        }
+
+        button,
+        input {
+            font-family: inherit;
+        }
+
+        .products-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 18px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .products-header {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 16px;
+        }
+
+        .products-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .products-title-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #087f3e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .products-title h1 {
+            margin: 0;
+            font-size: 21px;
+            font-weight: 700;
+            color: #087f3e;
+        }
+
+        .products-title p {
+            margin: 4px 0 0;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-refresh {
+            background: #eef5f0;
+            color: #087f3e;
+        }
+
+        .btn-primary {
+            background: #087f3e;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #fee4e2;
+            color: #b42318;
+        }
+
+        .btn-secondary {
+            background: #eef2f6;
+            color: #344054;
+        }
+
+        /* =========================
+           KPI
+        ========================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 15px;
+            min-height: 92px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            color: #667085;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-icon {
+            width: 29px;
+            height: 29px;
+            border-radius: 9px;
+            background: #eaf7ef;
+            color: #087f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-value {
+            margin-top: 10px;
+            font-size: 21px;
+            font-weight: 700;
+            color: #101828;
+        }
+
+        .stat-subtitle {
+            margin-top: 4px;
+            font-size: 10px;
+            color: #667085;
+        }
+
+        /* =========================
+           TABLE CONTAINER
+        ========================= */
+
+        .products-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            padding: 13px 15px;
+            border-bottom: 1px solid #eaecf0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .search-box {
+            width: 370px;
+            max-width: 100%;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #98a2b3;
+            font-size: 13px;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 38px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            padding: 0 12px 0 34px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .search-box input:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, 0.08);
+        }
+
+        .result-count {
+            font-size: 11px;
+            color: #667085;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #f8faf9;
+            color: #475467;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #eaecf0;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f2f4;
+            font-size: 12px;
+            color: #344054;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #fafdfb;
+        }
+
+        .article-code {
+            font-weight: 700;
+            color: #087f3e;
+        }
+
+        .designation {
+            font-weight: 500;
+            color: #101828;
+        }
+
+        .dlc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: #eef5f0;
+            color: #087f3e;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .no-dlc {
+            background: #f2f4f7;
+            color: #667085;
+        }
+
+        .date-cell {
+            color: #667085;
+            font-size: 11px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-edit {
+            background: #eef4ff;
+            color: #175cd3;
+        }
+
+        .action-delete {
+            background: #fef3f2;
+            color: #d92d20;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+            color: #98a2b3;
+        }
+
+        .empty-state i {
+            font-size: 30px;
+            margin-bottom: 12px;
+            color: #98a2b3;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 5px;
+            font-size: 13px;
+            color: #667085;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 11px;
+        }
+
+        .loading-state {
+            padding: 50px;
+            text-align: center;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        .loading-state i {
+            margin-right: 7px;
+        }
+
+        .error-state {
+            padding: 45px 20px;
+            text-align: center;
+            color: #d92d20;
+        }
+
+        .error-state i {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .error-state strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .error-state span {
+            font-size: 11px;
+        }
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(16, 24, 40, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid #eaecf0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 16px;
+            color: #101828;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f2f4f7;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #667085;
+        }
+
+        .modal-body {
+            padding: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #344054;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 0 11px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .form-group input:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, 0.08);
+        }
+
+        .form-help {
+            margin-top: 5px;
+            color: #98a2b3;
+            font-size: 10px;
+        }
+
+        .modal-footer {
+            padding: 13px 18px;
+            border-top: 1px solid #eaecf0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        .toast-container {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            min-width: 280px;
+            max-width: 420px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+            display: flex;
+            gap: 9px;
+            align-items: flex-start;
+            animation: toastIn 0.25s ease;
+        }
+
+        .toast.success {
+            background: #087f3e;
+        }
+
+        .toast.error {
+            background: #d92d20;
+        }
+
+        .toast.warning {
+            background: #b54708;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1000px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .products-page {
+                padding: 10px;
+            }
+
+            .products-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+    
+        /* =========================
+           PAGINATION PRODUITS
+        ========================= */
+
+        .products-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 15px;
+            border-top: 1px solid #eaecf0;
+            background: #ffffff;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            font-size: 11px;
+            color: #667085;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 9px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #087f3e;
+            color: #087f3e;
+            background: #f4fbf6;
+        }
+
+        .pagination-btn.active {
+            background: #087f3e;
+            border-color: #087f3e;
+            color: #ffffff;
+        }
+
+        .pagination-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .pagination-ellipsis {
+            min-width: 24px;
+            text-align: center;
+            color: #98a2b3;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .pagination-size {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            color: #667085;
+        }
+
+        .pagination-size select {
+            height: 32px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #344054;
+            padding: 0 8px;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .pagination-size select:focus {
+            border-color: #087f3e;
+            box-shadow: 0 0 0 3px rgba(8, 127, 62, .08);
+        }
+
+        @media (max-width: 700px) {
+            .products-pagination {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pagination-info,
+            .pagination-controls,
+            .pagination-size {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+
+
+/* =========================================================
+   PICKING — même langage visuel que produits.html
+   ========================================================= */
+
+.picking-selection {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: auto minmax(220px, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 3px 12px rgba(15,23,42,.05);
+    margin-bottom: 16px;
+}
+
+.selection-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 230px;
+}
+
+.selection-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #eaf7ef;
+    color: #087f3e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selection-label strong {
+    display: block;
+    font-size: 12px;
+    color: #101828;
+}
+
+.selection-label span {
+    display: block;
+    margin-top: 3px;
+    font-size: 10px;
+    color: #667085;
+}
+
+.command-search {
+    position: relative;
+    max-width: 480px;
+    width: 100%;
+}
+
+.command-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #98a2b3;
+    font-size: 12px;
+}
+
+.command-search input {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #d0d5dd;
+    border-radius: 9px;
+    padding: 0 13px 0 34px;
+    outline: none;
+    color: #101828;
+    background: #fff;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.command-search input:focus {
+    border-color: #087f3e;
+    box-shadow: 0 0 0 3px rgba(8,127,62,.08);
+}
+
+.selection-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.btn-command {
+    min-height: 38px;
+    padding: 9px 12px;
+}
+
+.btn-success-soft {
+    background: #eaf7ef;
+    color: #087f3e;
+    border: 1px solid #d4eedf;
+}
+
+.btn-warning-soft {
+    background: #fff4e5;
+    color: #b54708;
+    border: 1px solid #fedf89;
+}
+
+.btn-info-soft {
+    background: #eef4ff;
+    color: #175cd3;
+    border: 1px solid #dbe7ff;
+}
+
+.btn-purple-soft {
+    background: #f4f0ff;
+    color: #6941c6;
+    border: 1px solid #e9d7fe;
+}
+
+.btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.picking-info-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr .65fr;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.info-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    padding: 13px 15px;
+    min-height: 78px;
+    box-shadow: 0 3px 12px rgba(15,23,42,.05);
+}
+
+.info-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.info-card-label {
+    color: #667085;
+    font-size: 9px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: .25px;
+}
+
+.info-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #eaf7ef;
+    color: #087f3e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-card-value {
+    margin-top: 9px;
+    color: #101828;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info-card-value.route {
+    color: #175cd3;
+}
+
+.info-card-value.status {
+    color: #b54708;
+}
+
+.info-card-value.status.ok {
+    color: #087f3e;
+}
+
+.info-card-value.status.locked {
+    color: #d92d20;
+}
+
+.info-card-value.count {
+    color: #087f3e;
+    font-size: 20px;
+}
+
+.picking-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 3px 12px rgba(15,23,42,.05);
+    overflow: hidden;
+}
+
+.picking-table-toolbar {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eaecf0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.picking-table-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #101828;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.picking-table-title i {
+    color: #087f3e;
+}
+
+.picking-table-count {
+    color: #667085;
+    font-size: 10px;
+}
+
+.picking-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.picking-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1080px;
+}
+
+.picking-table thead th {
+    background: #f8faf9;
+    color: #475467;
+    font-size: 9px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 12px 13px;
+    text-align: left;
+    border-bottom: 1px solid #eaecf0;
+    white-space: nowrap;
+}
+
+.picking-table tbody td {
+    padding: 11px 13px;
+    border-bottom: 1px solid #f0f2f4;
+    font-size: 11px;
+    color: #344054;
+    vertical-align: middle;
+}
+
+.picking-table tbody tr:hover {
+    background: #fafdfb !important;
+}
+
+.picking-table .poste-cell {
+    color: #b54708 !important;
+    font-weight: 700;
+}
+
+.picking-table .article-cell {
+    color: #087f3e !important;
+    font-weight: 700;
+}
+
+.picking-table .designation-cell {
+    color: #101828 !important;
+    font-weight: 500;
+}
+
+.picking-table .quantity-cell {
+    color: #101828 !important;
+    font-weight: 700;
+}
+
+.picking-table .prepared-cell {
+    color: #087f3e !important;
+    font-weight: 700;
+}
+
+.picking-table input {
+    height: 34px;
+    border: 1px solid #d0d5dd !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    color: #101828 !important;
+    outline: none;
+    font-family: inherit;
+    font-size: 11px;
+    padding: 0 9px;
+}
+
+.picking-table input:focus {
+    border-color: #087f3e !important;
+    box-shadow: 0 0 0 3px rgba(8,127,62,.08);
+}
+
+.picking-table .qte-saisie-input {
+    color: #087f3e !important;
+    font-weight: 700;
+    width: 110px;
+    text-align: center;
+}
+
+.picking-table button {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.picking-table button[title="Ajouter un lot"] {
+    background: #eaf7ef !important;
+    color: #087f3e !important;
+}
+
+.picking-table button[title="Supprimer"] {
+    background: #fef3f2 !important;
+    color: #d92d20 !important;
+}
+
+.picking-table button:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.picking-table .lot-dropdown,
+#pickingTableBody [id^="dropdown_lot_"] {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    margin: 0;
+    background: #ffffff !important;
+    border: 1px solid #d0d5dd !important;
+    border-radius: 10px;
+    box-shadow: 0 15px 35px rgba(15,23,42,.15);
+    max-height: 190px;
+    overflow-y: auto;
+    z-index: 9999;
+    text-align: left;
+}
+
+#pickingTableBody [id^="dropdown_lot_"] > div {
+    padding: 9px 10px !important;
+    color: #344054 !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #f0f2f4;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+#pickingTableBody [id^="dropdown_lot_"] > div:hover {
+    background: #f4fbf6 !important;
+    color: #087f3e !important;
+}
+
+.picking-table .relative { position: relative; }
+.hidden { display: none !important; }
+.text-center { text-align: center !important; }
+.p-12 { padding: 48px !important; }
+.text-slate-400 { color: #667085 !important; }
+.text-slate-500 { color: #98a2b3 !important; }
+.text-slate-200 { color: #101828 !important; }
+.text-rose-400 { color: #d92d20 !important; }
+.text-amber-400 { color: #b54708 !important; }
+.text-emerald-400 { color: #087f3e !important; }
+.text-sky-400 { color: #175cd3 !important; }
+.opacity-50 { opacity: .5 !important; }
+.opacity-40 { opacity: .4 !important; }
+.cursor-not-allowed { cursor: not-allowed !important; }
+.pointer-events-none { pointer-events: none !important; }
+
+.picking-empty {
+    padding: 55px 20px;
+    text-align: center;
+    color: #98a2b3;
+}
+
+.picking-empty i {
+    font-size: 30px;
+    color: #98a2b3;
+    margin-bottom: 12px;
+}
+
+.picking-empty strong {
+    display: block;
+    color: #667085;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.picking-empty span {
+    font-size: 11px;
+}
+
+.toast-container {
+    position: fixed;
+    top: 78px;
+    right: 22px;
+    z-index: 100000;
+    width: min(420px, calc(100vw - 44px));
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    pointer-events: none;
+}
+
+.toast {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 13px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 12px 35px rgba(15,23,42,.16);
+    color: #344054;
+    animation: pickingToastIn .25s ease;
+    pointer-events: auto;
+    overflow: hidden;
+}
+
+.toast.success { border-left: 4px solid #087f3e; }
+.toast.warning { border-left: 4px solid #b54708; }
+.toast.error { border-left: 4px solid #d92d20; }
+
+.toast-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+}
+
+.toast.success .toast-icon { background: #eaf7ef; color: #087f3e; }
+.toast.warning .toast-icon { background: #fff4e5; color: #b54708; }
+.toast.error .toast-icon { background: #fef3f2; color: #d92d20; }
+
+.toast-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding-right: 22px;
+}
+
+.toast-content strong {
+    font-size: 11px;
+    color: #101828;
+}
+
+.toast-content span {
+    font-size: 11px;
+    line-height: 1.45;
+    color: #667085;
+}
+
+.toast-close {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 24px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    color: #98a2b3;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.toast-close:hover {
+    background: #f2f4f7;
+    color: #344054;
+}
+
+.toast.hide {
+    animation: pickingToastOut .25s ease forwards;
+}
+
+@keyframes pickingToastIn {
+    from { opacity: 0; transform: translateX(18px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pickingToastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(18px); }
+}
+
+@media (max-width: 1200px) {
+    .picking-selection {
+        grid-template-columns: 1fr;
+    }
+    .selection-label {
+        min-width: 0;
+    }
+    .command-search {
+        max-width: none;
+    }
+    .selection-actions {
+        justify-content: flex-start;
+    }
+    .picking-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .picking-info-grid {
+        grid-template-columns: 1fr;
+    }
+    .selection-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+    }
+    .selection-actions .btn {
+        justify-content: center;
+    }
+}
+
+    </style>
+</head>
+<body>
+<div class="products-page">
+
+    <div class="products-header">
+        <div class="products-title">
+            <div class="products-title-icon">
+                <i class="fa-solid fa-dolly"></i>
+            </div>
+            <div>
+                <h1>Picking</h1>
+                <p>Préparation des commandes et affectation des lots</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button type="button" class="btn btn-success-soft" data-permission-action="Imprimer" onclick="exportPickingExcel()" title="Exporter le picking en Excel">
+                <i class="fa-solid fa-file-excel"></i>
+                Exporter Excel
+            </button>
+            <button type="button" class="btn btn-danger" data-permission-action="Imprimer" onclick="exportPickingPDF()" title="Exporter le picking en PDF">
+                <i class="fa-solid fa-file-pdf"></i>
+                Exporter PDF
+            </button>
+            <button type="button" class="btn btn-refresh" id="btnRefresh" title="Actualiser la commande">
+                <i class="fa-solid fa-rotate"></i>
+                Actualiser
+            </button>
+        </div>
+    </div>
+
+    <div class="picking-selection">
+        <div class="selection-label">
+            <div class="selection-icon">
+                <i class="fa-solid fa-barcode"></i>
+            </div>
+            <div>
+                <strong>Sélection de commande</strong>
+                <span>Entrez ou scannez le numéro de commande</span>
+            </div>
+        </div>
+
+        <div class="command-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="inputNumCommande" placeholder="N° de commande..." autocomplete="off">
+        </div>
+
+        <div class="selection-actions">
+            <button type="button" class="btn btn-primary btn-command" data-permission-action="Valider" onclick="chargerCommandePicking()">
+                <i class="fa-solid fa-arrow-right"></i>
+                Valider
+            </button>
+            <button type="button" class="btn btn-warning-soft btn-command" id="btnModifier" data-permission-action="Modifier" onclick="actionModifier()">
+                <i class="fa-solid fa-pen-to-square"></i>
+                Modifier
+            </button>
+            <button type="button" class="btn btn-info-soft btn-command" id="btnenregistrer" data-permission-action="enregistrer" onclick="actionenregistrer()">
+                <i class="fa-solid fa-floppy-disk"></i>
+                enregistrer
+            </button>
+            <button type="button" class="btn btn-purple-soft btn-command" id="btnValiderGlobal" data-permission-action="Valider" onclick="actionValiderGlobal()">
+                <i class="fa-solid fa-check-double"></i>
+                Valider Global
+            </button>
+        </div>
+    </div>
+
+    <div class="picking-info-grid">
+        <div class="info-card">
+            <div class="info-card-top">
+                <span class="info-card-label">Client / Réceptionnaire</span>
+                <span class="info-card-icon"><i class="fa-solid fa-user"></i></span>
+            </div>
+            <div class="info-card-value" id="infoClient">—</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-card-top">
+                <span class="info-card-label">Itinéraire</span>
+                <span class="info-card-icon"><i class="fa-solid fa-route"></i></span>
+            </div>
+            <div class="info-card-value route" id="infoItineraire">—</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-card-top">
+                <span class="info-card-label">Statut</span>
+                <span class="info-card-icon"><i class="fa-solid fa-circle-check"></i></span>
+            </div>
+            <div class="info-card-value status" id="infoStatut">—</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-card-top">
+                <span class="info-card-label">Postes</span>
+                <span class="info-card-icon"><i class="fa-solid fa-list"></i></span>
+            </div>
+            <div class="info-card-value count" id="tableCountBadge">0</div>
+        </div>
+    </div>
+
+    <div class="picking-container">
+        <div class="picking-table-toolbar">
+            <div class="picking-table-title">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Historique / préparation de la commande
+            </div>
+            <div class="picking-table-count" id="pickingTableTitleCount">0 poste</div>
+        </div>
+
+        <div class="picking-table-wrapper">
+            <table class="picking-table">
+                <thead>
+                    <tr>
+                        <th>Poste</th>
+                        <th>Article</th>
+                        <th>Désignation</th>
+                        <th style="text-align:right">Quantité commandée</th>
+                        <th style="text-align:right">Quantité préparée</th>
+                        <th style="text-align:center">Lot (recherche)</th>
+                        <th style="text-align:center">Qté prép. saisie</th>
+                        <th style="text-align:center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pickingTableBody">
+                    <tr>
+                        <td colspan="8">
+                            <div class="picking-empty">
+                                <i class="fa-solid fa-box-open"></i>
+                                <strong>Veuillez scanner ou saisir un numéro de commande</strong>
+                                <span>Les informations de picking apparaîtront automatiquement.</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    // Le script métier complet du picking original est conservé ci-dessous.
+</script>
+
+<script type="module">
+
+        /* =====================================================
+           PERMISSIONS
+           ===================================================== */
+
+        import {
+            canPageAction,
+            applyPageActionPermissions
+        } from "./assets/js/core/permissions-page.js";
+
+        const PICKING_PAGE = "log_picking";
+
+        async function ensurePickingPermission(action) {
+
+            if (!canPageAction(PICKING_PAGE, action)) {
+                notify(`Vous n'avez pas la permission : ${action}.`, "warning");
+                return false;
+            }
+
+            return true;
+        }
+
+        function refreshPickingPermissions() {
+            try {
+                applyPageActionPermissions(PICKING_PAGE);
+            } catch (error) {
+                console.error("[PICKING] Erreur application permissions :", error);
+            }
+        }
+
+        let supabase = null;
+
+        async function getSupabaseClient() {
+            if (supabase && typeof supabase.from === 'function') return supabase;
+
+            const existing = [
+                window.supabaseClient,
+                window.smtgSupabase,
+                window.SMTG?.supabase,
+                window.app?.supabase
+            ].find(client => client && typeof client.from === 'function');
+
+            if (existing) {
+                supabase = existing;
+                return supabase;
+            }
+
+            const moduleUrl = new URL('assets/js/core/supabase.js', document.baseURI).href;
+            const module = await import(moduleUrl);
+
+            if (!module?.default || typeof module.default.from !== 'function') {
+                throw new Error("Le Singleton Supabase n'a pas retourné un client valide.");
+            }
+
+            supabase = module.default;
+            window.supabaseClient = supabase;
+            window.smtgSupabase = supabase;
+            return supabase;
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icon = type === 'error'
+                ? 'fa-circle-exclamation'
+                : type === 'warning'
+                    ? 'fa-triangle-exclamation'
+                    : 'fa-circle-check';
+
+            const title = type === 'error'
+                ? 'Erreur'
+                : type === 'warning'
+                    ? 'Attention'
+                    : 'Opération réussie';
+
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid ${icon}"></i></div>
+                <div class="toast-content">
+                    <strong>${title}</strong>
+                    <span>${escapeToast(message)}</span>
+                </div>
+                <button type="button" class="toast-close" aria-label="Fermer">&times;</button>
+            `;
+
+            toast.querySelector('.toast-close')?.addEventListener('click', () => toast.remove());
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 250);
+            }, 4200);
+        }
+
+        function escapeToast(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function notify(message, type = null) {
+            if (!type) {
+                const text = String(message || '').toLowerCase();
+                if (
+                    text.includes('erreur') ||
+                    text.includes('aucune') ||
+                    text.includes('aucun ') ||
+                    text.includes('impossible') ||
+                    text.includes('interdite') ||
+                    text.includes('bloqué') ||
+                    text.includes('bloquée') ||
+                    text.includes('strictement')
+                ) {
+                    type = 'error';
+                } else if (
+                    text.includes('attention') ||
+                    text.includes('modification activé') ||
+                    text.includes('modification activée')
+                ) {
+                    type = 'warning';
+                } else {
+                    type = 'success';
+                }
+            }
+            showToast(message, type);
+        }
+
+        const inputCmd = document.getElementById('inputNumCommande');
+        let isOrderLocked = false;
+        let isOrderTerminated = false;
+        let isStrictlyForbidden = false; // Status EN_AB10 wla EXPEDIEE
+
+        inputCmd.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                chargerCommandePicking();
+            }
+        });
+
+        document.getElementById('btnRefresh')?.addEventListener('click', async () => {
+            if (!inputCmd.value.trim()) {
+                notify("Veuillez d'abord saisir ou scanner un numéro de commande.", "warning");
+                inputCmd.focus();
+                return;
+            }
+
+            const btn = document.getElementById('btnRefresh');
+            const old = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Actualisation...';
+
+            try {
+                await chargerCommandePicking();
+                notify("Les données de la commande ont été actualisées.", "success");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = old;
+            }
+        });
+
+        window.chargerCommandePicking = async function(options = {}) {
+
+            if (!await ensurePickingPermission("Valider")) {
+                return;
+            }
+            try {
+                await getSupabaseClient();
+            } catch (error) {
+                notify("Impossible d'initialiser Supabase : " + (error.message || "Erreur inconnue"), "error");
+                return;
+            }
+
+            const numCmd = inputCmd.value.trim();
+            if (!numCmd) {
+                notify("Veuillez entrer un numéro de commande.");
+                return;
+            }
+
+            const tbody = document.getElementById("pickingTableBody");
+            tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Vérification et chargement...</td></tr>`;
+
+            // 1. Njibo statut mn table 'suivi_commandes_lancer'
+            const { data: suiviData, error: errSuivi } = await supabase
+                .from('suivi_commandes_lancer')
+                .select('*')
+                .eq('document_vente', numCmd)
+                .maybeSingle();
+
+            if (errSuivi || !suiviData) {
+                notify("Aucune commande lancée trouvée avec le numéro : " + numCmd);
+                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-rose-400">Commande introuvable dans le suivi des lancements.</td></tr>`;
+                resetInfos();
+                return;
+            }
+
+            const statutSuivi = suiviData.statut;
+
+            if (statutSuivi === 'IMPORTEE') {
+                notify(`Erreur : La commande [${numCmd}] n'a pas encore été lancée !`);
+                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-amber-400">Cette commande doit être lancée d'abord.</td></tr>`;
+                resetInfos();
+                return;
+            }
+
+            if (statutSuivi === 'ANNULEE') {
+                notify(`Attention : Cette commande est annulée.`);
+                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-rose-400">Cette commande est fermée (ANNULEE).</td></tr>`;
+                resetInfos();
+                return;
+            }
+
+            // 2. Vérification wach EN_AB10 wla EXPEDIEE ( ممنوع التعديل نهائياً )
+            isStrictlyForbidden = (statutSuivi === 'EN_AB10' || statutSuivi === 'EXPEDIEE');
+
+            // 3. Njibo data d commandes_excel
+            const { data: dataCmd, error: errCmd } = await supabase
+                .from('commandes_excel')
+                .select('*')
+                .eq('document_vente', numCmd)
+                .order('"Poste"', { ascending: true });
+
+            if (errCmd || !dataCmd || dataCmd.length === 0) {
+                notify("Aucun article trouvé pour cette commande.");
+                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-rose-400">Articles introuvables.</td></tr>`;
+                resetInfos();
+                return;
+            }
+
+            const { data: existingPicking } = await supabase
+                .from('picking')
+                .select('*')
+                .eq('document_vente', numCmd)
+                .maybeSingle();
+
+            isOrderTerminated = (statutSuivi === 'PICKING_TERMINE');
+
+            // Une commande EN_PICKING doit toujours être directement exploitable.
+            // Après Enregistrer/Valider Global, l'ancienne commande peut avoir laissé
+            // est_valide=true dans le picking; le statut réel de suivi reste prioritaire
+            // pour permettre le traitement d'une nouvelle commande.
+            const commandeEnPicking = (statutSuivi === 'EN_PICKING' || statutSuivi === 'LANCEE');
+            isOrderLocked = isOrderTerminated || isStrictlyForbidden ||
+                (!commandeEnPicking && (existingPicking ? Boolean(existingPicking.est_valide) : false));
+
+            let existingDetailsMap = {};
+            if (existingPicking) {
+                const { data: detailsData } = await supabase
+                    .from('picking_details')
+                    .select('*')
+                    .eq('picking_id', existingPicking.id);
+
+                if (detailsData) {
+                    detailsData.forEach(d => {
+                        if (!existingDetailsMap[d.ligne_commande]) {
+                            existingDetailsMap[d.ligne_commande] = [];
+                        }
+                        existingDetailsMap[d.ligne_commande].push(d);
+                    });
+                }
+            }
+
+            // Ila kanet LANCEE w mazal matbdawsh, rddoha EN_PICKING (ila machi forbidden)
+            if (statutSuivi === 'LANCEE' && !isOrderLocked && !isStrictlyForbidden) {
+                const { data: authData } = await supabase.auth.getUser();
+                const userId = authData?.user?.id || null;
+                const nowIso = new Date().toISOString();
+
+                await supabase.from('commandes_excel')
+                    .update({ statut: 'EN_PICKING', updated_at: nowIso })
+                    .eq('document_vente', numCmd);
+
+                await supabase.from('suivi_commandes_lancer')
+                    .update({
+                        statut: 'EN_PICKING',
+                        picking_par: userId,
+                        date_debut_picking: nowIso,
+                        updated_at: nowIso
+                    })
+                    .eq('document_vente', numCmd);
+
+                suiviData.statut = 'EN_PICKING';
+            }
+
+            const premiereLigne = dataCmd[0];
+            document.getElementById('infoClient').textContent = suiviData.client || premiereLigne.nom_receptionnaire || 'Client Divers';
+            document.getElementById('infoItineraire').textContent = suiviData.itineraire || premiereLigne.itineraire || 'Non assigné';
+            const statusEl = document.getElementById('infoStatut');
+            statusEl.textContent = suiviData.statut || statutSuivi;
+            statusEl.className = 'info-card-value status' +
+                (isStrictlyForbidden ? ' locked' : (isOrderTerminated ? ' ok' : ''));
+            document.getElementById('tableCountBadge').textContent = `${dataCmd.length}`;
+            const titleCount = document.getElementById('pickingTableTitleCount');
+            if (titleCount) titleCount.textContent = `${dataCmd.length} ${dataCmd.length > 1 ? 'postes' : 'poste'}`;
+
+            window.selectedLotsData = {};
+            let html = "";
+
+            for (const row of dataCmd) {
+                const qteCmd = Number(row.quantite_commandee || 0);
+                const posteNum = row.Poste;
+                const detailsPoste = existingDetailsMap[posteNum] || [];
+                
+                if (detailsPoste.length === 0) {
+                    const qtePrepActuelle = row.quantite_preparee !== null ? Number(row.quantite_preparee) : 0;
+                    const uniqueId = `${posteNum}_${Math.random().toString(36).substr(2, 5)}`;
+
+                    html += `
+                        <tr class="hover:bg-slate-800/30 transition row-poste" data-poste="${posteNum}" data-qte-cmd="${qteCmd}" data-article="${row.article}">
+                            <td class="p-3.5 text-amber-400 font-bold">${posteNum}</td>
+                            <td class="p-3.5 text-sky-400">${row.article}</td>
+                            <td class="p-3.5 text-slate-200">${row.designation_article}</td>
+                            <td class="p-3.5 text-right font-bold text-slate-100" id="qte_cmd_${posteNum}">${qteCmd.toFixed(3)}</td>
+                            <td class="p-3.5 text-right font-bold text-emerald-400" id="qte_aff_${posteNum}">${qtePrepActuelle.toFixed(3)}</td>
+                            <td class="p-3.5 text-center relative">
+                                <div class="relative w-44 mx-auto">
+                                    <input type="text" id="input_lot_${uniqueId}" placeholder="Taper lot..." oninput="filtrerLots('${row.article}', this.value, '${uniqueId}')" class="bg-slate-950 border border-slate-700 text-slate-200 text-center px-2 py-1 rounded-lg text-xs w-full focus:outline-none focus:border-emerald-500 uppercase">
+                                    <div id="dropdown_lot_${uniqueId}" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto hidden z-50 divide-y divide-slate-800 text-left"></div>
+                                </div>
+                            </td>
+                            <td class="p-3.5 text-center">
+                                <input type="number" step="0.001" id="input_qte_${uniqueId}" placeholder="" oninput="verifierEtRecalculer('${numCmd}', ${posteNum}, '${uniqueId}')" class="qte-saisie-input bg-slate-950 border border-slate-700 text-emerald-400 font-bold text-center px-2 py-1 rounded-lg text-xs w-28 focus:outline-none focus:border-emerald-500" value="${qtePrepActuelle > 0 ? qtePrepActuelle : ''}">
+                                <div id="info_disp_${uniqueId}" class="text-[10px] text-slate-400 mt-1 font-mono"></div>
+                            </td>
+                            <td class="p-3.5 text-center">
+                                <button id="btn_add_${posteNum}" onclick="ajouterLigneSup(${posteNum}, '${row.article}', '${numCmd}')" data-permission-action="Ajouter" class="w-7 h-7 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg transition flex items-center justify-center mx-auto cursor-pointer" title="Ajouter un lot">+</button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    let totalPrepPoste = 0;
+                    detailsPoste.forEach(det => totalPrepPoste += Number(det.quantite_preparee));
+
+                    detailsPoste.forEach((det, idx) => {
+                        const uniqueId = `${posteNum}_${idx}_${Math.random().toString(36).substr(2, 5)}`;
+                        
+                        window.selectedLotsData[uniqueId] = {
+                            stock_id: det.stock_id,
+                            lot: det.lot,
+                            stock_disponible: 999999,
+                            magasin: det.magasin,
+                            emplacement: det.emplacement
+                        };
+
+                        const isFirst = (idx === 0);
+                        const rowClass = isFirst ? "row-poste" : "row-sup bg-slate-900/45 border-t border-slate-800/30";
+                        
+                        html += `
+                            <tr class="hover:bg-slate-800/30 transition ${rowClass}" data-poste="${posteNum}" data-qte-cmd="${qteCmd}" data-article="${row.article}">
+                                <td class="p-3.5 text-amber-400 font-bold">${posteNum} ${!isFirst ? '<span class="text-[9px] text-emerald-400">(Lot+)</span>' : ''}</td>
+                                <td class="p-3.5 text-sky-400">${row.article}</td>
+                                <td class="p-3.5 text-slate-200">${isFirst ? row.designation_article : '<span class="italic text-slate-400">Lot additionnel</span>'}</td>
+                                <td class="p-3.5 text-right font-bold text-slate-100" ${isFirst ? `id="qte_cmd_`+posteNum+`"` : ''}>${isFirst ? qteCmd.toFixed(3) : '-'}</td>
+                                <td class="p-3.5 text-right font-bold text-emerald-400" ${isFirst ? `id="qte_aff_`+posteNum+`"` : ''}>${isFirst ? totalPrepPoste.toFixed(3) : '-'}</td>
+                                <td class="p-3.5 text-center relative">
+                                    <div class="relative w-44 mx-auto">
+                                        <input type="text" id="input_lot_${uniqueId}" value="${det.lot}" placeholder="Taper lot..." oninput="filtrerLots('${row.article}', this.value, '${uniqueId}')" class="bg-slate-950 border border-slate-700 text-slate-200 text-center px-2 py-1 rounded-lg text-xs w-full focus:outline-none focus:border-emerald-500 uppercase">
+                                        <div id="dropdown_lot_${uniqueId}" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto hidden z-50 divide-y divide-slate-800 text-left"></div>
+                                    </div>
+                                </td>
+                                <td class="p-3.5 text-center">
+                                    <input type="number" step="0.001" id="input_qte_${uniqueId}" placeholder="" oninput="verifierEtRecalculer('${numCmd}', ${posteNum}, '${uniqueId}')" class="qte-saisie-input bg-slate-950 border border-slate-700 text-emerald-400 font-bold text-center px-2 py-1 rounded-lg text-xs w-28 focus:outline-none focus:border-emerald-500" value="${det.quantite_preparee}">
+                                    <div id="info_disp_${uniqueId}" class="text-[10px] text-slate-400 mt-1 font-mono"></div>
+                                </td>
+                                <td class="p-3.5 text-center">
+                                    ${isFirst ? 
+                                        `<button id="btn_add_${posteNum}" onclick="ajouterLigneSup(${posteNum}, '${row.article}', '${numCmd}')" class="w-7 h-7 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 text-white rounded-lg transition flex items-center justify-center mx-auto cursor-pointer" title="Ajouter un lot">+</button>` :
+                                        `<button data-permission-action="Supprimer" onclick="supprimerLigneSup(this, '${numCmd}', ${posteNum})" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg transition flex items-center justify-center mx-auto cursor-pointer" title="Supprimer">-</button>`
+                                    }
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
+            tbody.innerHTML = html;
+
+            // Les boutons dynamiques (Ajouter / Supprimer) doivent
+            // recevoir immédiatement les permissions de la page.
+            refreshPickingPermissions();
+
+            // Activation automatique des actions dès qu'une commande est chargée.
+            // Aucun clic supplémentaire sur Modifier n'est nécessaire.
+            activerActionsCommande();
+
+            // Ila kant EN_AB10, EXPEDIEE, wla PICKING_TERMINE -> N-bloqiwha
+            if (isStrictlyForbidden || isOrderTerminated) {
+                verrouillerInterfaceInterface(isStrictlyForbidden);
+            }
+        };
+
+        window.selectedLotsData = {};
+
+        window.filtrerLots = async function(articleCode, terme, uniqueId) {
+            if (isOrderLocked || isStrictlyForbidden) return;
+            const dropdown = document.getElementById(`dropdown_lot_${uniqueId}`);
+            
+            if (!terme || terme.trim() === "") {
+                dropdown.innerHTML = "";
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('stock')
+                .select('id, lot, magasin, emplacement, stock_disponible')
+                .eq('article', articleCode)
+                .ilike('lot', `%${terme}%`)
+                .gt('stock_disponible', 0)
+                .limit(10);
+
+            if (error || !data || data.length === 0) {
+                dropdown.innerHTML = `<div class="p-2.5 text-slate-500 text-center text-[11px] italic">Aucun lot trouvé</div>`;
+                dropdown.classList.remove('hidden');
+                return;
+            }
+
+            let html = "";
+            data.forEach(item => {
+                html += `
+                    <div onclick="selectionnerLot('${uniqueId}', '${item.lot}', ${item.stock_disponible}, ${item.id}, '${item.magasin || ''}', '${item.emplacement || ''}')" class="p-2 hover:bg-emerald-500/10 hover:text-emerald-400 cursor-pointer transition flex items-center justify-between text-[11px]">
+                        <span class="font-bold text-slate-200">${item.lot}</span>
+                        <span class="text-emerald-400 font-mono">Disp: ${Number(item.stock_disponible).toFixed(3)}</span>
+                    </div>
+                `;
+            });
+
+            dropdown.innerHTML = html;
+            dropdown.classList.remove('hidden');
+        };
+
+        window.selectionnerLot = function(uniqueId, lotValue, stockDisp, stockId, magasin, emplacement) {
+            if (isOrderLocked || isStrictlyForbidden) return;
+            const input = document.getElementById(`input_lot_${uniqueId}`);
+            if (input) input.value = lotValue;
+            
+            const dropdown = document.getElementById(`dropdown_lot_${uniqueId}`);
+            if (dropdown) dropdown.classList.add('hidden');
+
+            window.selectedLotsData[uniqueId] = {
+                stock_id: stockId,
+                lot: lotValue,
+                stock_disponible: Number(stockDisp),
+                magasin: magasin,
+                emplacement: emplacement
+            };
+
+            const qteInp = document.getElementById(`input_qte_${uniqueId}`);
+            if (qteInp) qteInp.dispatchEvent(new Event('input'));
+        };
+
+        window.verifierEtRecalculer = async function(documentVente, poste, uniqueId) {
+            if (isOrderLocked || isStrictlyForbidden) return;
+            const qteInp = document.getElementById(`input_qte_${uniqueId}`);
+            const infoDiv = document.getElementById(`info_disp_${uniqueId}`);
+            const saisieVal = Number(qteInp.value || 0);
+            const lotObj = window.selectedLotsData[uniqueId];
+            const stockDisp = lotObj ? lotObj.stock_disponible : undefined;
+
+            if (stockDisp !== undefined && stockDisp !== 999999 && saisieVal > stockDisp) {
+                infoDiv.innerHTML = `<span class="text-rose-400 font-bold animate-pulse">Max dispo : ${stockDisp.toFixed(3)}</span>`;
+                qteInp.classList.add('border-rose-500', 'text-rose-400');
+            } else {
+                infoDiv.innerHTML = "";
+                qteInp.classList.remove('border-rose-500', 'text-rose-400');
+            }
+
+            await recalculerTotalPoste(documentVente, poste);
+        };
+
+        window.ajouterLigneSup = async function(poste, article, numCmd) {
+
+            if (!await ensurePickingPermission("Ajouter")) {
+                return;
+            }
+
+            if (isOrderLocked || isStrictlyForbidden) return;
+            const trOriginal = document.querySelector(`tr.row-poste[data-poste="${poste}"]`);
+            if (!trOriginal) return;
+
+            const qteCmd = Number(trOriginal.getAttribute('data-qte-cmd') || 0);
+            const spanAffichage = document.getElementById(`qte_aff_${poste}`);
+            const qteActuelle = spanAffichage ? Number(spanAffichage.textContent) : 0;
+
+            if (qteActuelle >= qteCmd) {
+                notify("Impossible d'ajouter un lot : La quantité préparée a atteint ou dépassé la quantité commandée.");
+                return;
+            }
+
+            const uniqueId = `sup_${poste}_${Math.random().toString(36).substr(2, 5)}`;
+
+            const trSup = document.createElement('tr');
+            trSup.className = "hover:bg-slate-800/30 transition border-t border-slate-800/30 bg-slate-900/45 row-sup";
+            trSup.setAttribute('data-poste', poste);
+            trSup.innerHTML = `
+                <td class="p-3.5 text-amber-400/50 font-bold">${poste} <span class="text-[9px] text-emerald-400">(Lot+)</span></td>
+                <td class="p-3.5 text-sky-400/50">${article}</td>
+                <td class="p-3.5 text-slate-400 italic">Lot additionnel</td>
+                <td class="p-3.5 text-right text-slate-500">-</td>
+                <td class="p-3.5 text-right text-slate-500">-</td>
+                <td class="p-3.5 text-center relative">
+                    <div class="relative w-44 mx-auto">
+                        <input type="text" id="input_lot_${uniqueId}" placeholder="Taper lot..." oninput="filtrerLots('${article}', this.value, '${uniqueId}')" class="bg-slate-950 border border-slate-700 text-slate-200 text-center px-2 py-1 rounded-lg text-xs w-full focus:outline-none focus:border-emerald-500 uppercase">
+                        <div id="dropdown_lot_${uniqueId}" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto hidden z-50 divide-y divide-slate-800 text-left"></div>
+                    </div>
+                </td>
+                <td class="p-3.5 text-center">
+                    <input type="number" step="0.001" id="input_qte_${uniqueId}" placeholder="" oninput="verifierEtRecalculer('${numCmd}', ${poste}, '${uniqueId}')" class="qte-saisie-input bg-slate-950 border border-slate-700 text-emerald-400 font-bold text-center px-2 py-1 rounded-lg text-xs w-28 focus:outline-none focus:border-emerald-500">
+                    <div id="info_disp_${uniqueId}" class="text-[10px] text-slate-400 mt-1 font-mono"></div>
+                </td>
+                <td class="p-3.5 text-center">
+                    <button data-permission-action="Supprimer" onclick="supprimerLigneSup(this, '${numCmd}', ${poste})" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg transition flex items-center justify-center mx-auto cursor-pointer" title="Supprimer">-</button>
+                </td>
+            `;
+            
+            let lastRow = trOriginal;
+            let next = trOriginal.nextElementSibling;
+            while(next && next.classList.contains('row-sup') && next.getAttribute('data-poste') == poste) {
+                lastRow = next;
+                next = next.nextElementSibling;
+            }
+            lastRow.after(trSup);
+        };
+
+        window.supprimerLigneSup = async function(btn, numCmd, poste) {
+
+            if (!await ensurePickingPermission("Supprimer")) {
+                return;
+            }
+
+            if (isOrderLocked || isStrictlyForbidden) return;
+            const tr = btn.closest('tr');
+            tr.remove();
+            recalculerTotalPoste(numCmd, poste);
+        };
+
+        window.recalculerTotalPoste = async function(documentVente, poste) {
+            if (isOrderLocked || isStrictlyForbidden) return;
+            const trOriginal = document.querySelector(`tr.row-poste[data-poste="${poste}"]`);
+            const qteCmd = trOriginal ? Number(trOriginal.getAttribute('data-qte-cmd') || 0) : 0;
+
+            const inputs = document.querySelectorAll(`tr[data-poste="${poste}"] .qte-saisie-input`);
+            let total = 0;
+
+            inputs.forEach(inp => {
+                const val = Number(inp.value);
+                if (!isNaN(val) && inp.value !== "") total += val;
+            });
+
+            const spanAffichage = document.getElementById(`qte_aff_${poste}`);
+            if(spanAffichage) spanAffichage.textContent = total.toFixed(3);
+
+            const btnAdd = document.getElementById(`btn_add_${poste}`);
+            if (btnAdd) {
+                if (total >= qteCmd) {
+                    btnAdd.disabled = true;
+                    btnAdd.classList.add('opacity-40', 'cursor-not-allowed');
+                } else {
+                    btnAdd.disabled = false;
+                    btnAdd.classList.remove('opacity-40', 'cursor-not-allowed');
+                }
+            }
+
+            await supabase.from('commandes_excel')
+                .update({ quantite_preparee: total, updated_at: new Date().toISOString() })
+                .eq('document_vente', documentVente)
+                .eq('Poste', poste);
+        };
+
+        async function executerSauvegardeDonnees(numCmd) {
+            if (isStrictlyForbidden) {
+                notify("Action interdite : Cette commande est strictement verrouillée.");
+                return false;
+            }
+
+            const { data: authData } = await supabase.auth.getUser();
+            const userId = authData?.user?.id || null;
+
+            const { data: suiviData } = await supabase
+                .from('suivi_commandes_lancer')
+                .select('id')
+                .eq('document_vente', numCmd)
+                .single();
+
+            if (!suiviData) return null;
+            const suiviId = suiviData.id;
+            const clientNom = document.getElementById('infoClient').textContent;
+
+            const { data: oldPicking } = await supabase
+                .from('picking')
+                .select('id')
+                .eq('document_vente', numCmd)
+                .maybeSingle();
+
+            let oldDetailsMap = {};
+            if (oldPicking) {
+                const { data: oldDetails } = await supabase
+                    .from('picking_details')
+                    .select('stock_id, quantite_preparee')
+                    .eq('picking_id', oldPicking.id);
+                
+                if (oldDetails) {
+                    oldDetails.forEach(d => {
+                        // Une ligne à 0 sans lot peut avoir stock_id = NULL.
+                        // Elle ne doit jamais entrer dans le calcul des réservations.
+                        if (!d.stock_id) return;
+                        if (!oldDetailsMap[d.stock_id]) oldDetailsMap[d.stock_id] = 0;
+                        oldDetailsMap[d.stock_id] += Number(d.quantite_preparee || 0);
+                    });
+                }
+            }
+
+            const allRows = document.querySelectorAll('tr.row-poste, tr.row-sup');
+            let detailsToInsert = [];
+            let totalLotsCount = 0;
+            let totalQteCmdSum = 0;
+            let totalPrepareSum = 0;
+            let articlesSet = new Set();
+            let newStockMap = {};
+
+            for (const row of allRows) {
+                const poste = row.getAttribute('data-poste');
+                const article = row.getAttribute('data-article');
+                
+                const inputLot = row.querySelector('input[id*="input_lot_"]');
+                const inputQte = row.querySelector('input[id*="input_qte_"]');
+                
+                if (!inputLot || !inputQte) continue;
+
+                const lotVal = inputLot.value.trim();
+                const qteBrute = inputQte.value.trim();
+
+                // IMPORTANT :
+                // - Champ vide = le poste est ignoré complètement.
+                // - 0 écrit explicitement = le poste est enregistré avec 0,
+                //   sans lot obligatoire et sans réservation de stock.
+                // - > 0 = lot + stock_id réels obligatoires.
+                if (qteBrute === "") {
+                    continue;
+                }
+
+                const qteVal = Number(qteBrute);
+
+                if (!Number.isFinite(qteVal) || qteVal < 0) {
+                    notify(`Erreur (Poste ${poste}) : La quantité préparée doit être un nombre positif ou 0.`, "error");
+                    inputQte.focus();
+                    return false;
+                }
+
+                const qteCmdSpan = document.getElementById(`qte_cmd_${poste}`);
+                const qteCmdVal = qteCmdSpan ? Number(qteCmdSpan.textContent) : 0;
+                totalQteCmdSum += qteCmdVal;
+
+                const uniqueId = inputLot.id.replace('input_lot_', '');
+                const lotObj = window.selectedLotsData[uniqueId];
+
+                // =====================================================
+                // CAS 0 : quantité saisie explicitement à zéro
+                // =====================================================
+                if (qteVal === 0) {
+                    articlesSet.add(article);
+
+                    detailsToInsert.push({
+                        suivi_id: suiviId,
+                        document_vente: numCmd,
+                        ligne_commande: Number(poste),
+                        article: article,
+                        designation_article: row.querySelector('td:nth-child(3)')?.textContent || '-',
+                        // LOT est NOT NULL en base : pour une quantité = 0 sans lot,
+                        // on conserve une valeur technique explicite.
+                        lot: lotVal || 'SANS_LOT',
+                        stock_id: lotObj?.stock_id || null,
+                        magasin: lotObj?.magasin || 'DEFAULT',
+                        emplacement: lotObj?.emplacement || '',
+                        quantite_commandee: qteCmdVal,
+                        quantite_preparee: 0,
+                        quantite_restante: Math.max(0, qteCmdVal),
+                        preparateur: userId,
+                        statut: 'RESERVE',
+                        reserve: false,
+                        est_valide: false
+                    });
+
+                    // Aucun stock_reserve ne doit être modifié pour une quantité 0.
+                    continue;
+                }
+
+                // =====================================================
+                // CAS > 0 : lot + stock_id réels obligatoires
+                // =====================================================
+                if (!lotObj || !lotObj.stock_id || !lotVal) {
+                    notify(`Erreur (Poste ${poste}) : Une quantité supérieure à 0 nécessite un lot valide avec un stock_id réel.`, "error");
+                    inputLot.focus();
+                    return false;
+                }
+
+                articlesSet.add(article);
+                totalLotsCount++;
+                totalPrepareSum += qteVal;
+
+                detailsToInsert.push({
+                    suivi_id: suiviId,
+                    document_vente: numCmd,
+                    ligne_commande: Number(poste),
+                    article: article,
+                    designation_article: row.querySelector('td:nth-child(3)')?.textContent || '-',
+                    lot: lotVal,
+                    stock_id: lotObj.stock_id,
+                    magasin: lotObj.magasin || 'DEFAULT',
+                    emplacement: lotObj.emplacement || '',
+                    quantite_commandee: qteCmdVal,
+                    quantite_preparee: qteVal,
+                    quantite_restante: Math.max(0, qteCmdVal - qteVal),
+                    preparateur: userId,
+                    statut: 'RESERVE',
+                    reserve: true,
+                    est_valide: false
+                });
+
+                if (!newStockMap[lotObj.stock_id]) newStockMap[lotObj.stock_id] = 0;
+                newStockMap[lotObj.stock_id] += qteVal;
+            }
+
+            const progressionVal = totalQteCmdSum > 0 ? Math.min(100, (totalPrepareSum / totalQteCmdSum) * 100) : 0;
+
+            const { data: pickingHeader, error: pickErr } = await supabase
+                .from('picking')
+                .upsert({
+                    suivi_id: suiviId,
+                    document_vente: numCmd,
+                    client: clientNom,
+                    preparateur: userId,
+                    statut: 'EN_COURS',
+                    total_articles: articlesSet.size,
+                    total_lots: totalLotsCount,
+                    total_quantite: totalQteCmdSum,
+                    total_prepare: totalPrepareSum,
+                    progression: progressionVal.toFixed(2),
+                    est_valide: false,
+                    est_annule: false,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'document_vente' })
+                .select('id')
+                .single();
+
+            if (pickErr || !pickingHeader) return false;
+
+            const pickingId = pickingHeader.id;
+            await supabase.from('picking_details').delete().eq('picking_id', pickingId);
+
+            if (detailsToInsert.length > 0) {
+                detailsToInsert.forEach(item => item.picking_id = pickingId);
+
+                const { error: detailsErr } = await supabase
+                    .from('picking_details')
+                    .insert(detailsToInsert);
+
+                if (detailsErr) {
+                    console.error('[PICKING] picking_details insert:', detailsErr);
+                    notify(
+                        "Erreur lors de l'enregistrement des lignes du picking : " +
+                        (detailsErr.message || detailsErr.details || "Erreur inconnue"),
+                        "error"
+                    );
+                    return false;
+                }
+            }
+
+            // Les lignes à 0 n'ont jamais de réservation :
+            // on ne traite ici que les stock_id réellement utilisés.
+            let allStockIds = new Set([
+                ...Object.keys(oldDetailsMap).filter(id => id && id !== "null" && id !== "undefined"),
+                ...Object.keys(newStockMap).filter(id => id && id !== "null" && id !== "undefined")
+            ]);
+            for (const stockId of allStockIds) {
+                const oldQte = oldDetailsMap[stockId] || 0;
+                const newQte = newStockMap[stockId] || 0;
+                const delta = newQte - oldQte;
+
+                if (delta !== 0) {
+                    const { data: currentStock } = await supabase.from('stock').select('stock_reserve').eq('id', stockId).single();
+                    if (currentStock) {
+                        const updatedReserve = Number(currentStock.stock_reserve || 0) + delta;
+                        await supabase.from('stock').update({ stock_reserve: Math.max(0, updatedReserve), updated_at: new Date().toISOString() }).eq('id', stockId);
+                    }
+                }
+            }
+            return true;
+        }
+
+        // =========================================================
+        // ACTIONS DE COMMANDE : activation automatique
+        // =========================================================
+        function activerActionsCommande() {
+
+            const ids = ['btnModifier', 'btnenregistrer', 'btnValiderGlobal'];
+            ids.forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                btn.disabled = false;
+                btn.classList.remove('opacity-40', 'opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            });
+
+            const btnValider = document.querySelector('.selection-actions .btn-primary');
+            if (btnValider) {
+                btnValider.disabled = false;
+                btnValider.classList.remove('opacity-40', 'opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }
+
+            // Important : ne jamais laisser cette fonction réactiver
+            // visuellement une action interdite par les permissions.
+            refreshPickingPermissions();
+        }
+
+        // =========================================================
+        // ACTION LOADING : les opérations restent dans la même page
+        // =========================================================
+        function setActionLoading(isLoading, message = "Traitement en cours...") {
+            const ids = ["btnModifier", "btnenregistrer", "btnValiderGlobal"];
+            ids.forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                btn.dataset.originalHtml ??= btn.innerHTML;
+                btn.disabled = isLoading;
+                btn.classList.toggle("opacity-50", isLoading);
+                btn.classList.toggle("cursor-not-allowed", isLoading);
+            });
+
+            const btnSave = document.getElementById("btnenregistrer");
+            if (btnSave && isLoading) {
+                btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${message}`;
+            } else if (btnSave && btnSave.dataset.originalHtml) {
+                btnSave.innerHTML = btnSave.dataset.originalHtml;
+            }
+        }
+
+        window.actionenregistrer = async function() {
+
+            if (!await ensurePickingPermission("enregistrer")) {
+                return;
+            }
+            if (isStrictlyForbidden) {
+                notify("Impossible d'enregistrer : Commande verrouillée.");
+                return;
+            }
+
+            const numCmd = inputNumCommande.value.trim();
+            if (!numCmd) {
+                notify("Veuillez d'abord charger une commande.");
+                return;
+            }
+
+            setActionLoading(true, "Enregistrement en cours...");
+
+            let enregistrementReussi = false;
+
+            try {
+                // 1) enregistrer toutes les modifications de la commande courante
+                const res = await executerSauvegardeDonnees(numCmd);
+
+                if (res) {
+                    enregistrementReussi = true;
+                    notify("Commande enregistrée avec succès !", "success");
+                }
+            } catch (error) {
+                console.error("[PICKING] Enregistrement:", error);
+                notify(
+                    "Erreur pendant l'enregistrement : " +
+                    (error?.message || "Erreur inconnue"),
+                    "error"
+                );
+            } finally {
+                setActionLoading(false);
+
+                // 2) Comme demandé : après ENREGISTRER, on libère également
+                //    l'écran pour pouvoir saisir immédiatement une nouvelle commande.
+                //    AUCUN reload et AUCUNE sortie de la page.
+                if (enregistrementReussi) {
+                    resetPickingForNewOrder();
+                }
+            }
+        };
+
+        window.actionValiderGlobal = async function() {
+
+            if (!await ensurePickingPermission("Valider")) {
+                return;
+            }
+            if (isStrictlyForbidden) {
+                notify("Action impossible sur cette commande.");
+                return;
+            }
+            const numCmd = inputNumCommande.value.trim();
+            if (!numCmd) { notify("Veuillez d'abord charger une commande."); return; }
+
+            if (!confirm("Voulez-vous vraiment valider définitivement cette commande ? Le statut passera à PICKING_TERMINE.")) {
+                return;
+            }
+
+            setActionLoading(true, "Validation globale en cours...");
+            let validationGlobaleReussie = false;
+            try {
+                const saved = await executerSauvegardeDonnees(numCmd);
+                if (!saved) return;
+
+                const nowIso = new Date().toISOString();
+            const { data: authData } = await supabase.auth.getUser();
+            const userId = authData?.user?.id || null;
+
+            await supabase.from('picking')
+                .update({ 
+                    est_valide: true, 
+                    statut: 'VALIDE', 
+                    date_fin: nowIso,
+                    date_validation: nowIso,
+                    updated_at: nowIso 
+                })
+                .eq('document_vente', numCmd);
+
+            await supabase.from('commandes_excel')
+                .update({ 
+                    statut: 'PREPAREE', 
+                    updated_at: nowIso 
+                })
+                .eq('document_vente', numCmd);
+
+            await supabase.from('suivi_commandes_lancer')
+                .update({ 
+                    statut: 'PICKING_TERMINE', 
+                    validation_par: userId,
+                    date_validation: nowIso,
+                    date_fin_picking: nowIso,
+                    updated_at: nowIso 
+                })
+                .eq('document_vente', numCmd);
+
+                notify("Commande validée globalement (PICKING_TERMINE) avec succès !", "success");
+
+                validationGlobaleReussie = true;
+            } catch (error) {
+                console.error("[PICKING] Validation globale:", error);
+                notify("Erreur pendant la validation globale : " + (error.message || "Erreur inconnue"), "error");
+            } finally {
+                setActionLoading(false);
+
+                // Après la fin de l'opération, on libère l'écran pour
+                // permettre la saisie immédiate d'une nouvelle commande.
+                if (validationGlobaleReussie) {
+                    resetPickingForNewOrder();
+                }
+            }
+        };
+
+        // زر التعديل (Modifier)
+        window.actionModifier = async function() {
+
+            if (!await ensurePickingPermission("Modifier")) {
+                return;
+            }
+            if (isStrictlyForbidden) {
+                notify("Modification strictement interdite pour ce statut (EN_AB10 / EXPEDIEE) !");
+                return;
+            }
+
+            const numCmd = inputNumCommande.value.trim();
+            if (!numCmd) { notify("Veuillez charger une commande d'abord."); return; }
+
+            isOrderTerminated = false;
+
+            document.querySelectorAll('#pickingTableBody input').forEach(inp => {
+                inp.disabled = false;
+                inp.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+            document.querySelectorAll('#pickingTableBody button').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-40', 'cursor-not-allowed');
+            });
+
+            const btnEnreg = document.getElementById('btnenregistrer');
+            if (btnEnreg) {
+                btnEnreg.disabled = false;
+                btnEnreg.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+            }
+            const btnVal = document.getElementById('btnValiderGlobal');
+            if (btnVal) {
+                btnVal.disabled = false;
+                btnVal.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+            }
+
+            const statutEl = document.getElementById('infoStatut');
+            statutEl.textContent = 'EN_PICKING';
+            statutEl.className = 'font-bold text-amber-400 text-sm';
+
+            const nowIso = new Date().toISOString();
+            await supabase.from('picking')
+                .update({ est_valide: false, statut: 'EN_COURS', updated_at: nowIso })
+                .eq('document_vente', numCmd);
+
+            await supabase.from('commandes_excel')
+                .update({ statut: 'EN_PICKING', updated_at: nowIso })
+                .eq('document_vente', numCmd);
+
+            await supabase.from('suivi_commandes_lancer')
+                .update({ statut: 'EN_PICKING', updated_at: nowIso })
+                .eq('document_vente', numCmd);
+
+            notify("Mode modification activé : Les champs sont maintenant modifiables.");
+        };
+
+        function verrouillerInterfaceInterface(isForbidden = false) {
+            document.querySelectorAll('#pickingTableBody input').forEach(inp => {
+                inp.disabled = true;
+                inp.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+            document.querySelectorAll('#pickingTableBody button').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-40', 'cursor-not-allowed');
+            });
+            
+            const btnMod = document.getElementById('btnModifier');
+            if (btnMod) {
+                if (isForbidden) {
+                    // Ila kan EN_AB10 wla EXPEDIEE حتى زر Modifier كيتسد وماكايتفتحش نهائياً
+                    btnMod.disabled = true;
+                    btnMod.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+                } else {
+                    // Ila kan ghir PICKING_TERMINE، زر Modifier كيبقى خدام باش يتكليكا عليه
+                    btnMod.disabled = false;
+                    btnMod.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+                }
+            }
+
+            const btnVal = document.getElementById('btnValiderGlobal');
+            if (btnVal) {
+                btnVal.disabled = true;
+                btnVal.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+            }
+            const btnEnreg = document.getElementById('btnenregistrer');
+            if (btnEnreg) {
+                btnEnreg.disabled = true;
+                btnEnreg.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+            }
+
+            const infoSt = document.getElementById('infoStatut');
+            infoSt.textContent = isForbidden ? document.getElementById('infoStatut').textContent : 'PICKING_TERMINE';
+            infoSt.className = isForbidden
+                ? 'info-card-value status locked'
+                : 'info-card-value status ok';
+        }
+
+        function resetInfos() {
+            document.getElementById('infoClient').textContent = '-';
+            document.getElementById('infoItineraire').textContent = '-';
+            document.getElementById('infoStatut').textContent = '-';
+            document.getElementById('tableCountBadge').textContent = '0';
+            const titleCount = document.getElementById('pickingTableTitleCount');
+            if (titleCount) titleCount.textContent = '0 poste';
+        }
+
+        // =========================================================
+        // NOUVELLE COMMANDE
+        // Vide uniquement l'interface après une validation globale.
+        // La commande reste bien enregistrée dans Supabase.
+        // =========================================================
+        function resetPickingForNewOrder() {
+            const input = document.getElementById('inputNumCommande');
+            const tbody = document.getElementById('pickingTableBody');
+
+            // Réinitialiser l'état JavaScript
+            isOrderLocked = false;
+            isOrderTerminated = false;
+            isStrictlyForbidden = false;
+
+            // Vider le numéro de commande
+            if (input) {
+                input.value = '';
+                input.disabled = false;
+                input.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            // Réinitialiser les informations de la commande
+            const client = document.getElementById('infoClient');
+            const itineraire = document.getElementById('infoItineraire');
+            const statut = document.getElementById('infoStatut');
+
+            if (client) client.textContent = '-';
+            if (itineraire) itineraire.textContent = '-';
+            if (statut) {
+                statut.textContent = '-';
+                statut.className = 'info-card-value status';
+            }
+
+            // Réinitialiser le nombre de postes
+            const badge = document.getElementById('tableCountBadge');
+            const titleCount = document.getElementById('pickingTableTitleCount');
+            if (badge) badge.textContent = '0';
+            if (titleCount) titleCount.textContent = '0 poste';
+
+            // Vider le tableau
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="picking-empty">
+                                <i class="fa-solid fa-box-open"></i>
+                                <strong>Veuillez saisir ou scanner un numéro de commande</strong>
+                                <span>Les informations de la nouvelle commande apparaîtront automatiquement.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // Réactiver / désactiver les boutons selon l'état "aucune commande"
+            const btnModifier = document.getElementById('btnModifier');
+            const btnenregistrer = document.getElementById('btnenregistrer');
+            const btnValiderGlobal = document.getElementById('btnValiderGlobal');
+
+            [btnModifier, btnenregistrer, btnValiderGlobal].forEach(btn => {
+                if (!btn) return;
+                btn.disabled = true;
+                btn.classList.add('opacity-40', 'cursor-not-allowed');
+                btn.classList.remove('pointer-events-none');
+            });
+
+            // Le bouton Valider reste disponible pour charger la prochaine commande
+            const btnValider = document.querySelector('.selection-actions .btn-primary');
+            if (btnValider) {
+                btnValider.disabled = false;
+                btnValider.classList.remove('opacity-40', 'cursor-not-allowed');
+            }
+
+            // Focus immédiat pour scanner/saisir la prochaine commande
+            setTimeout(() => {
+                input?.focus();
+            }, 100);
+        }
+
+        window.resetPickingForNewOrder = resetPickingForNewOrder;
+
+
+        // ============================================================
+        // EXPORT PICKING — Excel + PDF
+        // Le produit / Désignation est inclus dans les deux exports.
+        // Les données sont celles affichées dans le picking courant.
+        // ============================================================
+
+        function getPickingExportRows() {
+            const rows = [];
+            const trs = document.querySelectorAll('#pickingTableBody tr');
+
+            trs.forEach(tr => {
+                const cells = tr.querySelectorAll('td');
+                if (cells.length < 8) return;
+
+                const poste = cells[0]?.innerText.trim() || '';
+                const article = cells[1]?.innerText.trim() || '';
+                const designation = cells[2]?.innerText.trim() || '';
+                const qteCmd = cells[3]?.innerText.trim() || '';
+                const qtePrep = cells[4]?.innerText.trim() || '';
+                const lot = cells[5]?.querySelector('input')?.value?.trim() || cells[5]?.innerText.trim() || '';
+                const qteSaisie = cells[6]?.querySelector('input')?.value?.trim() || '';
+
+                // Ignorer les lignes d'attente / messages
+                if (!article && !designation && !poste) return;
+
+                rows.push({
+                    'Poste': poste,
+                    'Article': article,
+                    'Désignation': designation,
+                    'Quantité commandée': qteCmd,
+                    'Quantité préparée': qtePrep,
+                    'Lot': lot,
+                    'Qte préparée (saisie)': qteSaisie
+                });
+            });
+
+            return rows;
+        }
+
+        function getPickingExportInfo() {
+            const numCmd = document.getElementById('inputNumCommande')?.value?.trim() || '-';
+            const client = document.getElementById('infoClient')?.textContent?.trim() || '-';
+            const itineraire = document.getElementById('infoItineraire')?.textContent?.trim() || '-';
+            const statut = document.getElementById('infoStatut')?.textContent?.trim() || '-';
+
+            return { numCmd, client, itineraire, statut };
+        }
+
+        window.exportPickingExcel = function() {
+
+            if (!canPageAction(PICKING_PAGE, "Imprimer")) {
+                notify("Vous n'avez pas la permission : Imprimer.", "warning");
+                return;
+            }
+            const data = getPickingExportRows();
+
+            if (!data.length) {
+                notify('Aucune donnée de picking à exporter. Veuillez d’abord charger une commande.');
+                return;
+            }
+
+            if (typeof XLSX === 'undefined') {
+                notify('Le module Excel n’est pas chargé. Vérifiez votre connexion Internet puis réessayez.');
+                return;
+            }
+
+            const info = getPickingExportInfo();
+
+            const meta = [
+                ['SOUFSTOCK WMS - PICKING'],
+                ['N° Commande', info.numCmd],
+                ['Client / Réceptionnaire', info.client],
+                ['Itinéraire', info.itineraire],
+                ['Statut', info.statut],
+                ['Date export', new Date().toLocaleDateString('fr-FR')],
+                []
+            ];
+
+            const ws = XLSX.utils.aoa_to_sheet(meta);
+            XLSX.utils.sheet_add_json(ws, data, { origin: 'A8', skipHeader: false });
+
+            ws['!cols'] = [
+                { wch: 10 },
+                { wch: 16 },
+                { wch: 48 },
+                { wch: 20 },
+                { wch: 20 },
+                { wch: 18 },
+                { wch: 24 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Picking');
+
+            const safeCmd = info.numCmd.replace(/[^\w-]+/g, '_');
+            XLSX.writeFile(wb, `Picking_${safeCmd}_${new Date().toISOString().slice(0,10)}.xlsx`);
+        };
+
+        window.exportPickingPDF = function() {
+
+            if (!canPageAction(PICKING_PAGE, "Imprimer")) {
+                notify("Vous n'avez pas la permission : Imprimer.", "warning");
+                return;
+            }
+            const data = getPickingExportRows();
+
+            if (!data.length) {
+                notify('Aucune donnée de picking à exporter. Veuillez d’abord charger une commande.');
+                return;
+            }
+
+            const info = getPickingExportInfo();
+            const dateExport = new Date().toLocaleDateString('fr-FR');
+
+            const escapeHtml = value => String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+            const tableRows = data.map(row => `
+                <tr>
+                    <td>${escapeHtml(row['Poste'])}</td>
+                    <td>${escapeHtml(row['Article'])}</td>
+                    <td class="designation">${escapeHtml(row['Désignation'])}</td>
+                    <td class="num">${escapeHtml(row['Quantité commandée'])}</td>
+                    <td class="num">${escapeHtml(row['Quantité préparée'])}</td>
+                    <td>${escapeHtml(row['Lot'])}</td>
+                    <td class="num">${escapeHtml(row['Qte préparée (saisie)'])}</td>
+                </tr>
+            `).join('');
+
+            const printWindow = window.open('', '_blank', 'width=1200,height=800');
+
+            if (!printWindow) {
+                notify('Le navigateur a bloqué la fenêtre PDF. Autorisez les fenêtres popup puis réessayez.');
+                return;
+            }
+
+            printWindow.document.write(`<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Picking - ${escapeHtml(info.numCmd)}</title>
+<style>
+    @page {
+        size: A4 landscape;
+        margin: 12mm;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #222;
+        margin: 0;
+        font-size: 10px;
+    }
+    h1 {
+        margin: 0 0 4px;
+        font-size: 20px;
+    }
+    .subtitle {
+        color: #666;
+        margin-bottom: 14px;
+        font-size: 11px;
+    }
+    .info {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .info-box {
+        border: 1px solid #ddd;
+        padding: 7px 9px;
+        border-radius: 4px;
+    }
+    .label {
+        display: block;
+        color: #777;
+        font-size: 8px;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+    .value {
+        font-weight: bold;
+        font-size: 10px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    th {
+        background: #00843d;
+        color: white;
+        padding: 7px 6px;
+        text-align: left;
+        font-size: 9px;
+    }
+    td {
+        border: 1px solid #ddd;
+        padding: 7px 6px;
+        vertical-align: top;
+        word-break: break-word;
+    }
+    .designation {
+        font-weight: 600;
+    }
+    .num {
+        text-align: right;
+    }
+    tbody tr:nth-child(even) {
+        background: #f7f7f7;
+    }
+    .footer {
+        margin-top: 14px;
+        color: #777;
+        font-size: 8px;
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+</head>
+<body>
+    <h1>SOUFSTOCK WMS — Picking</h1>
+    <div class="subtitle">Fiche de préparation de commande</div>
+
+    <div class="info">
+        <div class="info-box">
+            <span class="label">N° Commande</span>
+            <span class="value">${escapeHtml(info.numCmd)}</span>
+        </div>
+        <div class="info-box">
+            <span class="label">Client / Réceptionnaire</span>
+            <span class="value">${escapeHtml(info.client)}</span>
+        </div>
+        <div class="info-box">
+            <span class="label">Itinéraire</span>
+            <span class="value">${escapeHtml(info.itineraire)}</span>
+        </div>
+        <div class="info-box">
+            <span class="label">Statut</span>
+            <span class="value">${escapeHtml(info.statut)}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:7%">Poste</th>
+                <th style="width:12%">Article</th>
+                <th style="width:31%">Désignation / Produit</th>
+                <th style="width:12%">Qté commandée</th>
+                <th style="width:12%">Qté préparée</th>
+                <th style="width:14%">Lot</th>
+                <th style="width:12%">Qté saisie</th>
+            </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+    </table>
+
+    <div class="footer">
+        <span>${data.length} ligne(s)</span>
+        <span>Date d'export : ${escapeHtml(dateExport)}</span>
+    </div>
+
+<script>
+    window.onload = function() {
+        setTimeout(function() {
+            window.print();
+        }, 300);
+    };
+    window.onafterprint = function() {
+        setTimeout(function() {
+            window.close();
+        }, 300);
+    };
+<\/script>
+</body>
+</html>`);
+
+            printWindow.document.close();
+        };
+
+        setInterval(() => {
+            document.getElementById("liveClock").innerText = new Date().toLocaleTimeString('fr-FR');
+        }, 1000);
+    
+
+        /* =========================================================
+           PERMISSIONS PICKING
+           ========================================================= */
+
+        function refreshPickingPermissionsSafe() {
+
+            try {
+
+                if (window.permissionsLoaded === true) {
+                    refreshPickingPermissions();
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "[PICKING] Erreur permissions :",
+                    error
+                );
+
+            }
+
+        }
+
+        // Application immédiate si les permissions sont déjà disponibles.
+        refreshPickingPermissionsSafe();
+
+        // Application après chargement des permissions.
+        window.addEventListener(
+            "permissionsLoaded",
+            refreshPickingPermissionsSafe
+        );
+
+        // Application après modification des permissions.
+        window.addEventListener(
+            "permissionsUpdated",
+            refreshPickingPermissionsSafe
+        );
+
+        // Sécurité pour le chargement dynamique depuis le Dashboard.
+        setTimeout(
+            refreshPickingPermissionsSafe,
+            300
+        );
+
+        setTimeout(
+            refreshPickingPermissionsSafe,
+            1000
+        );
+
+</script>
+</body>
+</html>

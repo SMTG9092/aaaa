@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Stock - SoufStock Enterprise ERP/WMS</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SheetJS pour Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- jsPDF pour Export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            100: '#f1f5f9'
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            400: '#34d399',
+                            300: '#6ee7b7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col min-w-0">
+        
+        <!-- HEADER -->
+        <header class="h-20 bg-slate-900/40 border-b border-slate-800/80 px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-6">
+                <!-- زر الرجوع السريع إلى index-stock.html -->
+                <a href="../index-stock.html" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm group">
+                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                    <span>Retour au Hub</span>
+                </a>
+
+                <div>
+                    <h1 id="pageTitle" class="text-xl font-bold tracking-tight text-slate-100">Gestion Stock</h1>
+                    <div id="breadcrumb" class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span>Accueil</span>
+                        <span>/</span>
+                        <strong class="text-slate-300">Gestion Stock</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl">
+                <div class="text-right">
+                    <span id="currentDate" class="text-xs font-medium text-slate-300 block">Chargement...</span>
+                    <span id="currentTime" class="text-[10px] text-emerald-400 font-mono block">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="w-full px-4 flex flex-col gap-6">
+                
+                <!-- TOP HEADER & ACTION BUTTONS BAR -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                            <i class="fas fa-warehouse text-emerald-400"></i> État Global du Stock
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">
+                            Consultation en direct et analyses globales du stock[cite: 4].
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- ACTION BUTTONS -->
+                        <button onclick="exportToExcel()" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-file-excel"></i> <span>Excel</span>
+                        </button>
+                        
+                        <button onclick="exportToPDF()" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-file-pdf"></i> <span>PDF</span>
+                        </button>
+
+                        <button onclick="printStock()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow-sm cursor-pointer">
+                            <i class="fas fa-print"></i> <span>Imprimer</span>
+                        </button>
+
+                        <!-- Magasin Filter Select -->
+                        <div class="relative">
+                            <i class="fas fa-store absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                            <select id="magasinFilter" class="bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-8 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner appearance-none cursor-pointer">
+                                <option value="">Tous les magasins</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-[10px] pointer-events-none"></i>
+                        </div>
+
+                        <!-- Search Input: Article / Produit -->
+                        <div class="relative">
+                            <i class="fas fa-tag absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-400 text-sm"></i>
+                            <input type="text" id="searchArticleInput" placeholder="Rechercher Article / Produit..." 
+                                class="bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-48 transition shadow-inner">
+                        </div>
+
+                        <!-- Search Input: Lot -->
+                        <div class="relative">
+                            <i class="fas fa-barcode absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 text-sm"></i>
+                            <input type="text" id="searchLotInput" placeholder="Rechercher Lot..." 
+                                class="bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-44 transition shadow-inner">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATS CARDS GRID -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Total Stock Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 uppercase font-semibold tracking-wider block">Total Quantité Disponible</span>
+                            <span id="totalStockBadge" class="text-xl font-bold text-emerald-400 font-mono mt-1 block">Chargement...</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+
+                    <!-- Total Articles Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 uppercase font-semibold tracking-wider block">Nombre d'Articles</span>
+                            <span id="totalArticlesBadge" class="text-xl font-bold text-sky-400 font-mono mt-1 block">Chargement...</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 text-lg">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                    </div>
+
+                    <!-- Total Lots Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-slate-400 uppercase font-semibold tracking-wider block">Nombre de Lots</span>
+                            <span id="totalLotsBadge" class="text-xl font-bold text-amber-400 font-mono mt-1 block">Chargement...</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-lg">
+                            <i class="fas fa-barcode"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLE CONTAINER -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-950/60 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-800 font-semibold">
+                                    <th class="p-4">Article</th>
+                                    <th class="p-4">Désignation</th>
+                                    <th class="p-4">Lot</th>
+                                    <th class="p-4">Magasin</th>
+                                    <th class="p-4">Unité</th>
+                                    <th class="p-4 text-right">Stock Disponible</th>
+                                    <th class="p-4 text-right">Stock Réservé</th>
+                                    <th class="p-4 text-center">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTableBody" class="divide-y divide-slate-800/50">
+                                <tr>
+                                    <td colspan="8" class="p-10 text-center text-slate-400 text-xs">
+                                        <i class="fas fa-spinner fa-spin mr-2 text-emerald-500 text-base"></i> Chargement des données du stock...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINATION BAR -->
+                    <div class="bg-slate-950/40 border-t border-slate-800 px-6 py-4 flex items-center justify-between text-xs text-slate-400">
+                        <div id="paginationInfo">Affichage de 0 à 0 sur 0 entrées</div>
+                        <div class="flex items-center gap-2">
+                            <button id="prevPageBtn" onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer">
+                                <i class="fas fa-chevron-left mr-1"></i> Précédent
+                            </button>
+                            <span id="pageIndicator" class="px-3 py-1 font-mono text-emerald-400 font-semibold">Page 1 / 1</span>
+                            <button id="nextPageBtn" onclick="changePage(1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer">
+                                Suivant <i class="fas fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import supabase from './assets/js/core/supabase.js';
+
+        let currentPage = 1;
+        const pageSize = 50; 
+        let totalRecords = 0;
+        let currentSearchArticle = "";
+        let currentSearchLot = "";
+        let currentMagasin = "";
+        let allFilteredDataForExport = []; 
+
+        window.changePage = async function(direction) {
+            currentPage += direction;
+            await loadStockData();
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            initLiveClock();
+            await populateMagasinFilterDropdown();
+            await loadStockData();
+
+            const searchArticleInput = document.getElementById("searchArticleInput");
+            const searchLotInput = document.getElementById("searchLotInput");
+            const magasinFilter = document.getElementById("magasinFilter");
+
+            let searchTimeout;
+
+            if (searchArticleInput) {
+                searchArticleInput.addEventListener("input", (e) => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(async () => {
+                        currentSearchArticle = e.target.value.trim();
+                        currentPage = 1; 
+                        await loadStockData();
+                    }, 300);
+                });
+            }
+
+            if (searchLotInput) {
+                searchLotInput.addEventListener("input", (e) => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(async () => {
+                        currentSearchLot = e.target.value.trim();
+                        currentPage = 1; 
+                        await loadStockData();
+                    }, 300);
+                });
+            }
+
+            if (magasinFilter) {
+                magasinFilter.addEventListener("change", async (e) => {
+                    currentMagasin = e.target.value;
+                    currentPage = 1; 
+                    await loadStockData();
+                });
+            }
+        });
+
+        // تشغيل الساعة والتاريخ الحي
+        function initLiveClock() {
+            const updateClock = () => {
+                const now = new Date();
+                const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('fr-FR', optionsDate);
+                const timeStr = now.toTimeString().split(' ')[0];
+
+                const dateEl = document.getElementById("currentDate");
+                const timeEl = document.getElementById("currentTime");
+
+                if (dateEl) dateEl.innerText = dateStr;
+                if (timeEl) timeEl.innerText = timeStr;
+            };
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        async function populateMagasinFilterDropdown() {
+            try {
+                const { data, error } = await supabase.from('vw_stock').select('magasin').limit(10000);
+                if (error || !data) return;
+
+                const magasins = [...new Set(data.map(item => item.magasin).filter(Boolean))].sort();
+                const magasinFilter = document.getElementById("magasinFilter");
+                if (!magasinFilter) return;
+
+                magasinFilter.innerHTML = `<option value="">Tous les magasins</option>`;
+                magasins.forEach(mag => {
+                    const opt = document.createElement("option");
+                    opt.value = mag;
+                    opt.textContent = mag;
+                    magasinFilter.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Erreur chargement magasins:", err);
+            }
+        }
+
+        function applyFilters(query) {
+            if (currentSearchArticle !== "") {
+                query = query.or(`article.ilike.%${currentSearchArticle}%,designation_article.ilike.%${currentSearchArticle}%`);
+            }
+            if (currentSearchLot !== "") {
+                query = query.ilike('lot', `%${currentSearchLot}%`);
+            }
+            if (currentMagasin !== "") {
+                query = query.eq('magasin', currentMagasin);
+            }
+            return query;
+        }
+
+        async function loadStockData() {
+            const tbody = document.getElementById("stockTableBody");
+            
+            try {
+                let query = supabase.from('vw_stock').select('*', { count: 'exact' });
+                query = applyFilters(query);
+
+                const start = (currentPage - 1) * pageSize;
+                const end = start + pageSize - 1;
+                query = query.range(start, end).order('article', { ascending: true });
+
+                const { data, count, error } = await query;
+
+                if (error) {
+                    console.error("Erreur chargement stock:", error);
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-400 text-xs"><i class="fas fa-exclamation-triangle mr-2"></i> Erreur lors du chargement des données.</td></tr>`;
+                    return;
+                }
+
+                totalRecords = count || 0;
+                renderTable(data || []);
+                updatePaginationControls();
+
+                await calculateGlobalStatsAndFetchAll();
+
+            } catch (err) {
+                console.error("Erreur technique:", err);
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-400 text-xs">Erreur de connexion au serveur.</td></tr>`;
+            }
+        }
+
+        async function calculateGlobalStatsAndFetchAll() {
+            const totalStockBadge = document.getElementById("totalStockBadge");
+            const totalArticlesBadge = document.getElementById("totalArticlesBadge");
+            const totalLotsBadge = document.getElementById("totalLotsBadge");
+
+            try {
+                let grandTotalStock = 0;
+                let articlesSet = new Set();
+                let lotsSet = new Set();
+                let fullDataList = [];
+
+                let batchSize = 1000;
+                let offset = 0;
+                let fetchMore = true;
+
+                while (fetchMore && offset < 50000) {
+                    let q = supabase.from('vw_stock').select('*');
+                    q = applyFilters(q);
+                    q = q.range(offset, offset + batchSize - 1);
+
+                    const { data: chunkData, error: chunkErr } = await q;
+                    if (chunkErr || !chunkData || chunkData.length === 0) {
+                        fetchMore = false;
+                        break;
+                    }
+
+                    chunkData.forEach(row => {
+                        grandTotalStock += Number(row.stock_disponible || 0);
+                        if (row.article) articlesSet.add(row.article);
+                        if (row.lot) lotsSet.add(row.lot);
+                    });
+
+                    fullDataList = fullDataList.concat(chunkData);
+
+                    if (chunkData.length < batchSize) {
+                        fetchMore = false;
+                    } else {
+                        offset += batchSize;
+                    }
+                }
+
+                allFilteredDataForExport = fullDataList;
+
+                if (totalStockBadge) {
+                    totalStockBadge.textContent = grandTotalStock.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+                if (totalArticlesBadge) {
+                    totalArticlesBadge.textContent = articlesSet.size.toLocaleString();
+                }
+                if (totalLotsBadge) {
+                    totalLotsBadge.textContent = lotsSet.size.toLocaleString();
+                }
+
+            } catch (err) {
+                console.error("Erreur calcul stats globales:", err);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById("stockTableBody");
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 text-xs"><i class="fas fa-folder-open mr-2"></i> Aucun article trouvé.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            data.forEach(item => {
+                const qteDisp = Number(item.stock_disponible || 0);
+                html += `
+                    <tr class="hover:bg-slate-800/35 transition">
+                        <td class="p-4 font-semibold text-emerald-400 text-xs">${item.article || '-'}</td>
+                        <td class="p-4 text-slate-200 font-medium text-xs">${item.designation_article || '-'}</td>
+                        <td class="p-4 text-slate-400 font-mono text-xs">${item.lot || '-'}</td>
+                        <td class="p-4 text-slate-300 font-medium text-xs">${item.magasin || '-'}</td>
+                        <td class="p-4 text-slate-400 text-[11px] uppercase">${item.unite || '-'}</td>
+                        <td class="p-4 text-right font-semibold text-emerald-300 text-xs">${qteDisp.toLocaleString()}</td>
+                        <td class="p-4 text-right font-medium text-amber-400 text-xs">${Number(item.stock_reserve || 0).toLocaleString()}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-semibold bg-slate-950/80 text-slate-300 border border-slate-800 shadow-sm">
+                                ${item.statut || 'DISPONIBLE'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startItem = totalRecords === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+            const endItem = Math.min(currentPage * pageSize, totalRecords);
+
+            document.getElementById("paginationInfo").textContent = `Affichage de ${startItem} à ${endItem} sur ${totalRecords} entrées`;
+            document.getElementById("pageIndicator").textContent = `Page ${currentPage} / ${totalPages}`;
+
+            document.getElementById("prevPageBtn").disabled = currentPage <= 1;
+            document.getElementById("nextPageBtn").disabled = currentPage >= totalPages;
+        }
+
+        // --- FONCTIONS EXPORT & IMPRESSION ---
+        window.exportToExcel = function() {
+            if (!allFilteredDataForExport || allFilteredDataForExport.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+
+            const exportData = allFilteredDataForExport.map(item => ({
+                "Article": item.article || '',
+                "Désignation": item.designation_article || '',
+                "Lot": item.lot || '',
+                "Magasin": item.magasin || '',
+                "Unité": item.unite || '',
+                "Stock Disponible": Number(item.stock_disponible || 0),
+                "Stock Réservé": Number(item.stock_reserve || 0),
+                "Statut": item.statut || 'DISPONIBLE'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Etat Stock");
+            XLSX.writeFile(workbook, `Etat_Global_Stock_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        window.exportToPDF = function() {
+            if (!allFilteredDataForExport || allFilteredDataForExport.length === 0) {
+                alert("Aucune donnée à exporter.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+
+            doc.setFontSize(16);
+            doc.setTextColor(15, 23, 42);
+            doc.text("SoufStock Enterprise - État Global du Stock", 14, 15);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Date d'export : ${new Date().toLocaleDateString('fr-FR')} | Magasin : ${currentMagasin || 'Tous'}`, 14, 22);
+
+            const tableColumn = ["Article", "Désignation", "Lot", "Magasin", "Unité", "Stock Disp.", "Stock Rés.", "Statut"];
+            const tableRows = [];
+
+            allFilteredDataForExport.forEach(item => {
+                tableRows.push([
+                    item.article || '',
+                    item.designation_article || '',
+                    item.lot || '',
+                    item.magasin || '',
+                    item.unite || '',
+                    Number(item.stock_disponible || 0).toLocaleString(),
+                    Number(item.stock_reserve || 0).toLocaleString(),
+                    item.statut || 'DISPONIBLE'
+                ]);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 28,
+                theme: 'grid',
+                styles: { fontSize: 8, cellPadding: 3 },
+                headStyles: { fillColor: [15, 23, 42] }
+            });
+
+            doc.save(`Etat_Global_Stock_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        window.printStock = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

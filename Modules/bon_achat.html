@@ -1,0 +1,4433 @@
+<!-- =========================================================
+     Modules/bon_achat.html
+     DEVIs VALIDÉ -> BON D'ACHAT
+========================================================= -->
+
+<div class="ba-page">
+
+  <!-- =======================================================
+       HEADER
+  ======================================================== -->
+
+  <div class="ba-head">
+
+    <div>
+      <h2>
+        <i class="fa-solid fa-file-invoice"></i>
+        Bons d'achat
+      </h2>
+
+      <p>
+        Création des bons d'achat à partir des devis validés
+      </p>
+    </div>
+
+    <div class="ba-actions">
+
+      <button id="baRefresh" class="ba-btn ba-light">
+        <i class="fa-solid fa-rotate"></i>
+        Actualiser
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       STATS
+  ======================================================== -->
+
+  <div class="ba-stats">
+
+    <div class="ba-stat">
+      <span>Devis validés</span>
+      <strong id="statDevisValides">0</strong>
+      <small>Demandes prêtes pour Bon d'achat</small>
+    </div>
+
+    <div class="ba-stat">
+      <span>Urgentes</span>
+      <strong id="statUrgentes">0</strong>
+      <small>Priorité urgente</small>
+    </div>
+
+    <div class="ba-stat">
+      <span>Montant HT</span>
+      <strong id="statMontantHT">0,00</strong>
+      <small>Total des devis validés</small>
+    </div>
+
+    <div class="ba-stat">
+      <span>Montant TTC</span>
+      <strong id="statMontantTTC">0,00</strong>
+      <small>Total TTC</small>
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       LAYOUT
+  ======================================================== -->
+
+  <div class="ba-layout">
+
+
+    <!-- =====================================================
+         LISTE
+    ====================================================== -->
+
+    <section class="ba-card ba-list-card">
+
+      <div class="ba-card-head">
+
+        <div>
+          <h3 id="baListTitle">
+            <i class="fa-solid fa-list"></i>
+            Demandes avec devis validé
+          </h3>
+
+          <small id="baListSubtitle">
+            Sélectionnez une demande pour créer le Bon d'achat.
+          </small>
+        </div>
+
+        <select id="baStatusFilter" class="ba-status-filter">
+          <option value="DEVIS_VALIDES">Devis validés</option>
+          <option value="BONS_CREES">Bons d'achat créés</option>
+          <option value="RECEPTIONNER">Bons d'achat à réceptionner</option>
+          <option value="TOUS">Tous</option>
+        </select>
+
+      </div>
+
+
+      <div class="ba-search">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+          id="baSearch"
+          type="text"
+          placeholder="Rechercher N° demande, fournisseur ou demandeur..."
+        >
+
+      </div>
+
+
+      <div id="baList" class="ba-list">
+
+        <div class="ba-loading">
+
+          <i class="fa-solid fa-spinner fa-spin"></i>
+
+          Chargement...
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         DETAIL
+    ====================================================== -->
+
+    <section class="ba-card ba-detail-card">
+
+      <div id="baEmpty" class="ba-empty">
+
+        <i class="fa-solid fa-file-invoice"></i>
+
+        <b>Sélectionnez une demande</b>
+
+        <span>
+          Les informations du devis validé apparaîtront ici.
+        </span>
+
+      </div>
+
+
+      <div id="baDetail" style="display:none">
+
+
+        <!-- ===============================================
+             DETAIL HEADER
+        ================================================ -->
+
+        <div class="ba-detail-head">
+
+          <div>
+
+            <div
+              id="detailNumero"
+              class="ba-detail-number"
+            >
+              —
+            </div>
+
+            <div class="ba-detail-date">
+
+              Date demande :
+              <span id="detailDate">—</span>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="detailStatus"
+            class="ba-badge devis-valide"
+          >
+            DEVIS VALIDÉ
+          </div>
+
+        </div>
+
+
+        <!-- ===============================================
+             DEMANDE
+        ================================================ -->
+
+        <div class="ba-section-title">
+
+          <i class="fa-solid fa-file-lines"></i>
+
+          Informations de la demande
+
+        </div>
+
+
+        <div class="ba-info-grid">
+
+          <div>
+            <span>Demandeur</span>
+            <b id="detailDemandeur">—</b>
+          </div>
+
+          <div>
+            <span>Service</span>
+            <b id="detailService">—</b>
+          </div>
+
+          <div>
+            <span>Priorité</span>
+            <b id="detailPriorite">—</b>
+          </div>
+
+          <div>
+            <span>Motif</span>
+            <b id="detailMotif">—</b>
+          </div>
+
+        </div>
+
+
+        <!-- ===============================================
+             DEVIS
+        ================================================ -->
+
+        <div class="ba-section-title">
+
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+
+          Devis validé
+
+        </div>
+
+
+        <div class="ba-devis-grid">
+
+          <div>
+            <span>Fournisseur</span>
+            <b id="detailFournisseur">—</b>
+          </div>
+
+          <div>
+            <span>N° Devis</span>
+            <b id="detailNumeroDevis">—</b>
+          </div>
+
+          <div>
+            <span>Date devis</span>
+            <b id="detailDateDevis">—</b>
+          </div>
+
+          <div>
+            <span>Validité</span>
+            <b id="detailValidite">—</b>
+          </div>
+
+          <div>
+            <span>Délai livraison</span>
+            <b id="detailDelai">—</b>
+          </div>
+
+          <div>
+            <span>Conditions paiement</span>
+            <b id="detailPaiement">—</b>
+          </div>
+
+        </div>
+
+
+        <!-- ===============================================
+             ARTICLES
+        ================================================ -->
+
+        <div class="ba-section-title">
+
+          <i class="fa-solid fa-boxes-stacked"></i>
+
+          Articles du Bon d'achat
+
+          <span id="detailLinesCount">
+            0 ligne
+          </span>
+
+        </div>
+
+
+        <div class="ba-table-wrap">
+
+          <table class="ba-table">
+
+            <thead>
+
+              <tr>
+
+                <th>Article</th>
+
+                <th>Désignation</th>
+
+                <th>Groupe</th>
+
+                <th>Type</th>
+
+                <th>Quantité</th>
+
+                <th>Unité</th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody id="detailLines"></tbody>
+
+
+            <tfoot>
+
+              <tr>
+
+                <td colspan="4">
+                  TOTAL QUANTITÉ
+                </td>
+
+                <td
+                  id="detailTotalQty"
+                  class="ba-total"
+                >
+                  0,000
+                </td>
+
+                <td id="detailUnit">
+                  —
+                </td>
+
+              </tr>
+
+            </tfoot>
+
+          </table>
+
+        </div>
+
+
+        <!-- ===============================================
+             MONTANTS
+        ================================================ -->
+
+        <div class="ba-montants">
+
+          <div>
+
+            <span>Montant HT</span>
+
+            <strong id="detailHT">
+              0,00 MAD
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>Remise</span>
+
+            <strong id="detailRemise">
+              0,00 MAD
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>TVA</span>
+
+            <strong id="detailTVA">
+              0,00 %
+            </strong>
+
+          </div>
+
+          <div class="ba-ttc">
+
+            <span>Montant TTC</span>
+
+            <strong id="detailTTC">
+              0,00 MAD
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- ===============================================
+             COMMENTAIRE
+        ================================================ -->
+
+        <div class="ba-comment">
+
+          <span>Observations du devis</span>
+
+          <p id="detailObservations">
+            —
+          </p>
+
+        </div>
+
+
+        <!-- ===============================================
+             ACTIONS
+        ================================================ -->
+
+        <div class="ba-footer-actions">
+
+          <button
+            id="btnPrintBA"
+            class="ba-btn ba-print"
+          >
+
+            <i class="fa-solid fa-print"></i>
+
+            Imprimer
+
+          </button>
+
+
+          <button
+            id="btnCreateBA"
+            class="ba-btn ba-primary"
+          >
+
+            <i class="fa-solid fa-file-circle-plus"></i>
+
+            Créer le Bon d'achat
+
+          </button>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- =======================================================
+       TOAST
+  ======================================================== -->
+
+  <div
+    id="baToast"
+    class="ba-toast"
+  ></div>
+
+</div>
+
+
+
+<!-- =========================================================
+     MODAL CREATION BON D'ACHAT
+========================================================= -->
+
+<div
+  id="baModal"
+  class="ba-modal"
+>
+
+  <div class="ba-modal-box">
+
+
+    <div class="ba-modal-head">
+
+      <div>
+
+        <strong>
+
+          <i class="fa-solid fa-file-circle-plus"></i>
+
+          Création du Bon d'achat
+
+        </strong>
+
+        <small id="modalNumeroDemande">
+          —
+        </small>
+
+      </div>
+
+
+      <button
+        id="closeBaModal"
+        type="button"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+
+    <div class="ba-modal-body">
+
+
+      <!-- ===============================================
+           INFO
+      ================================================ -->
+
+      <div class="ba-modal-info">
+
+        <div>
+
+          <span>Demande</span>
+
+          <strong id="modalDemande">
+            —
+          </strong>
+
+        </div>
+
+        <div>
+
+          <span>Fournisseur</span>
+
+          <strong id="modalFournisseur">
+            —
+          </strong>
+
+        </div>
+
+        <div>
+
+          <span>Devis</span>
+
+          <strong id="modalDevis">
+            —
+          </strong>
+
+        </div>
+
+        <div>
+
+          <span>Montant TTC</span>
+
+          <strong id="modalTTC">
+            0,00 MAD
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ===============================================
+           FORMULAIRE
+      ================================================ -->
+
+      <div class="ba-form-grid">
+
+
+        <label>
+
+          N° Bon d'achat
+
+          <input
+            id="baNumero"
+            type="text"
+            readonly
+          >
+
+        </label>
+
+
+        <label>
+
+          Date du Bon
+
+          <input
+            id="baDate"
+            type="date"
+          >
+
+        </label>
+
+
+        <label>
+
+          Date prévue réception
+
+          <input
+            id="baDateReception"
+            type="date"
+            readonly
+            title="Calculée automatiquement : Date du Bon + Délai de livraison"
+          >
+
+        </label>
+
+
+        <label>
+
+          Devise
+
+          <select id="baDevise">
+
+            <option value="MAD">
+              MAD
+            </option>
+
+            <option value="EUR">
+              EUR
+            </option>
+
+            <option value="USD">
+              USD
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label class="wide">
+
+          Commentaire
+
+          <textarea
+            id="baCommentaire"
+            rows="4"
+            placeholder="Commentaire concernant le Bon d'achat..."
+          ></textarea>
+
+        </label>
+
+      </div>
+
+
+
+      <!-- ===============================================
+           RESUME
+      ================================================ -->
+
+      <div class="ba-modal-total">
+
+        <div>
+
+          <span>Montant HT</span>
+
+          <strong id="modalHT">
+            0,00
+          </strong>
+
+          <small>MAD</small>
+
+        </div>
+
+
+        <div>
+
+          <span>TVA</span>
+
+          <strong id="modalTVA">
+            0,00
+          </strong>
+
+          <small>%</small>
+
+        </div>
+
+
+        <div>
+
+          <span>Montant TTC</span>
+
+          <strong id="modalTotalTTC">
+            0,00
+          </strong>
+
+          <small>MAD</small>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="ba-warning">
+
+        <i class="fa-solid fa-circle-info"></i>
+
+        Après création du Bon d'achat, la demande passera de
+        <strong>DEVIS VALIDÉ</strong> à
+        <strong>BON D'ACHAT</strong>.
+
+      </div>
+
+
+    </div>
+
+
+
+    <div class="ba-modal-footer">
+
+      <button
+        id="cancelBa"
+        type="button"
+        class="ba-btn ba-light"
+      >
+        Annuler
+      </button>
+
+
+      <button
+        id="confirmCreateBA"
+        type="button"
+        class="ba-btn ba-primary"
+      >
+
+        <i class="fa-solid fa-floppy-disk"></i>
+
+        Créer le Bon d'achat
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     PRINT BON D'ACHAT
+========================================================= -->
+
+<div id="baPrintSheet">
+
+  <div class="ba-print-page">
+
+
+    <div class="ba-print-header">
+
+      <div class="ba-print-brand">
+
+        <div class="ba-print-logo">
+          S
+        </div>
+
+        <div>
+
+          <strong>
+            SMTG
+          </strong>
+
+          <small>
+            TRAÇABILITÉ GLOBALE
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="ba-print-title">
+
+        <h1>
+          BON D'ACHAT
+        </h1>
+
+        <span>
+          Bon d'achat fournisseur
+        </span>
+
+      </div>
+
+
+      <div class="ba-print-meta">
+
+        <b id="pBaNumero">
+          —
+        </b>
+
+        <span>
+          Date :
+          <em id="pBaDate">—</em>
+        </span>
+
+        <span>
+          Statut :
+          <em id="pBaStatus">BROUILLON</em>
+        </span>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- INFO -->
+
+    <div class="ba-print-info">
+
+      <div>
+
+        <span>Demande d'achat</span>
+
+        <b id="pBaDemande">
+          —
+        </b>
+
+      </div>
+
+
+      <div>
+
+        <span>Fournisseur</span>
+
+        <b id="pBaFournisseur">
+          —
+        </b>
+
+      </div>
+
+
+      <div>
+
+        <span>N° devis</span>
+
+        <b id="pBaDevis">
+          —
+        </b>
+
+      </div>
+
+
+      <div>
+
+        <span>Date devis</span>
+
+        <b id="pBaDateDevis">
+          —
+        </b>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ARTICLES -->
+
+    <table class="ba-print-table">
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Article
+          </th>
+
+          <th>
+            Désignation
+          </th>
+
+          <th>
+            Quantité
+          </th>
+
+          <th>
+            Unité
+          </th>
+
+          <th>
+            Prix unitaire
+          </th>
+
+          <th>
+            Remise
+          </th>
+
+          <th>
+            Montant HT
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody id="pBaLines"></tbody>
+
+
+      <tfoot>
+
+        <tr>
+
+          <td colspan="6">
+            TOTAL HT
+          </td>
+
+          <td id="pBaHT">
+            0,00
+          </td>
+
+        </tr>
+
+
+        <tr>
+
+          <td colspan="6">
+            TVA
+          </td>
+
+          <td id="pBaTVA">
+            0,00
+          </td>
+
+        </tr>
+
+
+        <tr>
+
+          <td colspan="6">
+            TOTAL TTC
+          </td>
+
+          <td id="pBaTTC">
+            0,00
+          </td>
+
+        </tr>
+
+      </tfoot>
+
+    </table>
+
+
+
+    <div class="ba-print-note">
+
+      <div>
+
+        <b>
+          Date prévue de réception :
+        </b>
+
+        <span id="pBaDateReception">
+          —
+        </span>
+
+      </div>
+
+
+      <div>
+
+        <b>
+          Conditions de paiement :
+        </b>
+
+        <span id="pBaPaiement">
+          —
+        </span>
+
+      </div>
+
+
+      <div>
+
+        <b>
+          Délai de livraison :
+        </b>
+
+        <span id="pBaDelai">
+          —
+        </span>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="ba-print-comment">
+
+      <b>
+        Commentaire / Observations
+      </b>
+
+      <p id="pBaCommentaire">
+        —
+      </p>
+
+    </div>
+
+
+
+    <!-- SIGNATURES -->
+
+    <div class="ba-signatures">
+
+
+      <div>
+
+        <b>
+          Responsable Achats
+        </b>
+
+        <span>
+          Contrôle / préparation
+        </span>
+
+        <i></i>
+
+        <small>
+          Date : __________________
+        </small>
+
+      </div>
+
+
+      <div>
+
+        <b>
+          Contrôle de gestion
+        </b>
+
+        <span>
+          Contrôle / validation
+        </span>
+
+        <i></i>
+
+        <small>
+          Date : __________________
+        </small>
+
+      </div>
+
+
+      <div>
+
+        <b>
+          Direction Générale
+        </b>
+
+        <span>
+          Validation / signature / cachet
+        </span>
+
+        <i></i>
+
+        <small>
+          Date : __________________
+        </small>
+
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+
+<style>
+
+/* =========================================================
+   BASE
+========================================================= */
+
+.ba-page{
+  padding:24px 28px 40px;
+  color:#17212b;
+}
+
+
+.ba-head,
+.ba-card,
+.ba-stat{
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:16px;
+  box-shadow:0 5px 22px #1018280b;
+}
+
+
+.ba-head{
+  min-height:76px;
+  padding:15px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:15px;
+}
+
+
+.ba-head h2{
+  margin:0;
+  font-size:17px;
+  font-weight:800;
+}
+
+
+.ba-head h2 i{
+  color:#008746;
+}
+
+
+.ba-head p{
+  margin:4px 0 0;
+  color:#7a867f;
+  font-size:10px;
+}
+
+
+.ba-actions{
+  display:flex;
+  gap:8px;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.ba-btn{
+  height:36px;
+  padding:0 13px;
+  border-radius:9px;
+  border:1px solid transparent;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+
+
+.ba-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+
+.ba-light{
+  background:#eef7f2;
+  color:#087f4e;
+  border-color:#d8ebdf;
+}
+
+
+.ba-primary{
+  background:#008746;
+  color:#fff;
+}
+
+
+.ba-primary:hover{
+  background:#08753f;
+}
+
+
+.ba-print{
+  background:#f5f7f6;
+  color:#44524b;
+  border-color:#dce2de;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.ba-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:15px;
+}
+
+
+.ba-stat{
+  padding:13px 16px;
+}
+
+
+.ba-stat span{
+  display:block;
+  color:#7b8780;
+  text-transform:uppercase;
+  font-size:8px;
+  font-weight:800;
+}
+
+
+.ba-stat strong{
+  display:block;
+  color:#008746;
+  font-size:22px;
+  line-height:1.2;
+  margin-top:4px;
+}
+
+
+.ba-stat small{
+  color:#98a29d;
+  font-size:9px;
+}
+
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.ba-layout{
+  display:grid;
+  grid-template-columns:430px minmax(0,1fr);
+  gap:15px;
+  align-items:stretch;
+}
+
+
+.ba-card{
+  min-width:0;
+  overflow:hidden;
+}
+
+
+.ba-list-card,
+.ba-detail-card{
+  min-height:600px;
+}
+
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.ba-card-head{
+  padding:15px 17px;
+  border-bottom:1px solid #edf0ee;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+
+.ba-card-head h3{
+  margin:0;
+  font-size:13px;
+}
+
+
+.ba-card-head h3 i{
+  color:#008746;
+}
+
+
+.ba-card-head small{
+  display:block;
+  margin-top:4px;
+  color:#8a9690;
+  font-size:9px;
+}
+
+.ba-status-filter{
+  min-width:170px;
+  height:34px;
+  padding:0 30px 0 11px;
+  border:1px solid #d8e1dc;
+  border-radius:9px;
+  background:#fff;
+  color:#1d2b25;
+  font-size:9px;
+  font-weight:800;
+  outline:none;
+  cursor:pointer;
+}
+
+.ba-status-filter:focus{
+  border-color:#008746;
+  box-shadow:0 0 0 2px rgba(0,135,70,.08);
+}
+
+.ba-badge.bon-cree{
+  background:#eef4ff;
+  color:#315b9c;
+  border-color:#d5e1f5;
+}
+
+.ba-badge.a-receptionner{
+  background:#fff7e8;
+  color:#a96a00;
+  border-color:#f0ddb4;
+}
+
+
+.ba-only-badge{
+  background:#eaf8f0;
+  color:#087f4e;
+  border:1px solid #cfe8d9;
+  border-radius:20px;
+  padding:6px 9px;
+  font-size:8px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.ba-search{
+  margin:12px;
+  height:36px;
+  border:1px solid #dce2de;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  color:#98a29d;
+}
+
+
+.ba-search input{
+  width:100%;
+  border:0;
+  outline:0;
+  padding-left:8px;
+  font-size:10px;
+}
+
+
+/* =========================================================
+   LIST
+========================================================= */
+
+.ba-list{
+  max-height:480px;
+  overflow:auto;
+}
+
+
+.ba-item{
+  padding:12px 14px;
+  border-top:1px solid #eef1ef;
+  cursor:pointer;
+  transition:.15s;
+}
+
+
+.ba-item:hover{
+  background:#f6faf8;
+}
+
+
+.ba-item.active{
+  background:#eef8f3;
+  border-left:3px solid #008746;
+  padding-left:11px;
+}
+
+
+.ba-item-top{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+
+
+.ba-num{
+  color:#087f4e;
+  font-size:11px;
+  font-weight:800;
+}
+
+
+.ba-item-date{
+  color:#98a29d;
+  font-size:8px;
+  margin-top:3px;
+}
+
+
+.ba-item-main{
+  margin-top:7px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px 10px;
+}
+
+
+.ba-item-main span{
+  display:block;
+  color:#9aa49f;
+  font-size:7px;
+  text-transform:uppercase;
+}
+
+
+.ba-item-main b{
+  display:block;
+  margin-top:2px;
+  font-size:9px;
+  color:#344139;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+.ba-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:20px;
+  padding:5px 9px;
+  font-size:8px;
+  font-weight:800;
+}
+
+
+.ba-badge.devis-valide{
+  background:#eaf8f0;
+  color:#087f4e;
+}
+
+
+.ba-badge.bon-achat{
+  background:#eef4ff;
+  color:#315b9c;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.ba-empty{
+  min-height:600px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#98a29d;
+  text-align:center;
+}
+
+
+.ba-empty i{
+  font-size:32px;
+  color:#b9c4be;
+  margin-bottom:10px;
+}
+
+
+.ba-empty b{
+  color:#65716b;
+  font-size:12px;
+}
+
+
+.ba-empty span{
+  margin-top:4px;
+  font-size:9px;
+}
+
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+.ba-detail-head{
+  padding:17px 19px;
+  border-bottom:1px solid #edf0ee;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+
+.ba-detail-number{
+  color:#008746;
+  font-size:18px;
+  font-weight:900;
+}
+
+
+.ba-detail-date{
+  color:#8a9690;
+  font-size:9px;
+  margin-top:4px;
+}
+
+
+.ba-section-title{
+  margin:18px 17px 0;
+  padding-bottom:8px;
+  border-bottom:1px solid #e6eae8;
+  color:#087f4e;
+  font-size:11px;
+  font-weight:800;
+}
+
+
+.ba-section-title i{
+  margin-right:6px;
+}
+
+
+.ba-section-title span{
+  float:right;
+  color:#98a29d;
+  font-size:8px;
+  font-weight:600;
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.ba-info-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  margin:0 17px;
+  border:1px solid #e1e6e3;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:15px;
+}
+
+
+.ba-info-grid div{
+  padding:10px;
+  border-right:1px solid #e1e6e3;
+}
+
+
+.ba-info-grid div:last-child{
+  border-right:0;
+}
+
+
+.ba-info-grid span,
+.ba-devis-grid span{
+  display:block;
+  font-size:7px;
+  color:#89958f;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+
+.ba-info-grid b,
+.ba-devis-grid b{
+  display:block;
+  margin-top:4px;
+  font-size:10px;
+  color:#344139;
+  word-break:break-word;
+}
+
+
+/* =========================================================
+   DEVIS
+========================================================= */
+
+.ba-devis-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  margin:15px 17px 0;
+  border:1px solid #e1e6e3;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+
+.ba-devis-grid div{
+  padding:10px;
+  border-right:1px solid #e1e6e3;
+  border-bottom:1px solid #e1e6e3;
+}
+
+
+.ba-devis-grid div:nth-child(3n){
+  border-right:0;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.ba-table-wrap{
+  margin:0 17px;
+  overflow:auto;
+}
+
+
+.ba-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:620px;
+}
+
+
+.ba-table th{
+  background:#f7f9f8;
+  color:#7a867f;
+  font-size:7px;
+  text-transform:uppercase;
+  text-align:left;
+  padding:9px;
+  border-bottom:1px solid #e4e8e6;
+}
+
+
+.ba-table td{
+  padding:9px;
+  font-size:9px;
+  border-bottom:1px solid #edf0ee;
+}
+
+
+.ba-table tfoot td{
+  background:#f0f7f3;
+  font-weight:800;
+}
+
+
+.ba-total{
+  color:#008746;
+  text-align:right;
+}
+
+
+/* =========================================================
+   MONTANTS
+========================================================= */
+
+.ba-montants{
+  margin:15px 17px 0;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid #dfe6e2;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+
+.ba-montants>div{
+  padding:11px;
+  border-right:1px solid #dfe6e2;
+}
+
+
+.ba-montants>div:last-child{
+  border-right:0;
+}
+
+
+.ba-montants span{
+  display:block;
+  color:#89958f;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+
+.ba-montants strong{
+  display:block;
+  margin-top:5px;
+  font-size:11px;
+  color:#344139;
+}
+
+
+.ba-montants .ba-ttc{
+  background:#eef8f3;
+}
+
+
+.ba-montants .ba-ttc strong{
+  color:#008746;
+  font-size:13px;
+}
+
+
+/* =========================================================
+   COMMENT
+========================================================= */
+
+.ba-comment{
+  margin:15px 17px;
+  padding:10px 12px;
+  background:#f8faf9;
+  border:1px solid #e2e7e4;
+  border-radius:9px;
+}
+
+
+.ba-comment span{
+  color:#7c8882;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+
+.ba-comment p{
+  margin:5px 0 0;
+  font-size:9px;
+  color:#344139;
+  white-space:pre-line;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ba-footer-actions{
+  padding:13px 17px;
+  border-top:1px solid #edf0ee;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+
+/* =========================================================
+   LOADING / TOAST
+========================================================= */
+
+.ba-loading{
+  padding:50px;
+  text-align:center;
+  color:#98a29d;
+  font-size:10px;
+}
+
+
+.ba-loading i{
+  display:block;
+  margin-bottom:8px;
+  color:#008746;
+}
+
+
+.ba-toast{
+  display:none;
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  z-index:99999;
+  padding:12px 15px;
+  border-radius:9px;
+  background:#087f4e;
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  box-shadow:0 8px 25px #0002;
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.ba-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100002;
+  background:#10182866;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+
+.ba-modal-box{
+  width:min(760px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:16px;
+  box-shadow:0 20px 60px #0003;
+}
+
+
+.ba-modal-head{
+  padding:15px 17px;
+  border-bottom:1px solid #edf0ee;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+
+.ba-modal-head strong{
+  display:block;
+  color:#087f4f;
+  font-size:13px;
+}
+
+
+.ba-modal-head small{
+  display:block;
+  margin-top:4px;
+  color:#8a9690;
+  font-size:9px;
+}
+
+
+.ba-modal-head button{
+  width:31px;
+  height:31px;
+  border:0;
+  border-radius:8px;
+  background:#f5f7f6;
+  color:#66736c;
+  font-size:20px;
+  cursor:pointer;
+}
+
+
+.ba-modal-body{
+  padding:17px;
+}
+
+
+/* =========================================================
+   MODAL INFO
+========================================================= */
+
+.ba-modal-info{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:15px;
+}
+
+
+.ba-modal-info>div{
+  border:1px solid #e2e8e4;
+  border-radius:9px;
+  padding:9px 10px;
+  background:#f8faf9;
+}
+
+
+.ba-modal-info span{
+  display:block;
+  color:#8a9690;
+  font-size:8px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+
+.ba-modal-info strong{
+  display:block;
+  color:#087f4f;
+  font-size:10px;
+  margin-top:3px;
+  word-break:break-word;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.ba-form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+
+.ba-form-grid label{
+  font-size:9px;
+  font-weight:800;
+  color:#59665f;
+  text-transform:uppercase;
+}
+
+
+.ba-form-grid label.wide{
+  grid-column:1/-1;
+}
+
+
+.ba-form-grid input,
+.ba-form-grid select,
+.ba-form-grid textarea{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  margin-top:6px;
+  border:1px solid #dce2de;
+  border-radius:9px;
+  background:#fff;
+  color:#344139;
+  font:11px inherit;
+  outline:0;
+  padding:9px 10px;
+}
+
+
+.ba-form-grid input,
+.ba-form-grid select{
+  height:39px;
+}
+
+
+.ba-form-grid textarea{
+  resize:vertical;
+}
+
+
+.ba-form-grid input:focus,
+.ba-form-grid select:focus,
+.ba-form-grid textarea:focus{
+  border-color:#82c7a5;
+  box-shadow:0 0 0 3px #00874612;
+}
+
+
+/* =========================================================
+   TOTAL MODAL
+========================================================= */
+
+.ba-modal-total{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  margin-top:15px;
+  border:1px solid #dfe6e2;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+
+.ba-modal-total>div{
+  padding:12px;
+  border-right:1px solid #dfe6e2;
+}
+
+
+.ba-modal-total>div:last-child{
+  border-right:0;
+}
+
+
+.ba-modal-total span{
+  display:block;
+  color:#89958f;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+
+.ba-modal-total strong{
+  font-size:14px;
+  color:#344139;
+}
+
+
+.ba-modal-total small{
+  color:#7a867f;
+  font-size:8px;
+}
+
+
+.ba-warning{
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px solid #d7e9df;
+  border-radius:9px;
+  background:#f3faf6;
+  color:#4d685a;
+  font-size:9px;
+}
+
+
+.ba-warning i{
+  color:#087f4f;
+  margin-right:5px;
+}
+
+
+.ba-modal-footer{
+  padding:12px 17px;
+  border-top:1px solid #edf0ee;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+#baPrintSheet{
+  display:none;
+}
+
+
+@page{
+  size:A4 landscape;
+  margin:10mm 11mm;
+}
+
+
+@media print{
+
+  body *{
+    visibility:hidden !important;
+  }
+
+  #baPrintSheet,
+  #baPrintSheet *{
+    visibility:visible !important;
+  }
+
+  #baPrintSheet{
+    display:block !important;
+    position:absolute;
+    inset:0;
+    background:#fff;
+    color:#17212b;
+  }
+
+}
+
+
+.ba-print-page{
+  width:100%;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:9px;
+}
+
+
+.ba-print-header{
+  display:grid;
+  grid-template-columns:1fr 1.5fr 1fr;
+  align-items:center;
+  gap:15px;
+  border-bottom:2px solid #087f4e;
+  padding-bottom:9px;
+  margin-bottom:12px;
+}
+
+
+.ba-print-brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+
+.ba-print-logo{
+  width:30px;
+  height:30px;
+  border-radius:7px;
+  background:#087f4e;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:900;
+}
+
+
+.ba-print-brand strong{
+  display:block;
+  color:#087f4e;
+  font-size:13px;
+}
+
+
+.ba-print-brand small{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+}
+
+
+.ba-print-title{
+  text-align:center;
+}
+
+
+.ba-print-title h1{
+  margin:0;
+  font-size:19px;
+}
+
+
+.ba-print-title span{
+  color:#7d8983;
+  font-size:8px;
+}
+
+
+.ba-print-meta{
+  text-align:right;
+  font-size:8px;
+}
+
+
+.ba-print-meta b,
+.ba-print-meta span{
+  display:block;
+  margin:2px 0;
+}
+
+
+.ba-print-meta em{
+  font-style:normal;
+  color:#087f4e;
+  font-weight:800;
+}
+
+
+/* =========================================================
+   PRINT INFO
+========================================================= */
+
+.ba-print-info{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+
+
+.ba-print-info div{
+  padding:7px 8px;
+  border-right:1px solid #e1e6e3;
+}
+
+
+.ba-print-info div:last-child{
+  border-right:0;
+}
+
+
+.ba-print-info span{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+  text-transform:uppercase;
+}
+
+
+.ba-print-info b{
+  display:block;
+  margin-top:3px;
+  font-size:9px;
+}
+
+
+/* =========================================================
+   PRINT TABLE
+========================================================= */
+
+.ba-print-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+
+.ba-print-table th,
+.ba-print-table td{
+  border:1px solid #cfd8d3;
+  padding:6px 7px;
+  font-size:8px;
+}
+
+
+.ba-print-table th{
+  background:#eaf4ef;
+  color:#344139;
+  text-transform:uppercase;
+  font-size:7px;
+}
+
+
+.ba-print-table tfoot td{
+  background:#f1f7f4;
+  font-weight:800;
+  text-align:right;
+}
+
+
+/* =========================================================
+   PRINT NOTE
+========================================================= */
+
+.ba-print-note{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  border:1px solid #d7e7df;
+  background:#f7fbf9;
+  border-radius:5px;
+  padding:8px;
+  gap:10px;
+}
+
+
+.ba-print-note div{
+  font-size:8px;
+}
+
+
+.ba-print-note b{
+  display:block;
+  font-size:7px;
+  color:#7d8983;
+  text-transform:uppercase;
+}
+
+
+.ba-print-note span{
+  display:block;
+  margin-top:3px;
+}
+
+
+/* =========================================================
+   PRINT COMMENT
+========================================================= */
+
+.ba-print-comment{
+  margin-top:10px;
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  padding:8px;
+}
+
+
+.ba-print-comment b{
+  font-size:8px;
+}
+
+
+.ba-print-comment p{
+  margin:4px 0 0;
+  font-size:8px;
+  min-height:20px;
+}
+
+
+/* =========================================================
+   SIGNATURES
+========================================================= */
+
+.ba-signatures{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:15px;
+}
+
+
+.ba-signatures div{
+  height:105px;
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  padding:8px;
+  position:relative;
+}
+
+
+.ba-signatures b{
+  display:block;
+  font-size:9px;
+}
+
+
+.ba-signatures span{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+  margin-top:2px;
+}
+
+
+.ba-signatures i{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:28px;
+  border-bottom:1px solid #66736c;
+}
+
+
+.ba-signatures small{
+  position:absolute;
+  left:8px;
+  bottom:8px;
+  color:#98a29d;
+  font-size:7px;
+}
+
+
+/* =========================================================
+   BONS D'ACHAT CRÉÉS
+========================================================= */
+
+.ba-created-card{
+  margin-top:15px;
+  overflow:hidden;
+}
+
+.ba-created-head{
+  min-height:58px;
+}
+
+.ba-created-head h3 i{
+  color:#315b9c;
+}
+
+.ba-created-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.ba-created-search{
+  margin:12px;
+}
+
+.ba-created-list{
+  max-height:360px;
+  overflow:auto;
+}
+
+.ba-created-table-wrap{
+  width:100%;
+  overflow:auto;
+}
+
+.ba-created-table{
+  width:100%;
+  min-width:850px;
+  border-collapse:collapse;
+}
+
+.ba-created-table th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#f7f9f8;
+  color:#7a867f;
+  font-size:7px;
+  text-transform:uppercase;
+  text-align:left;
+  padding:9px 12px;
+  border-bottom:1px solid #e4e8e6;
+}
+
+.ba-created-table td{
+  padding:10px 12px;
+  font-size:9px;
+  color:#344139;
+  border-bottom:1px solid #edf0ee;
+  white-space:nowrap;
+}
+
+.ba-created-table tbody tr:hover{
+  background:#f6faf8;
+}
+
+.ba-created-number{
+  color:#315b9c;
+  font-weight:900;
+}
+
+.ba-created-amount{
+  font-weight:800;
+  text-align:right;
+}
+
+.ba-created-empty{
+  padding:40px 20px;
+  text-align:center;
+  color:#98a29d;
+}
+
+.ba-created-empty i{
+  display:block;
+  font-size:28px;
+  margin-bottom:9px;
+  color:#b9c4be;
+}
+
+.ba-created-empty b{
+  display:block;
+  color:#65716b;
+  font-size:11px;
+}
+
+.ba-created-empty span{
+  display:block;
+  margin-top:4px;
+  font-size:9px;
+}
+
+.ba-created-status{
+  display:inline-flex;
+  align-items:center;
+  border-radius:20px;
+  padding:5px 9px;
+  background:#eef4ff;
+  color:#315b9c;
+  font-size:8px;
+  font-weight:900;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1100px){
+
+  .ba-layout{
+    grid-template-columns:1fr;
+  }
+
+  .ba-stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+
+@media(max-width:850px){
+
+  .ba-info-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .ba-devis-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .ba-devis-grid div:nth-child(3n){
+    border-right:1px solid #e1e6e3;
+  }
+
+  .ba-devis-grid div:nth-child(2n){
+    border-right:0;
+  }
+
+  .ba-montants{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .ba-montants>div:nth-child(2){
+    border-right:0;
+  }
+
+}
+
+
+@media(max-width:650px){
+
+  .ba-page{
+    padding:12px;
+  }
+
+  .ba-stats{
+    grid-template-columns:1fr;
+  }
+
+  .ba-info-grid,
+  .ba-devis-grid{
+    grid-template-columns:1fr;
+  }
+
+  .ba-devis-grid div{
+    border-right:0 !important;
+  }
+
+  .ba-form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .ba-form-grid label.wide{
+    grid-column:auto;
+  }
+
+  .ba-modal-info{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .ba-modal-total{
+    grid-template-columns:1fr;
+  }
+
+  .ba-modal-total>div{
+    border-right:0;
+    border-bottom:1px solid #dfe6e2;
+  }
+
+  .ba-modal-total>div:last-child{
+    border-bottom:0;
+  }
+
+}
+
+</style>
+
+
+
+<script type="module">
+
+import supabase from "../assets/js/core/supabase.js";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const BA = {
+
+  demandes: [],
+
+  selected: null,
+
+  details: [],
+
+  devis: null,
+
+  bonsCrees: []
+
+};
+
+
+const $ = id =>
+  document.getElementById(id);
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const esc = value =>
+
+  String(value ?? '')
+
+    .replace(/[&<>"]/g, char => ({
+
+      '&':'&amp;',
+
+      '<':'&lt;',
+
+      '>':'&gt;',
+
+      '"':'&quot;'
+
+    }[char]));
+
+
+function toast(message,type='ok'){
+
+  const el = $('baToast');
+
+  el.textContent = message;
+
+  el.style.background =
+    type === 'error'
+      ? '#d92d20'
+      : type === 'warn'
+        ? '#b77900'
+        : '#087f4e';
+
+  el.style.display = 'block';
+
+  clearTimeout(window.__baToast);
+
+  window.__baToast = setTimeout(
+
+    () => el.style.display='none',
+
+    3500
+
+  );
+
+}
+
+
+function formatDate(value){
+
+  if(!value)
+    return '—';
+
+  try{
+
+    return new Date(value)
+      .toLocaleDateString('fr-FR');
+
+  }catch{
+
+    return value;
+
+  }
+
+}
+
+
+function toNumber(value){
+
+  if(value === null || value === undefined || value === '')
+    return 0;
+
+  if(typeof value === 'number')
+    return Number.isFinite(value) ? value : 0;
+
+  const normalized =
+    String(value)
+      .trim()
+      .replace(/\\s/g,'')
+      .replace(',', '.');
+
+  const n = Number(normalized);
+
+  return Number.isFinite(n) ? n : 0;
+
+}
+
+
+function money(value){
+
+  return toNumber(value)
+    .toLocaleString(
+      'fr-FR',
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }
+    );
+
+}
+
+
+function qty(value){
+
+  return toNumber(value)
+    .toLocaleString(
+      'fr-FR',
+      {
+        minimumFractionDigits:3,
+        maximumFractionDigits:3
+      }
+    );
+
+}
+
+
+function dbNumber(value, field){
+
+  const n = toNumber(value);
+
+  if(!Number.isFinite(n))
+    throw new Error(`Valeur numérique invalide pour ${field}.`);
+
+  /*
+    On refuse uniquement les valeurs manifestement hors plage
+    d'un champ numérique PostgreSQL classique.
+    On ne modifie jamais silencieusement la valeur.
+  */
+  if(Math.abs(n) > 999999999999.999)
+    throw new Error(
+      `La valeur de ${field} est trop élevée : ${n}.`
+    );
+
+  return Number(n.toFixed(3));
+
+}
+
+
+/* =========================================================
+   LOAD DEMANDES
+========================================================= */
+
+async function loadDemandes(){
+
+  $('baList').innerHTML = `
+    <div class="ba-loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      Chargement des données...
+    </div>
+  `;
+
+  const { data, error } = await supabase
+    .from('demandes_achat')
+    .select('*')
+    .in('statut',['DEVIS_VALIDE','BON_ACHAT'])
+    .order('created_at',{ascending:false});
+
+  if(error) throw error;
+
+  BA.demandes = Array.isArray(data) ? data : [];
+
+  await loadDevisForStats();
+  await loadBonsCrees();
+
+  updateStats();
+  renderList();
+
+}
+
+/* =========================================================
+   LOAD DEVIS STATS
+========================================================= */
+
+async function loadDevisForStats(){
+
+  if(!BA.demandes.length)
+    return;
+
+
+  const ids = BA.demandes.map(x=>x.id);
+
+
+  const {
+
+    data,
+
+    error
+
+  } = await supabase
+
+    .from('devis_achat')
+
+    .select('*')
+
+    .in('demande_achat_id',ids)
+
+    .eq('statut','VALIDE')
+
+    .order('created_at',{
+      ascending:false
+    });
+
+
+  if(error)
+    throw error;
+
+
+  const devisValides = Array.isArray(data)
+    ? data
+    : [];
+
+
+  BA.demandes.forEach(d=>{
+
+    d.__devis =
+      devisValides.find(
+        x =>
+          String(x.demande_achat_id) ===
+          String(d.id)
+      ) || null;
+
+  });
+
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(){
+
+  const demandes = BA.demandes.filter(d =>
+    d.statut === 'DEVIS_VALIDE' && d.__devis
+  );
+
+  const urgentes = demandes.filter(d =>
+    d.priorite === 'URGENTE' || d.priorite === 'TRES_URGENTE'
+  ).length;
+
+  const ht = demandes.reduce((sum,d)=>
+    sum + Number(d.__devis?.montant_ht || 0),0);
+
+  const ttc = demandes.reduce((sum,d)=>
+    sum + Number(d.__devis?.montant_ttc || 0),0);
+
+  $('statDevisValides').textContent = demandes.length;
+  $('statUrgentes').textContent = urgentes;
+  $('statMontantHT').textContent = money(ht);
+  $('statMontantTTC').textContent = money(ttc);
+
+}
+
+/* =========================================================
+   RENDER LIST
+========================================================= */
+
+function getBaMode(){
+  return $('baStatusFilter')?.value || 'DEVIS_VALIDES';
+}
+
+function updateBaListHeader(){
+  const mode = getBaMode();
+  const title = $('baListTitle');
+  const subtitle = $('baListSubtitle');
+  if(!title || !subtitle) return;
+
+  if(mode === 'DEVIS_VALIDES'){
+    title.innerHTML = '<i class="fa-solid fa-list"></i> Demandes avec devis validé';
+    subtitle.textContent = "Sélectionnez une demande pour créer le Bon d'achat.";
+  }else if(mode === 'BONS_CREES'){
+    title.innerHTML = '<i class="fa-solid fa-file-circle-check"></i> Bons d’achat créés';
+    subtitle.textContent = "Consultez les Bons d’achat déjà créés.";
+  }else if(mode === 'RECEPTIONNER'){
+    title.innerHTML = '<i class="fa-solid fa-truck-ramp-box"></i> Bons d’achat à réceptionner';
+    subtitle.textContent = "Consultez les Bons d’achat en attente de réception.";
+  }else{
+    title.innerHTML = '<i class="fa-solid fa-list"></i> Tous';
+    subtitle.textContent = "Consultez les devis validés et les Bons d’achat créés.";
+  }
+}
+
+function renderList(){
+  const mode = getBaMode();
+  const q = String($('baSearch')?.value || '').toLowerCase().trim();
+  let list = Array.isArray(BA.demandes) ? [...BA.demandes] : [];
+
+  if(mode === 'DEVIS_VALIDES')
+    list = list.filter(d => d.statut === 'DEVIS_VALIDE' && !!d.__devis);
+  else if(mode === 'BONS_CREES')
+    list = list.filter(d => !!d.__achat);
+  else if(mode === 'RECEPTIONNER')
+    list = list.filter(d => !!d.__achat && !d.__achat.date_reception);
+  else
+    list = list.filter(d => !!d.__devis || !!d.__achat);
+
+  if(q){
+    list = list.filter(d=>{
+      const devis = d.__devis;
+      const achat = d.__achat;
+      return String(d.numero_demande||'').toLowerCase().includes(q) ||
+             String(d.demandeur||'').toLowerCase().includes(q) ||
+             String(d.service||'').toLowerCase().includes(q) ||
+             String(devis?.fournisseur_nom||'').toLowerCase().includes(q) ||
+             String(devis?.numero_devis||'').toLowerCase().includes(q) ||
+             String(achat?.numero_achat||'').toLowerCase().includes(q);
+    });
+  }
+
+  if(!list.length){
+    const emptyTitle = mode === 'DEVIS_VALIDES' ? 'Aucun devis validé' :
+      mode === 'BONS_CREES' ? "Aucun Bon d'achat créé" :
+      mode === 'RECEPTIONNER' ? "Aucun Bon d'achat à réceptionner" : 'Aucune donnée';
+    $('baList').innerHTML = `
+      <div class="ba-empty" style="min-height:300px">
+        <i class="fa-solid fa-inbox"></i>
+        <b>${emptyTitle}</b>
+        <span>Aucune donnée ne correspond à votre sélection.</span>
+      </div>`;
+    return;
+  }
+
+  $('baList').innerHTML = list.map(d=>{
+    const devis = d.__devis;
+    const achat = d.__achat;
+    let badge = 'DEVIS VALIDÉ';
+    let badgeClass = 'devis-valide';
+    if(achat){
+      if(!achat.date_reception){
+        badge = 'À RÉCEPTIONNER';
+        badgeClass = 'a-receptionner';
+      }else{
+        badge = 'BON D’ACHAT CRÉÉ';
+        badgeClass = 'bon-cree';
+      }
+    }
+    return `
+      <div class="ba-item ${BA.selected?.id === d.id ? 'active' : ''}" data-id="${esc(d.id)}">
+        <div class="ba-item-top">
+          <span class="ba-num">${esc(d.numero_demande || '—')}</span>
+          <span class="ba-badge ${badgeClass}">${badge}</span>
+        </div>
+        <div class="ba-item-date">${formatDate(d.date_demande)}</div>
+        <div class="ba-item-main">
+          <div><span>Demandeur</span><b>${esc(d.demandeur || '—')}</b></div>
+          <div><span>Service</span><b>${esc(d.service || '—')}</b></div>
+          <div><span>Fournisseur</span><b>${esc(devis?.fournisseur_nom || '—')}</b></div>
+          <div><span>Montant TTC</span><b>${money(achat?.montant_ttc ?? devis?.montant_ttc ?? 0)} MAD</b></div>
+        </div>
+      </div>`;
+  }).join('');
+
+}
+
+/* =========================================================
+   LOAD DETAILS
+========================================================= */
+
+async function loadDetails(id){
+
+  const { data, error } = await supabase
+    .from('demandes_achat_details')
+    .select('*')
+    .eq('demande_achat_id', id)
+    .order('id');
+
+  if(error) throw error;
+
+  BA.details = Array.isArray(data) ? data : [];
+
+  renderDetail();
+}
+
+
+/* =========================================================
+   LOAD DEVIS
+========================================================= */
+
+async function loadDevis(id){
+
+  const { data, error } = await supabase
+    .from('devis_achat')
+    .select('*')
+    .eq('demande_achat_id', id)
+    .eq('statut', 'VALIDE')
+    .order('created_at', { ascending:false })
+    .limit(1);
+
+  if(error) throw error;
+
+  BA.devis = Array.isArray(data) && data.length
+    ? data[0]
+    : null;
+
+  renderDetail();
+}
+
+
+/* =========================================================
+   RENDER DETAIL
+========================================================= */
+
+function renderDetail(){
+
+  const d = BA.selected;
+
+  if(!d){
+    $('baEmpty').style.display = 'flex';
+    $('baDetail').style.display = 'none';
+    return;
+  }
+
+  $('baEmpty').style.display = 'none';
+  $('baDetail').style.display = 'block';
+
+  $('detailNumero').textContent = d.numero_demande || '—';
+  $('detailDate').textContent = formatDate(d.date_demande);
+  $('detailDemandeur').textContent = d.demandeur || '—';
+  $('detailService').textContent = d.service || '—';
+  $('detailPriorite').textContent = d.priorite || '—';
+  $('detailMotif').textContent = d.motif || '—';
+
+  const devis = BA.devis;
+
+  $('detailFournisseur').textContent = devis?.fournisseur_nom || '—';
+  $('detailNumeroDevis').textContent = devis?.numero_devis || '—';
+  $('detailDateDevis').textContent = formatDate(devis?.date_devis);
+  $('detailValidite').textContent = devis?.validite || '—';
+  $('detailDelai').textContent = devis?.delai_livraison || '—';
+  $('detailPaiement').textContent = devis?.conditions_paiement || '—';
+
+  $('detailHT').textContent = `${money(devis?.montant_ht)} MAD`;
+  $('detailRemise').textContent = `${money(devis?.remise)} MAD`;
+  $('detailTVA').textContent = `${money(devis?.tva)} %`;
+  $('detailTTC').textContent = `${money(devis?.montant_ttc)} MAD`;
+  $('detailObservations').textContent = devis?.observations || '—';
+
+  const details = Array.isArray(BA.details) ? BA.details : [];
+
+  $('detailLinesCount').textContent =
+    `${details.length} ${details.length > 1 ? 'lignes' : 'ligne'}`;
+
+  $('detailLines').innerHTML = details.length
+    ? details.map(l=>`
+        <tr>
+          <td>${esc(l.article || l.code_article || '—')}</td>
+          <td>${esc(l.designation || '—')}</td>
+          <td>${esc(l.groupe || '—')}</td>
+          <td>${esc(l.type_produit || '—')}</td>
+          <td style="text-align:right">${qty(l.quantite)}</td>
+          <td>${esc(l.unite || '—')}</td>
+        </tr>
+      `).join('')
+    : `
+        <tr>
+          <td colspan="6" style="text-align:center">Aucun article</td>
+        </tr>
+      `;
+
+  const totalQty = details.reduce(
+    (sum,l)=>sum + (Number(l.quantite) || 0),
+    0
+  );
+
+  const units = [...new Set(
+    details.map(x=>x.unite).filter(Boolean)
+  )];
+
+  $('detailTotalQty').textContent = qty(totalQty);
+  $('detailUnit').textContent = units.length === 1 ? units[0] : '—';
+
+  const mode = getBaMode();
+
+  $('detailStatus').textContent =
+    d.__achat
+      ? (d.__achat.date_reception ? 'BON D’ACHAT CRÉÉ' : 'À RÉCEPTIONNER')
+      : 'DEVIS VALIDÉ';
+
+  $('detailStatus').className =
+    'ba-badge ' +
+    (d.__achat
+      ? (d.__achat.date_reception ? 'bon-cree' : 'a-receptionner')
+      : 'devis-valide');
+
+  $('btnCreateBA').style.display =
+    mode === 'DEVIS_VALIDES' &&
+    d.statut === 'DEVIS_VALIDE' &&
+    !!BA.devis &&
+    !d.__achat
+      ? 'inline-flex'
+      : 'none';
+}
+
+
+/* =========================================================
+   SELECT
+========================================================= */
+
+$('baList').onclick = async e=>{
+
+  const item =
+    e.target.closest('[data-id]');
+
+
+  if(!item)
+    return;
+
+
+  const id =
+    item.dataset.id;
+
+
+  const d =
+    BA.demandes.find(
+      x =>
+        String(x.id) ===
+        String(id)
+    );
+
+
+  if(!d)
+    return;
+
+
+  BA.selected =
+    d;
+
+
+  BA.details = [];
+
+  BA.devis = null;
+
+
+  renderList();
+
+
+  try{
+
+    await loadDetails(id);
+
+    await loadDevis(id);
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error.message ||
+      'Impossible de charger les détails.',
+      'error'
+    );
+
+  }
+
+};
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+$('baSearch').oninput =
+  renderList;
+
+$('baStatusFilter').onchange =
+  ()=>{
+    BA.selected = null;
+    BA.details = [];
+    BA.devis = null;
+    updateBaListHeader();
+    renderDetail();
+    renderList();
+  };
+
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+$('baRefresh').onclick = async()=>{
+  try{
+    await loadDemandes();
+    if(BA.selected){
+      const stillExists = BA.demandes.find(x=>String(x.id)===String(BA.selected.id));
+      if(stillExists){
+        BA.selected = stillExists;
+        await loadDetails(stillExists.id);
+        await loadDevis(stillExists.id);
+      }else{
+        BA.selected = null;
+        BA.details = [];
+        BA.devis = null;
+        renderDetail();
+      }
+    }
+    toast('Données actualisées.');
+  }catch(error){
+    console.error(error);
+    toast(error.message || 'Erreur de chargement.','error');
+  }
+};
+
+/* =========================================================
+   BONS D'ACHAT
+   Les achats sont intégrés dans la même liste que les devis.
+========================================================= */
+
+function extractDemandeFromComment(comment){
+  const match = String(comment || '').match(/demande\s+([^\s]+)\s+et\s+du\s+devis/i);
+  return match?.[1] || '—';
+}
+
+async function loadBonsCrees(){
+  const {data,error} = await supabase
+    .from('achats')
+    .select('*')
+    .order('date_achat',{ascending:false});
+  if(error) throw error;
+  BA.bonsCrees = Array.isArray(data) ? data : [];
+
+  BA.demandes.forEach(d=>{
+    const demandeNumero = String(d.numero_demande || '').trim();
+    d.__achat = BA.bonsCrees.find(ba=>
+      extractDemandeFromComment(ba.commentaire) === demandeNumero
+    ) || null;
+  });
+}
+
+
+/* =========================================================
+   GENERATE BA NUMBER
+========================================================= */
+
+async function generateBANumber(){
+
+  const now =
+    new Date();
+
+
+  const date =
+    now.toISOString()
+      .slice(0,10)
+      .replaceAll('-','');
+
+
+  let number;
+
+
+  for(let i=0;i<10;i++){
+
+    const random =
+      Math.floor(
+        1000 +
+        Math.random()*9000
+      );
+
+
+    number =
+      `BA-${date}-${random}`;
+
+
+    const {
+
+      data,
+
+      error
+
+    } = await supabase
+
+      .from('achats')
+
+      .select('id')
+
+      .eq('numero_achat',number)
+      .limit(1);
+
+
+    if(error)
+      throw error;
+
+
+    if(!data?.length)
+      return number;
+
+  }
+
+
+  throw new Error(
+    'Impossible de générer un numéro de Bon d’achat unique.'
+  );
+
+}
+
+
+/* =========================================================
+   CALCUL DATE PRÉVUE DE RÉCEPTION
+   Date du Bon + Délai de livraison du devis
+========================================================= */
+
+function calculateReceptionDate(dateAchat, delaiLivraison){
+
+  if(!dateAchat)
+    return '';
+
+  /* delai_livraison est un varchar : "2", "2 jours", "30", etc. */
+  const match =
+    String(delaiLivraison ?? '')
+      .trim()
+      .match(/-?\d+(?:[.,]\d+)?/);
+
+  if(!match)
+    return '';
+
+  const delai =
+    Number(match[0].replace(',','.'));
+
+  if(!Number.isFinite(delai))
+    return '';
+
+  const date =
+    new Date(`${dateAchat}T00:00:00`);
+
+  if(Number.isNaN(date.getTime()))
+    return '';
+
+  date.setDate(
+    date.getDate() + Math.round(delai)
+  );
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth()+1).padStart(2,'0'),
+    String(date.getDate()).padStart(2,'0')
+  ].join('-');
+}
+
+function updateDatePrevueReception(){
+
+  const dateAchat =
+    $('baDate').value;
+
+  const delaiLivraison =
+    BA.devis?.delai_livraison;
+
+  const dateReception =
+    calculateReceptionDate(
+      dateAchat,
+      delaiLivraison
+    );
+
+  $('baDateReception').value =
+    dateReception;
+
+  return dateReception;
+}
+
+
+/* =========================================================
+   OPEN MODAL
+========================================================= */
+
+async function openBAModal(){
+
+  const d =
+    BA.selected;
+
+
+  if(!d)
+    return;
+
+
+  if(d.statut !== 'DEVIS_VALIDE'){
+
+    toast(
+      'Cette demande doit être en statut DEVIS VALIDÉ.',
+      'warn'
+    );
+
+    return;
+
+  }
+
+
+  if(!BA.devis){
+
+    toast(
+      'Aucun devis validé trouvé.',
+      'warn'
+    );
+
+    return;
+
+  }
+
+
+  if(!BA.devis.fournisseur_id){
+
+    toast(
+      'Le devis validé ne contient pas de fournisseur_id. Impossible de créer le Bon d’achat.',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  if(!BA.details.length){
+
+    toast(
+      'Aucun article trouvé dans la demande.',
+      'warn'
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const numero =
+      await generateBANumber();
+
+
+    $('baNumero').value =
+      numero;
+
+
+    $('baDate').value =
+      new Date()
+        .toISOString()
+        .slice(0,10);
+
+
+    updateDatePrevueReception();
+
+
+    $('baDevise').value =
+      'MAD';
+
+
+    $('baCommentaire').value =
+      `Créé à partir de la demande ${d.numero_demande} et du devis ${BA.devis.numero_devis}.`;
+
+
+    $('modalNumeroDemande').textContent =
+      d.numero_demande || '—';
+
+
+    $('modalDemande').textContent =
+      d.numero_demande || '—';
+
+
+    $('modalFournisseur').textContent =
+      BA.devis.fournisseur_nom || '—';
+
+
+    $('modalDevis').textContent =
+      BA.devis.numero_devis || '—';
+
+
+    $('modalTTC').textContent =
+      `${money(BA.devis.montant_ttc)} MAD`;
+
+
+    $('modalHT').textContent =
+      money(BA.devis.montant_ht);
+
+
+    $('modalTVA').textContent =
+      money(BA.devis.tva);
+
+
+    $('modalTotalTTC').textContent =
+      money(BA.devis.montant_ttc);
+
+
+    $('baModal').style.display =
+      'flex';
+
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error.message ||
+      'Impossible de préparer le Bon d’achat.',
+      'error'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+function closeBAModal(){
+
+  $('baModal').style.display =
+    'none';
+
+}
+
+
+$('baDate').addEventListener(
+  'change',
+  updateDatePrevueReception
+);
+
+
+$('btnCreateBA').onclick =
+  openBAModal;
+
+
+$('closeBaModal').onclick =
+  closeBAModal;
+
+
+$('cancelBa').onclick =
+  closeBAModal;
+
+
+$('baModal').onclick = e=>{
+
+  if(
+    e.target ===
+    $('baModal')
+  ){
+
+    closeBAModal();
+
+  }
+
+};
+
+
+/* =========================================================
+   FIND ARTICLE ID
+========================================================= */
+
+async function resolveArticleId(line){
+
+  /*
+    Si demandes_achat_details possède déjà article_id,
+    on l'utilise directement.
+  */
+
+  if(line.article_id)
+    return Number(line.article_id);
+
+
+  /*
+    Sinon on cherche l'article dans la table articles
+    à partir du code article.
+  */
+
+  const code =
+    String(
+      line.article ||
+      line.code_article ||
+      ''
+    ).trim();
+
+
+  if(!code)
+    return null;
+
+
+  const {
+
+    data,
+
+    error
+
+  } = await supabase
+
+    .from('articles')
+
+    .select('*')
+
+    .eq('article',code)
+
+    .limit(1);
+
+
+  if(error)
+    throw error;
+
+
+  if(data?.[0]?.id)
+    return Number(data[0].id);
+
+
+  /*
+    Deuxième tentative si la colonne s'appelle code_article.
+  */
+
+  const {
+
+    data:data2,
+
+    error:error2
+
+  } = await supabase
+
+    .from('articles')
+
+    .select('*')
+
+    .eq('code_article',code)
+
+    .limit(1);
+
+
+  if(!error2 && data2?.[0]?.id)
+    return Number(data2[0].id);
+
+
+  return null;
+
+}
+
+
+/* =========================================================
+   CREATE BON D'ACHAT
+========================================================= */
+
+$('confirmCreateBA').onclick =
+  async()=>{
+
+    const d =
+      BA.selected;
+
+    const devis =
+      BA.devis;
+
+    if(!d || !devis)
+      return;
+
+    if(d.statut !== 'DEVIS_VALIDE'){
+
+      toast(
+        'La demande n’est plus en statut DEVIS VALIDÉ.',
+        'warn'
+      );
+
+      return;
+
+    }
+
+    const fournisseurId =
+      Number(devis.fournisseur_id);
+
+    if(!Number.isInteger(fournisseurId) || fournisseurId <= 0){
+
+      toast(
+        'Le fournisseur du devis est invalide.',
+        'error'
+      );
+
+      return;
+
+    }
+
+    if(!Array.isArray(BA.details) || !BA.details.length){
+
+      toast(
+        'Aucun article à enregistrer.',
+        'warn'
+      );
+
+      return;
+
+    }
+
+    const numero =
+      $('baNumero').value.trim();
+
+    const dateAchat =
+      $('baDate').value;
+
+    if(!numero){
+
+      toast(
+        'Le numéro du Bon d’achat est obligatoire.',
+        'warn'
+      );
+
+      return;
+
+    }
+
+    if(!dateAchat){
+
+      toast(
+        'La date du Bon d’achat est obligatoire.',
+        'warn'
+      );
+
+      return;
+
+    }
+
+    const datePrevueReception =
+      updateDatePrevueReception();
+
+    if(!datePrevueReception){
+
+      toast(
+        'Impossible de calculer la date prévue de réception. Vérifiez le délai de livraison du devis.',
+        'warn'
+      );
+
+      return;
+
+    }
+
+    const ok =
+      confirm(
+        `Créer le Bon d'achat ${numero} pour la demande ${d.numero_demande} ?\n\nLe statut de la demande passera à BON_ACHAT.`
+      );
+
+    if(!ok)
+      return;
+
+    const btn =
+      $('confirmCreateBA');
+
+    btn.disabled = true;
+
+    let achatId = null;
+
+    try{
+
+      /* =====================================================
+         0. VERIFIER LE FOURNISSEUR
+         Evite une erreur FK incompréhensible au moment du INSERT.
+      ====================================================== */
+
+      const {
+        data:fournisseur,
+        error:fournisseurError
+      } = await supabase
+        .from('fournisseurs')
+        .select('id')
+        .eq('id',fournisseurId)
+        .maybeSingle();
+
+      if(fournisseurError)
+        throw fournisseurError;
+
+      if(!fournisseur?.id){
+
+        throw new Error(
+          `Le fournisseur ID ${fournisseurId} n'existe pas dans la table fournisseurs.`
+        );
+
+      }
+
+      /* =====================================================
+         1. RESOLUTION DES ARTICLES
+      ====================================================== */
+
+      const detailsPayload = [];
+
+      const totalQty =
+        BA.details.reduce(
+          (sum,x)=>
+            sum + toNumber(x?.quantite),
+          0
+        );
+
+      if(!Number.isFinite(totalQty) || totalQty <= 0){
+
+        throw new Error(
+          'La quantité totale des articles est invalide.'
+        );
+
+      }
+
+      const montantHT =
+        dbNumber(
+          devis.montant_ht,
+          'montant HT'
+        );
+
+      const montantTTC =
+        dbNumber(
+          devis.montant_ttc,
+          'montant TTC'
+        );
+
+      const montantTVA =
+        dbNumber(
+          montantTTC - montantHT,
+          'TVA'
+        );
+
+      const prixUnitaire =
+        dbNumber(
+          montantHT / totalQty,
+          'prix unitaire'
+        );
+
+      for(const line of BA.details){
+
+        const articleId =
+          await resolveArticleId(line);
+
+        if(!articleId){
+
+          throw new Error(
+            `Article introuvable : ${
+              line?.article ||
+              line?.code_article ||
+              line?.designation ||
+              'Article inconnu'
+            }`
+          );
+
+        }
+
+        const quantite =
+          toNumber(line?.quantite);
+
+        if(!Number.isFinite(quantite) || quantite <= 0){
+
+          throw new Error(
+            `Quantité invalide pour l'article ${
+              line?.article ||
+              line?.designation ||
+              ''
+            }`
+          );
+
+        }
+
+        const lineMontantHT =
+          dbNumber(
+            quantite * prixUnitaire,
+            'montant HT ligne'
+          );
+
+        detailsPayload.push({
+
+          article_id:
+            articleId,
+
+          lot:
+            null,
+
+          quantite:
+            dbNumber(
+              quantite,
+              'quantité'
+            ),
+
+          unite:
+            String(
+              line?.unite ||
+              'KG'
+            ).trim() || 'KG',
+
+          prix_unitaire:
+            prixUnitaire,
+
+          remise:
+            0,
+
+          montant_ht:
+            lineMontantHT,
+
+          date_limite:
+            null,
+
+          commentaire:
+            null
+
+        });
+
+      }
+
+      /* =====================================================
+         2. CREER ACHAT
+      ====================================================== */
+
+      const achatPayload = {
+
+        numero_achat:
+          numero,
+
+        fournisseur_id:
+          fournisseurId,
+
+        date_achat:
+          dateAchat,
+
+        statut:
+          'BROUILLON',
+
+        devise:
+          $('baDevise').value ||
+          'MAD',
+
+        montant_ht:
+          montantHT,
+
+        montant_tva:
+          montantTVA,
+
+        montant_ttc:
+          montantTTC,
+
+        date_prevue_reception:
+          datePrevueReception,
+
+        date_reception:
+          null,
+
+        commentaire:
+          $('baCommentaire').value.trim() ||
+          null,
+
+        created_by:
+          null
+
+      };
+
+      const {
+        data:achat,
+        error:achatError
+      } = await supabase
+        .from('achats')
+        .insert(achatPayload)
+        .select()
+        .single();
+
+      if(achatError)
+        throw achatError;
+
+      achatId =
+        achat?.id || null;
+
+      if(!achatId)
+        throw new Error(
+          'Le Bon d’achat a été créé mais son ID est introuvable.'
+        );
+
+      /* =====================================================
+         3. CREER ACHATS DETAILS
+      ====================================================== */
+
+      const finalDetails =
+        detailsPayload.map(
+          line=>({
+            ...line,
+            achat_id:
+              achatId
+          })
+        );
+
+      const {
+        error:detailsError
+      } = await supabase
+        .from('achats_details')
+        .insert(finalDetails);
+
+      if(detailsError)
+        throw detailsError;
+
+      /* =====================================================
+         4. METTRE A JOUR LA DEMANDE
+      ====================================================== */
+
+      const {
+        error:demandeError
+      } = await supabase
+        .from('demandes_achat')
+        .update({
+          statut:
+            'BON_ACHAT'
+        })
+        .eq('id',d.id);
+
+      if(demandeError)
+        throw demandeError;
+
+      /* =====================================================
+         5. SUCCES
+      ====================================================== */
+
+      const sourceDetails =
+        [...BA.details];
+
+      d.statut =
+        'BON_ACHAT';
+
+      closeBAModal();
+
+      toast(
+        `Bon d'achat ${numero} créé avec succès.`
+      );
+
+      BA.demandes =
+        BA.demandes.filter(
+          x =>
+            String(x.id) !==
+            String(d.id)
+        );
+
+      BA.selected = null;
+      BA.details = [];
+      BA.devis = null;
+
+      updateStats();
+      renderList();
+      renderDetail();
+      await loadBonsCrees();
+
+      preparePrintFromCreated(
+        achat,
+        d,
+        devis,
+        finalDetails.map((line,index)=>({
+          ...line,
+          article:
+            sourceDetails[index]?.article ||
+            sourceDetails[index]?.code_article ||
+            '',
+          designation:
+            sourceDetails[index]?.designation ||
+            ''
+        }))
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+      /*
+        Si les détails ou la mise à jour de la demande échouent,
+        on nettoie le Bon d'achat créé pour éviter un BA orphelin.
+      */
+      if(achatId){
+
+        await supabase
+          .from('achats_details')
+          .delete()
+          .eq('achat_id',achatId);
+
+        await supabase
+          .from('achats')
+          .delete()
+          .eq('id',achatId);
+
+      }
+
+      toast(
+        error?.message ||
+        'Erreur lors de la création du Bon d’achat.',
+        'error'
+      );
+
+    }finally{
+
+      btn.disabled = false;
+
+    }
+
+  };
+
+
+/* =========================================================
+   PRINT CREATED BA
+========================================================= */
+
+function preparePrintFromCreated(
+  achat,
+  demande,
+  devis,
+  details
+){
+
+  $('pBaNumero').textContent =
+    achat.numero_achat || '—';
+
+
+  $('pBaDate').textContent =
+    formatDate(
+      achat.date_achat
+    );
+
+
+  $('pBaStatus').textContent =
+    achat.statut || 'BROUILLON';
+
+
+  $('pBaDemande').textContent =
+    demande.numero_demande || '—';
+
+
+  $('pBaFournisseur').textContent =
+    devis.fournisseur_nom || '—';
+
+
+  $('pBaDevis').textContent =
+    devis.numero_devis || '—';
+
+
+  $('pBaDateDevis').textContent =
+    formatDate(
+      devis.date_devis
+    );
+
+
+  $('pBaDateReception').textContent =
+    achat.date_prevue_reception
+      ? formatDate(
+          achat.date_prevue_reception
+        )
+      : '—';
+
+
+  $('pBaPaiement').textContent =
+    devis.conditions_paiement || '—';
+
+
+  $('pBaDelai').textContent =
+    devis.delai_livraison || '—';
+
+
+  $('pBaCommentaire').textContent =
+    achat.commentaire || '—';
+
+
+  $('pBaHT').textContent =
+    money(achat.montant_ht);
+
+
+  $('pBaTVA').textContent =
+    money(achat.montant_tva);
+
+
+  $('pBaTTC').textContent =
+    money(achat.montant_ttc);
+
+
+  $('pBaLines').innerHTML =
+
+    details.map(l=>`
+
+      <tr>
+
+        <td>
+          ${esc(
+            l.article ||
+            l.code_article ||
+            '—'
+          )}
+        </td>
+
+        <td>
+          ${esc(
+            l.designation ||
+            '—'
+          )}
+        </td>
+
+        <td style="text-align:right">
+          ${qty(l.quantite)}
+        </td>
+
+        <td>
+          ${esc(
+            l.unite ||
+            'KG'
+          )}
+        </td>
+
+        <td style="text-align:right">
+          ${money(
+            l.prix_unitaire
+          )}
+        </td>
+
+        <td style="text-align:right">
+          ${money(
+            l.remise
+          )}
+        </td>
+
+        <td style="text-align:right">
+          ${money(
+            l.montant_ht
+          )}
+        </td>
+
+      </tr>
+
+    `).join('');
+
+
+  /*
+    On laisse le temps au navigateur
+    de préparer le DOM avant impression.
+  */
+
+  setTimeout(
+    ()=>window.print(),
+    250
+  );
+
+}
+
+
+/* =========================================================
+   PRINT CURRENT
+========================================================= */
+
+$('btnPrintBA').onclick =
+  ()=>{
+
+    const d =
+      BA.selected;
+
+    const devis =
+      BA.devis;
+
+
+    if(!d || !devis){
+
+      toast(
+        'Aucune demande sélectionnée.',
+        'warn'
+      );
+
+      return;
+
+    }
+
+
+    $('pBaNumero').textContent =
+      'APERÇU';
+
+
+    $('pBaDate').textContent =
+      formatDate(
+        new Date()
+      );
+
+
+    $('pBaStatus').textContent =
+      'DEVIS VALIDÉ';
+
+
+    $('pBaDemande').textContent =
+      d.numero_demande || '—';
+
+
+    $('pBaFournisseur').textContent =
+      devis.fournisseur_nom || '—';
+
+
+    $('pBaDevis').textContent =
+      devis.numero_devis || '—';
+
+
+    $('pBaDateDevis').textContent =
+      formatDate(
+        devis.date_devis
+      );
+
+
+    $('pBaDateReception').textContent =
+      'À définir';
+
+
+    $('pBaPaiement').textContent =
+      devis.conditions_paiement ||
+      '—';
+
+
+    $('pBaDelai').textContent =
+      devis.delai_livraison ||
+      '—';
+
+
+    $('pBaCommentaire').textContent =
+      devis.observations ||
+      '—';
+
+
+    $('pBaHT').textContent =
+      money(
+        devis.montant_ht
+      );
+
+
+    $('pBaTVA').textContent =
+      money(
+        Number(devis.montant_ttc || 0) -
+        Number(devis.montant_ht || 0)
+      );
+
+
+    $('pBaTTC').textContent =
+      money(
+        devis.montant_ttc
+      );
+
+
+    const totalQty =
+      BA.details.reduce(
+        (sum,l)=>
+          sum +
+          Number(l.quantite || 0),
+        0
+      );
+
+
+    const prix =
+      totalQty > 0
+        ? Number(
+            devis.montant_ht || 0
+          ) /
+          totalQty
+        : 0;
+
+
+    $('pBaLines').innerHTML =
+
+      BA.details.map(l=>{
+
+        const q =
+          Number(
+            l.quantite || 0
+          );
+
+
+        const lineHT =
+          q * prix;
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${esc(
+                l.article ||
+                l.code_article ||
+                '—'
+              )}
+            </td>
+
+            <td>
+              ${esc(
+                l.designation ||
+                '—'
+              )}
+            </td>
+
+            <td style="text-align:right">
+              ${qty(q)}
+            </td>
+
+            <td>
+              ${esc(
+                l.unite ||
+                'KG'
+              )}
+            </td>
+
+            <td style="text-align:right">
+              ${money(prix)}
+            </td>
+
+            <td style="text-align:right">
+              0,00
+            </td>
+
+            <td style="text-align:right">
+              ${money(lineHT)}
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join('');
+
+
+    window.print();
+
+  };
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+(async()=>{
+
+  try{
+
+    updateBaListHeader();
+    await loadDemandes();
+
+  }catch(error){
+
+    console.error(error);
+
+
+    $('baList').innerHTML = `
+
+      <div
+        class="ba-loading"
+        style="color:#d92d20"
+      >
+
+        <i class="fa-solid fa-triangle-exclamation"></i>
+
+        Erreur de chargement
+
+        <br>
+
+        <small>
+          ${esc(
+            error.message ||
+            'Erreur inconnue'
+          )}
+        </small>
+
+      </div>
+
+    `;
+
+
+    toast(
+      error.message ||
+      'Erreur de chargement.',
+      'error'
+    );
+
+  }
+
+})();
+
+</script>

@@ -1,0 +1,454 @@
+<!-- Modules/factures.html : Factures fournisseurs -->
+<div class="ff-page">
+  <div class="ff-head">
+    <div>
+      <h2><i class="fa-solid fa-file-invoice-dollar"></i> Factures fournisseurs</h2>
+      <p>Toutes les factures de la société — suivi, validation et paiement</p>
+    </div>
+    <button id="ffRefresh" class="ff-btn ff-light"><i class="fa-solid fa-rotate"></i> Actualiser</button>
+  </div>
+
+  <div class="ff-kpis">
+    <div class="ff-kpi"><span>Total factures</span><strong id="ffKpiTotal">0</strong><small>Toutes les factures</small></div>
+    <div class="ff-kpi"><span>En attente</span><strong id="ffKpiAttente">0</strong><small>À contrôler</small></div>
+    <div class="ff-kpi"><span>À payer</span><strong id="ffKpiAPayer">0,00 MAD</strong><small>Montant restant</small></div>
+    <div class="ff-kpi"><span>Payées</span><strong id="ffKpiPayees">0,00 MAD</strong><small>Total payé</small></div>
+    <div class="ff-kpi"><span>Total TTC</span><strong id="ffKpiTTC">0,00 MAD</strong><small>Total facturé</small></div>
+  </div>
+
+  <div class="ff-filters">
+    <div class="ff-search"><i class="fa-solid fa-magnifying-glass"></i><input id="ffSearch" placeholder="N° facture, fournisseur, N° BA..."></div>
+    <select id="ffStatus">
+      <option value="TOUS">Tous les statuts</option>
+      <option value="EN_ATTENTE">En attente</option>
+      <option value="VALIDEE">Validée</option>
+      <option value="A_PAYER">À payer</option>
+      <option value="PARTIELLEMENT_PAYEE">Partiellement payée</option>
+      <option value="PAYEE">Payée</option>
+      <option value="ANNULEE">Annulée</option>
+    </select>
+    <select id="ffSupplier"><option value="TOUS">Tous les fournisseurs</option></select>
+    <input id="ffDateFrom" type="date">
+    <input id="ffDateTo" type="date">
+  </div>
+
+  <div class="ff-layout">
+    <section class="ff-card ff-list-card">
+      <div class="ff-card-head">
+        <h3><i class="fa-solid fa-list"></i> Toutes les factures</h3>
+        <small id="ffListCount">0 facture</small>
+      </div>
+      <div id="ffList" class="ff-list">
+        <div class="ff-loading"><i class="fa-solid fa-spinner fa-spin"></i> Chargement...</div>
+      </div>
+    </section>
+
+    <section class="ff-card ff-detail-card">
+      <div id="ffEmpty" class="ff-empty">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        <b>Sélectionnez une facture</b>
+        <span>Les informations complètes apparaîtront ici.</span>
+      </div>
+
+      <div id="ffDetail" style="display:none">
+        <div class="ff-detail-head">
+          <div><strong id="ffNumero">—</strong><small>Facture du <span id="ffDateFacture">—</span></small></div>
+          <span id="ffDetailStatus" class="ff-status">—</span>
+        </div>
+
+        <div class="ff-section-title"><i class="fa-solid fa-circle-info"></i> Informations facture</div>
+        <div class="ff-info-grid">
+          <div><span>Fournisseur</span><b id="ffFournisseur">—</b></div>
+          <div><span>Bon d'achat</span><b id="ffBA">—</b></div>
+          <div><span>Date échéance</span><b id="ffEcheance">—</b></div>
+          <div><span>Date paiement</span><b id="ffPaiementDate">—</b></div>
+          <div><span>Devise</span><b id="ffDevise">MAD</b></div>
+          <div><span>Mode paiement</span><b id="ffModePaiement">—</b></div>
+          <div><span>Référence paiement</span><b id="ffRefPaiement">—</b></div>
+          <div><span>Date validation</span><b id="ffValidationDate">—</b></div>
+        </div>
+
+        <div class="ff-section-title"><i class="fa-solid fa-building"></i> Informations fournisseur</div>
+        <div id="ffSupplierInfo" class="ff-dynamic-grid"></div>
+
+        <div class="ff-section-title">
+          <i class="fa-solid fa-boxes-stacked"></i> Articles réellement réceptionnés
+          <span id="ffLinesCount">0 ligne</span>
+        </div>
+
+        <div class="ff-table-wrap">
+          <table class="ff-table">
+            <thead><tr>
+              <th>Article</th><th>Désignation</th><th>Lot</th><th>Qté</th><th>Unité</th>
+              <th>Prix U.</th><th>Remise</th><th>HT</th><th>Stock</th><th>Mouvement</th>
+            </tr></thead>
+            <tbody id="ffLines"></tbody>
+          </table>
+        </div>
+
+        <div class="ff-money-grid">
+          <div><span>HT</span><strong id="ffHT">0,00 MAD</strong></div>
+          <div><span>TVA</span><strong id="ffTVA">0,00 MAD</strong></div>
+          <div><span>TTC</span><strong id="ffTTC">0,00 MAD</strong></div>
+          <div><span>Payé</span><strong id="ffPaid">0,00 MAD</strong></div>
+          <div class="ff-restant"><span>Reste</span><strong id="ffRestant">0,00 MAD</strong></div>
+        </div>
+
+        <div class="ff-comment"><span>Commentaire</span><p id="ffCommentaire">—</p></div>
+
+        <div class="ff-actions">
+          <button id="ffValidate" class="ff-btn ff-green"><i class="fa-solid fa-check"></i> Valider</button>
+          <button id="ffPay" class="ff-btn ff-pay"><i class="fa-solid fa-money-bill-transfer"></i> Enregistrer paiement</button>
+          <button id="ffPrint" class="ff-btn ff-light"><i class="fa-solid fa-print"></i> Imprimer</button>
+          <button id="ffClose" class="ff-btn ff-light"><i class="fa-solid fa-xmark"></i> Fermer</button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div id="ffToast" class="ff-toast"></div>
+</div>
+
+<div id="ffPaymentModal" class="ff-modal" aria-hidden="true">
+  <div class="ff-modal-backdrop" data-close-payment></div>
+  <div class="ff-modal-box">
+    <div class="ff-modal-head">
+      <div>
+        <h3><i class="fa-solid fa-money-bill-transfer"></i> Enregistrer un paiement</h3>
+        <small id="ffPayModalInvoice">Facture —</small>
+      </div>
+      <button type="button" class="ff-modal-close" data-close-payment aria-label="Fermer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="ff-payment-summary">
+      <div><span>Montant TTC</span><strong id="ffPayTTC">0,00 MAD</strong></div>
+      <div><span>Déjà payé</span><strong id="ffPayAlready">0,00 MAD</strong></div>
+      <div class="ff-pay-rest"><span>Reste à payer</span><strong id="ffPayRemaining">0,00 MAD</strong></div>
+    </div>
+
+    <form id="ffPaymentForm">
+      <div class="ff-payment-grid">
+        <label>
+          <span>Montant du paiement <b>*</b></span>
+          <input id="ffPaymentAmount" type="number" min="0.001" step="0.001" required>
+        </label>
+
+        <label>
+          <span>Date de paiement <b>*</b></span>
+          <input id="ffPaymentDate" type="date" required>
+        </label>
+
+        <label>
+          <span>Mode de paiement <b>*</b></span>
+          <select id="ffPaymentMode" required>
+            <option value="">Sélectionner...</option>
+            <option value="VIREMENT">Virement</option>
+            <option value="CHEQUE">Chèque</option>
+            <option value="ESPECES">Espèces</option>
+            <option value="CARTE">Carte</option>
+            <option value="PRELEVEMENT">Prélèvement</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Référence paiement</span>
+          <input id="ffPaymentReference" type="text" maxlength="100" placeholder="N° virement, chèque...">
+        </label>
+
+        <label class="ff-payment-full">
+          <span>Commentaire</span>
+          <textarea id="ffPaymentComment" rows="3" placeholder="Commentaire concernant le paiement..."></textarea>
+        </label>
+      </div>
+
+      <div id="ffPaymentError" class="ff-payment-error"></div>
+
+      <div class="ff-modal-actions">
+        <button type="button" class="ff-btn ff-light" data-close-payment>Annuler</button>
+        <button type="submit" id="ffPaymentSubmit" class="ff-btn ff-green">
+          <i class="fa-solid fa-check"></i> Enregistrer le paiement
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="ffPrintSheet"></div>
+
+<style>
+.ff-page{padding:22px 26px 40px;color:#17212b}
+.ff-head,.ff-card,.ff-kpi,.ff-filters{background:#fff;border:1px solid #e4e8e6;border-radius:15px;box-shadow:0 5px 22px #1018280b}
+.ff-head{min-height:72px;padding:14px 17px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.ff-head h2{margin:0;font-size:17px;font-weight:900}.ff-head h2 i{color:#087f4e}.ff-head p{margin:4px 0 0;color:#89958f;font-size:9px}
+.ff-btn{min-height:35px;padding:0 12px;border:1px solid transparent;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:9px;font-weight:800;cursor:pointer}.ff-btn:disabled{opacity:.55}.ff-light{background:#eef7f2;border-color:#d6eadf;color:#087f4e}.ff-green{background:#087f4e;color:#fff}.ff-pay{background:#fff7e7;border-color:#f0ddb5;color:#a46b00}
+.ff-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:13px}.ff-kpi{padding:12px 14px}.ff-kpi span{display:block;font-size:7px;color:#7c8882;text-transform:uppercase;font-weight:800}.ff-kpi strong{display:block;margin-top:4px;color:#087f4e;font-size:19px}.ff-kpi small{color:#9aa49f;font-size:8px}
+.ff-filters{padding:10px;margin-bottom:13px;display:grid;grid-template-columns:minmax(220px,1.5fr) 170px 200px 145px 145px;gap:8px}.ff-search{height:35px;border:1px solid #dbe2de;border-radius:8px;display:flex;align-items:center;padding:0 10px;color:#9aa49f}.ff-search input{width:100%;border:0;outline:0;padding-left:8px;font-size:9px}.ff-filters select,.ff-filters input[type=date]{width:100%;height:35px;border:1px solid #dbe2de;border-radius:8px;background:#fff;padding:0 9px;font-size:9px;outline:0;color:#344139}
+.ff-layout{display:grid;grid-template-columns:470px minmax(0,1fr);gap:13px}.ff-card{min-width:0;overflow:hidden}.ff-list-card,.ff-detail-card{min-height:640px}.ff-card-head{padding:14px 16px;border-bottom:1px solid #edf0ee}.ff-card-head h3{margin:0;font-size:12px}.ff-card-head h3 i{color:#087f4e}.ff-card-head small{display:block;margin-top:3px;color:#919c96;font-size:8px}
+.ff-list{max-height:565px;overflow:auto}.ff-item{padding:12px 13px;border-top:1px solid #edf0ee;cursor:pointer}.ff-item:hover{background:#f6faf8}.ff-item.active{background:#eef8f3;border-left:3px solid #087f4e;padding-left:10px}.ff-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.ff-num{color:#087f4e;font-size:11px;font-weight:900}.ff-item-date{color:#9aa49f;font-size:8px;margin-top:3px}.ff-item-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-top:8px}.ff-item-grid span{display:block;color:#9aa49f;font-size:7px;text-transform:uppercase}.ff-item-grid b{display:block;margin-top:2px;color:#344139;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ff-status{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:20px;font-size:7px;font-weight:900;white-space:nowrap}.ff-status-attente{background:#fff7e7;color:#a46b00;border:1px solid #f0ddb5}.ff-status-validee{background:#eef4ff;color:#315b9c;border:1px solid #d5e1f5}.ff-status-payer{background:#f5efff;color:#7044a8;border:1px solid #e4d8f6}.ff-status-partielle{background:#fff3e9;color:#ad5d17;border:1px solid #f0d3ba}.ff-status-payee{background:#eaf8f0;color:#087f4e;border:1px solid #cfe8d9}.ff-status-annulee{background:#fff0f0;color:#b42318;border:1px solid #f0cccc}
+.ff-empty{min-height:640px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#98a29d;text-align:center}.ff-empty i{font-size:32px;margin-bottom:10px;color:#c0c8c4}.ff-empty b{font-size:12px;color:#64716a}.ff-empty span{margin-top:4px;font-size:8px}.ff-loading{padding:55px 20px;text-align:center;color:#98a29d;font-size:9px}.ff-loading i{display:block;color:#087f4e;margin-bottom:8px}
+.ff-detail-head{padding:16px 18px;border-bottom:1px solid #edf0ee;display:flex;justify-content:space-between;align-items:center}.ff-detail-head strong{display:block;color:#087f4e;font-size:18px}.ff-detail-head small{display:block;margin-top:3px;color:#89958f;font-size:8px}.ff-section-title{margin:16px 16px 10px;padding-bottom:7px;border-bottom:1px solid #e4e9e6;color:#087f4e;font-size:10px;font-weight:900}.ff-section-title i{margin-right:5px}.ff-section-title span{float:right;color:#919c96;font-size:7px}
+.ff-info-grid{margin:0 16px;display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #e0e6e2;border-radius:9px;overflow:hidden}.ff-info-grid div{padding:9px;border-right:1px solid #e0e6e2;border-bottom:1px solid #e0e6e2}.ff-info-grid div:nth-child(4n){border-right:0}.ff-info-grid span{display:block;color:#89958f;font-size:7px;text-transform:uppercase;font-weight:800}.ff-info-grid b{display:block;margin-top:4px;color:#344139;font-size:9px;overflow-wrap:anywhere}
+.ff-dynamic-grid{margin:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.ff-dynamic-grid>div{padding:9px;background:#fafcfb;border:1px solid #e2e7e4;border-radius:8px}.ff-dyn-label{display:block;color:#89958f;font-size:7px;text-transform:uppercase;font-weight:800;margin-bottom:4px}.ff-dyn-value{display:block;color:#27352e;font-size:9px;font-weight:700;overflow-wrap:anywhere}.ff-dynamic-empty{grid-column:1/-1;text-align:center;color:#98a29d;font-size:8px;padding:10px}
+.ff-table-wrap{margin:0 16px;overflow:auto}.ff-table{width:100%;min-width:1050px;border-collapse:collapse}.ff-table th{background:#f5f8f6;color:#7d8983;font-size:7px;text-transform:uppercase;padding:8px;text-align:left;white-space:nowrap;border-bottom:1px solid #e0e6e2}.ff-table td{padding:8px;color:#344139;font-size:8px;border-bottom:1px solid #edf0ee;vertical-align:middle}.ff-table td.num{text-align:right;white-space:nowrap}.ff-link-id{color:#087f4e;font-weight:900}
+.ff-money-grid{margin:14px 16px 0;display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #dfe6e2;border-radius:9px;overflow:hidden}.ff-money-grid>div{padding:10px;border-right:1px solid #dfe6e2}.ff-money-grid>div:last-child{border-right:0}.ff-money-grid span{display:block;color:#89958f;font-size:7px;text-transform:uppercase;font-weight:800}.ff-money-grid strong{display:block;margin-top:4px;color:#344139;font-size:10px}.ff-restant{background:#fff8eb}.ff-restant strong{color:#a46b00!important}
+.ff-comment{margin:13px 16px;padding:10px;border:1px solid #e1e7e3;background:#fafcfb;border-radius:8px}.ff-comment span{color:#89958f;font-size:7px;text-transform:uppercase;font-weight:800}.ff-comment p{margin:4px 0 0;color:#344139;font-size:8px;white-space:pre-line}.ff-actions{padding:12px 16px;border-top:1px solid #edf0ee;display:flex;gap:7px;flex-wrap:wrap}.ff-toast{display:none;position:fixed;right:25px;bottom:25px;z-index:99999;max-width:400px;padding:11px 14px;border-radius:8px;color:#fff;background:#087f4e;font-size:9px;font-weight:800;box-shadow:0 8px 25px #0002}
+#ffPrintSheet{display:none}
+
+.ff-modal{display:none;position:fixed;inset:0;z-index:100000;align-items:center;justify-content:center;padding:20px}
+.ff-modal.open{display:flex}
+.ff-modal-backdrop{position:absolute;inset:0;background:rgba(7,15,25,.62);backdrop-filter:blur(2px)}
+.ff-modal-box{position:relative;width:min(620px,100%);background:#fff;border:1px solid #dfe7e2;border-radius:15px;box-shadow:0 25px 70px #0005;overflow:hidden}
+.ff-modal-head{padding:15px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e7ece9}
+.ff-modal-head h3{margin:0;color:#087f4e;font-size:14px;font-weight:900}
+.ff-modal-head h3 i{margin-right:6px}
+.ff-modal-head small{display:block;margin-top:4px;color:#89958f;font-size:8px}
+.ff-modal-close{width:34px;height:34px;border:1px solid #dbe3de;background:#fff;border-radius:8px;cursor:pointer;color:#4b5751}
+.ff-payment-summary{display:grid;grid-template-columns:repeat(3,1fr);margin:15px 18px 12px;border:1px solid #dfe6e2;border-radius:9px;overflow:hidden}
+.ff-payment-summary>div{padding:11px;border-right:1px solid #dfe6e2}
+.ff-payment-summary>div:last-child{border-right:0}
+.ff-payment-summary span{display:block;color:#89958f;font-size:7px;text-transform:uppercase;font-weight:800}
+.ff-payment-summary strong{display:block;margin-top:5px;color:#344139;font-size:12px}
+.ff-payment-summary .ff-pay-rest{background:#fff8eb}
+.ff-payment-summary .ff-pay-rest strong{color:#a46b00}
+#ffPaymentForm{padding:0 18px 17px}
+.ff-payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.ff-payment-grid label{display:block}
+.ff-payment-grid label>span{display:block;margin-bottom:5px;color:#66736c;font-size:8px;font-weight:800}
+.ff-payment-grid label b{color:#b42318}
+.ff-payment-grid input,.ff-payment-grid select,.ff-payment-grid textarea{width:100%;box-sizing:border-box;border:1px solid #d8e1dc;border-radius:8px;background:#fff;color:#26352e;font:inherit;font-size:9px;outline:0;padding:9px}
+.ff-payment-grid input,.ff-payment-grid select{height:37px}
+.ff-payment-grid textarea{resize:vertical;min-height:72px}
+.ff-payment-grid input:focus,.ff-payment-grid select:focus,.ff-payment-grid textarea:focus{border-color:#087f4e;box-shadow:0 0 0 3px #087f4e12}
+.ff-payment-full{grid-column:1/-1}
+.ff-payment-error{display:none;margin-top:11px;padding:9px 10px;border:1px solid #f0cccc;border-radius:8px;background:#fff0f0;color:#b42318;font-size:8px;font-weight:800}
+.ff-payment-error.show{display:block}
+.ff-modal-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:14px;padding-top:13px;border-top:1px solid #edf0ee}
+
+@media(max-width:1200px){.ff-kpis{grid-template-columns:repeat(3,1fr)}.ff-filters{grid-template-columns:1fr 1fr 1fr}.ff-layout{grid-template-columns:390px minmax(0,1fr)}}
+@media(max-width:950px){.ff-layout{grid-template-columns:1fr}.ff-info-grid{grid-template-columns:repeat(2,1fr)}.ff-info-grid div:nth-child(4n){border-right:1px solid #e0e6e2}.ff-info-grid div:nth-child(2n){border-right:0}.ff-dynamic-grid{grid-template-columns:repeat(2,1fr)}.ff-money-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.ff-page{padding:12px}.ff-kpis,.ff-filters,.ff-info-grid,.ff-dynamic-grid,.ff-money-grid{grid-template-columns:1fr}.ff-head{align-items:flex-start;flex-direction:column}.ff-info-grid div,.ff-money-grid>div{border-right:0!important}}
+</style>
+
+<script type="module">
+import supabase from "../assets/js/core/supabase.js";
+
+const FF={factures:[],fournisseurs:new Map(),details:[],mouvements:new Map(),stocks:new Map(),selected:null};
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>{const n=Number(String(v??0).replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:0};
+const money=v=>num(v).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const qty=v=>num(v).toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3});
+const dateFR=v=>{if(!v)return'—';const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString('fr-FR')};
+const label=k=>String(k).replace(/_/g,' ').replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+
+function toast(msg,type='ok'){const e=$('ffToast');e.textContent=msg;e.style.background=type==='error'?'#b42318':type==='warn'?'#a46b00':'#087f4e';e.style.display='block';clearTimeout(window.__ffToast);window.__ffToast=setTimeout(()=>e.style.display='none',3500)}
+
+async function loadFournisseurs(){
+  FF.fournisseurs.clear();
+  const {data,error}=await supabase.from('fournisseurs').select('*');
+  if(error)throw error;
+  (data||[]).forEach(f=>FF.fournisseurs.set(String(f.id),f));
+  const s=$('ffSupplier');s.innerHTML='<option value="TOUS">Tous les fournisseurs</option>';
+  [...FF.fournisseurs.values()].sort((a,b)=>String(a.nom||a.raison_sociale||a.designation||a.code||'').localeCompare(String(b.nom||b.raison_sociale||b.designation||b.code||''),'fr')).forEach(f=>{
+    const o=document.createElement('option');o.value=f.id;o.textContent=f.nom||f.raison_sociale||f.designation||f.code||`Fournisseur #${f.id}`;s.appendChild(o)
+  })
+}
+function fournisseurName(id){const f=FF.fournisseurs.get(String(id));return f?(f.nom||f.raison_sociale||f.designation||f.libelle||f.name||f.code||`Fournisseur #${id}`):'—'}
+
+async function loadFactures(){
+  $('ffList').innerHTML='<div class="ff-loading"><i class="fa-solid fa-spinner fa-spin"></i>Chargement...</div>';
+  await loadFournisseurs();
+  const {data,error}=await supabase.from('factures_fournisseurs').select('*').order('date_facture',{ascending:false}).order('id',{ascending:false});
+  if(error)throw error;
+  FF.factures=data||[];updateKpis();renderList()
+}
+function updateKpis(){
+  $('ffKpiTotal').textContent=FF.factures.length;
+  $('ffKpiAttente').textContent=FF.factures.filter(f=>String(f.statut||'').toUpperCase()==='EN_ATTENTE').length;
+  $('ffKpiAPayer').textContent=money(FF.factures.reduce((s,f)=>s+num(f.montant_restant),0))+' MAD';
+  $('ffKpiPayees').textContent=money(FF.factures.reduce((s,f)=>s+num(f.montant_paye),0))+' MAD';
+  $('ffKpiTTC').textContent=money(FF.factures.reduce((s,f)=>s+num(f.montant_ttc),0))+' MAD'
+}
+function statusClass(s){switch(String(s||'').toUpperCase()){case'VALIDEE':return'ff-status-validee';case'A_PAYER':return'ff-status-payer';case'PARTIELLEMENT_PAYEE':return'ff-status-partielle';case'PAYEE':return'ff-status-payee';case'ANNULEE':return'ff-status-annulee';default:return'ff-status-attente'}}
+function statusLabel(s){return({EN_ATTENTE:'EN ATTENTE',VALIDEE:'VALIDÉE',A_PAYER:'À PAYER',PARTIELLEMENT_PAYEE:'PARTIELLEMENT PAYÉE',PAYEE:'PAYÉE',ANNULEE:'ANNULÉE'})[String(s||'').toUpperCase()]||s||'—'}
+
+function filtered(){
+  const q=String($('ffSearch').value||'').trim().toLowerCase(),st=$('ffStatus').value,su=$('ffSupplier').value,from=$('ffDateFrom').value,to=$('ffDateTo').value;
+  return FF.factures.filter(f=>{
+    if(st!=='TOUS'&&String(f.statut||'').toUpperCase()!==st)return false;
+    if(su!=='TOUS'&&String(f.fournisseur_id)!==String(su))return false;
+    if(from&&String(f.date_facture)<from)return false;
+    if(to&&String(f.date_facture)>to)return false;
+    if(!q)return true;
+    return [f.numero_facture,fournisseurName(f.fournisseur_id),f.achat_id,f.statut,f.mode_paiement,f.reference_paiement,f.commentaire].join(' ').toLowerCase().includes(q)
+  })
+}
+function renderList(){
+  const list=filtered();$('ffListCount').textContent=`${list.length} ${list.length>1?'factures':'facture'}`;
+  $('ffList').innerHTML=list.length?list.map(f=>`<div class="ff-item ${FF.selected?.id===f.id?'active':''}" data-id="${esc(f.id)}"><div class="ff-item-top"><span class="ff-num">${esc(f.numero_facture||'—')}</span><span class="ff-status ${statusClass(f.statut)}">${esc(statusLabel(f.statut))}</span></div><div class="ff-item-date">${dateFR(f.date_facture)}</div><div class="ff-item-grid"><div><span>Fournisseur</span><b>${esc(fournisseurName(f.fournisseur_id))}</b></div><div><span>Bon d'achat</span><b>${esc(f.achat_id||'—')}</b></div><div><span>TTC</span><b>${money(f.montant_ttc)} ${esc(f.devise||'MAD')}</b></div><div><span>Reste</span><b>${money(f.montant_restant)} ${esc(f.devise||'MAD')}</b></div></div></div>`).join(''):'<div class="ff-empty" style="min-height:320px"><i class="fa-solid fa-inbox"></i><b>Aucune facture trouvée</b><span>Aucun résultat.</span></div>'
+}
+
+async function loadDetails(id){
+  FF.details=[];FF.mouvements.clear();FF.stocks.clear();
+  const {data,error}=await supabase.from('factures_fournisseurs_details').select('*').eq('facture_id',id).order('id');if(error)throw error;FF.details=data||[];
+  const mids=[...new Set(FF.details.map(d=>d.mouvement_stock_id).filter(Boolean).map(String))],sids=[...new Set(FF.details.map(d=>d.stock_id).filter(Boolean).map(String))];
+  if(mids.length){const {data,error}=await supabase.from('mouvements_stock').select('*').in('id',mids);if(error)throw error;(data||[]).forEach(x=>FF.mouvements.set(String(x.id),x))}
+  if(sids.length){const {data,error}=await supabase.from('stock').select('*').in('id',sids);if(error)throw error;(data||[]).forEach(x=>FF.stocks.set(String(x.id),x))}
+}
+function renderSupplier(f){
+  const box=$('ffSupplierInfo');if(!f){box.innerHTML='<div class="ff-dynamic-empty">Aucune information.</div>';return}
+  const a=Object.entries(f).filter(([k])=>k!=='id');box.innerHTML=a.length?a.map(([k,v])=>`<div><span class="ff-dyn-label">${esc(label(k))}</span><span class="ff-dyn-value">${esc(typeof v==='object'?JSON.stringify(v):(v??'—'))}</span></div>`).join(''):'<div class="ff-dynamic-empty">Aucune information supplémentaire.</div>'
+}
+function renderDetail(){
+  const f=FF.selected;if(!f){$('ffEmpty').style.display='flex';$('ffDetail').style.display='none';return}
+  $('ffEmpty').style.display='none';$('ffDetail').style.display='block';
+  $('ffNumero').textContent=f.numero_facture||'—';$('ffDateFacture').textContent=dateFR(f.date_facture);$('ffFournisseur').textContent=fournisseurName(f.fournisseur_id);$('ffBA').textContent=f.achat_id||'—';$('ffEcheance').textContent=dateFR(f.date_echeance);$('ffPaiementDate').textContent=dateFR(f.date_paiement);$('ffDevise').textContent=f.devise||'MAD';$('ffModePaiement').textContent=f.mode_paiement||'—';$('ffRefPaiement').textContent=f.reference_paiement||'—';$('ffValidationDate').textContent=dateFR(f.date_validation);
+  $('ffDetailStatus').textContent=statusLabel(f.statut);$('ffDetailStatus').className=`ff-status ${statusClass(f.statut)}`;renderSupplier(FF.fournisseurs.get(String(f.fournisseur_id)));
+  $('ffLinesCount').textContent=`${FF.details.length} ${FF.details.length>1?'lignes':'ligne'}`;
+  $('ffLines').innerHTML=FF.details.length?FF.details.map(d=>{const m=FF.mouvements.get(String(d.mouvement_stock_id)),s=FF.stocks.get(String(d.stock_id)),mag=m?.magasin_destination||s?.magasin||s?.magasin_code||'—';return `<tr><td><b>${esc(d.article)}</b></td><td>${esc(d.designation_article||'—')}</td><td>${esc(d.lot||'—')}</td><td class="num">${qty(d.quantite)}</td><td>${esc(d.unite||'KG')}</td><td class="num">${money(d.prix_unitaire)}</td><td class="num">${money(d.remise)}</td><td class="num">${money(d.montant_ht)}</td><td><span class="ff-link-id">${esc(d.stock_id||'—')}</span><br><small>${esc(mag)}</small></td><td><span class="ff-link-id">${esc(d.mouvement_stock_id||'—')}</span><br><small>${esc(m?.type_mouvement||'—')}</small></td></tr>`}).join(''):'<tr><td colspan="10" style="text-align:center;padding:30px">Aucun détail.</td></tr>';
+  $('ffHT').textContent=`${money(f.montant_ht)} ${f.devise||'MAD'}`;$('ffTVA').textContent=`${money(f.montant_tva)} ${f.devise||'MAD'}`;$('ffTTC').textContent=`${money(f.montant_ttc)} ${f.devise||'MAD'}`;$('ffPaid').textContent=`${money(f.montant_paye)} ${f.devise||'MAD'}`;$('ffRestant').textContent=`${money(f.montant_restant)} ${f.devise||'MAD'}`;$('ffCommentaire').textContent=f.commentaire||'—';
+  const st=String(f.statut||'').toUpperCase();$('ffValidate').style.display=st==='EN_ATTENTE'?'inline-flex':'none';$('ffPay').style.display=['VALIDEE','A_PAYER','PARTIELLEMENT_PAYEE'].includes(st)&&num(f.montant_restant)>0?'inline-flex':'none'
+}
+
+$('ffList').onclick=async e=>{const el=e.target.closest('[data-id]');if(!el)return;const f=FF.factures.find(x=>String(x.id)===String(el.dataset.id));if(!f)return;FF.selected=f;FF.details=[];renderList();renderDetail();try{await loadDetails(f.id);renderDetail()}catch(err){console.error(err);toast(err.message||'Erreur détails','error')}};
+['ffSearch','ffStatus','ffSupplier','ffDateFrom','ffDateTo'].forEach(id=>$(id).oninput=$(id).onchange=renderList);
+$('ffClose').onclick=()=>{FF.selected=null;FF.details=[];renderList();renderDetail()};
+$('ffRefresh').onclick=async()=>{try{await loadFactures();if(FF.selected){const f=FF.factures.find(x=>x.id===FF.selected.id);if(f){FF.selected=f;await loadDetails(f.id);renderDetail()}}toast('Données actualisées')}catch(e){toast(e.message||'Erreur','error')}};
+
+$('ffValidate').onclick=async()=>{
+  const f=FF.selected;if(!f||String(f.statut).toUpperCase()!=='EN_ATTENTE')return;
+  if(!confirm(`Valider la facture ${f.numero_facture} ?`))return;
+  const uid=window.currentUser?.id||null;
+  const {data,error}=await supabase.from('factures_fournisseurs').update({statut:'VALIDEE',date_validation:new Date().toISOString().slice(0,10),validated_by:uid,updated_at:new Date().toISOString()}).eq('id',f.id).eq('statut','EN_ATTENTE').select('*').single();
+  if(error){toast(error.message,'error');return}FF.selected=data;const i=FF.factures.findIndex(x=>x.id===data.id);if(i>=0)FF.factures[i]=data;updateKpis();renderList();renderDetail();toast('Facture validée.')
+};
+
+function openPaymentModal(){
+  const f=FF.selected;
+  if(!f)return;
+  const reste=Math.max(0,num(f.montant_restant));
+  if(reste<=0){toast('Facture déjà soldée.','warn');return}
+
+  $('ffPayModalInvoice').textContent=`${f.numero_facture||'Facture'} — ${fournisseurName(f.fournisseur_id)}`;
+  $('ffPayTTC').textContent=`${money(f.montant_ttc)} ${f.devise||'MAD'}`;
+  $('ffPayAlready').textContent=`${money(f.montant_paye)} ${f.devise||'MAD'}`;
+  $('ffPayRemaining').textContent=`${money(reste)} ${f.devise||'MAD'}`;
+
+  $('ffPaymentAmount').value=reste.toFixed(3);
+  $('ffPaymentDate').value=new Date().toISOString().slice(0,10);
+  $('ffPaymentMode').value=f.mode_paiement||'';
+  $('ffPaymentReference').value=f.reference_paiement||'';
+  $('ffPaymentComment').value='';
+  $('ffPaymentError').textContent='';
+  $('ffPaymentError').classList.remove('show');
+
+  const modal=$('ffPaymentModal');
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  setTimeout(()=>$('ffPaymentAmount').focus(),50);
+}
+
+function closePaymentModal(){
+  const modal=$('ffPaymentModal');
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+}
+
+$('ffPay').onclick=openPaymentModal;
+document.querySelectorAll('[data-close-payment]').forEach(el=>el.addEventListener('click',closePaymentModal));
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&$('ffPaymentModal')?.classList.contains('open'))closePaymentModal();
+});
+
+$('ffPaymentForm').onsubmit=async e=>{
+  e.preventDefault();
+  const f=FF.selected;
+  if(!f)return;
+
+  const errorBox=$('ffPaymentError');
+  const amount=num($('ffPaymentAmount').value);
+  const reste=Math.max(0,num(f.montant_restant));
+  const date=$('ffPaymentDate').value;
+  const mode=$('ffPaymentMode').value.trim();
+  const ref=$('ffPaymentReference').value.trim();
+  const comment=$('ffPaymentComment').value.trim();
+
+  const fail=msg=>{
+    errorBox.textContent=msg;
+    errorBox.classList.add('show');
+  };
+
+  errorBox.classList.remove('show');
+
+  if(amount<=0)return fail('Le montant du paiement doit être supérieur à zéro.');
+  if(amount>reste+0.000001)return fail(`Le montant ne peut pas dépasser le reste à payer : ${money(reste)} ${f.devise||'MAD'}.`);
+  if(!date)return fail('Veuillez sélectionner la date de paiement.');
+  if(!mode)return fail('Veuillez sélectionner le mode de paiement.');
+
+  const submit=$('ffPaymentSubmit');
+  submit.disabled=true;
+  submit.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...';
+
+  try{
+    const paid=Number((num(f.montant_paye)+amount).toFixed(3));
+    const remaining=Number(Math.max(0,num(f.montant_ttc)-paid).toFixed(3));
+    const status=remaining<=0.001?'PAYEE':'PARTIELLEMENT_PAYEE';
+    const uid=window.currentUser?.id||null;
+
+    const update={
+      montant_paye:paid,
+      montant_restant:remaining,
+      date_paiement:date,
+      mode_paiement:mode,
+      reference_paiement:ref||null,
+      paid_by:uid,
+      statut:status,
+      updated_at:new Date().toISOString()
+    };
+
+    if(comment){
+      const previous=String(f.commentaire||'').trim();
+      update.commentaire=previous
+        ? `${previous}\nPaiement du ${date} : ${money(amount)} ${f.devise||'MAD'} — ${comment}`
+        : `Paiement du ${date} : ${money(amount)} ${f.devise||'MAD'} — ${comment}`;
+    }
+
+    const {data,error}=await supabase
+      .from('factures_fournisseurs')
+      .update(update)
+      .eq('id',f.id)
+      .select('*')
+      .single();
+
+    if(error)throw error;
+
+    FF.selected=data;
+    const i=FF.factures.findIndex(x=>x.id===data.id);
+    if(i>=0)FF.factures[i]=data;
+
+    closePaymentModal();
+    updateKpis();
+    renderList();
+    renderDetail();
+    toast(status==='PAYEE'?'Facture entièrement payée.':'Paiement partiel enregistré.');
+  }catch(err){
+    console.error('[FACTURES] paiement',err);
+    fail(err?.message||'Impossible d’enregistrer le paiement.');
+  }finally{
+    submit.disabled=false;
+    submit.innerHTML='<i class="fa-solid fa-check"></i> Enregistrer le paiement';
+  }
+};
+
+$('ffPrint').onclick=()=>{
+  const f=FF.selected;if(!f)return;
+  $('ffPrintSheet').innerHTML=`<div style="font-family:Arial;padding:20px"><h1>FACTURE FOURNISSEUR</h1><h2>${esc(f.numero_facture)}</h2><p>Fournisseur: ${esc(fournisseurName(f.fournisseur_id))} — BA: ${esc(f.achat_id||'—')}</p><table style="width:100%;border-collapse:collapse">${FF.details.map(d=>`<tr><td>${esc(d.article)}</td><td>${esc(d.designation_article||'')}</td><td>${esc(d.lot||'')}</td><td>${qty(d.quantite)} ${esc(d.unite||'KG')}</td><td>${money(d.montant_ht)}</td></tr>`).join('')}</table><h3>TTC: ${money(f.montant_ttc)} ${esc(f.devise||'MAD')}</h3></div>`;
+  const s=document.createElement('style');s.textContent='@media print{body *{visibility:hidden!important}#ffPrintSheet,#ffPrintSheet *{visibility:visible!important}#ffPrintSheet{display:block!important;position:absolute;inset:0}}';document.head.appendChild(s);setTimeout(()=>window.print(),200)
+};
+
+(async()=>{try{await loadFactures()}catch(e){console.error('[FACTURES]',e);$('ffList').innerHTML=`<div class="ff-loading" style="color:#b42318"><i class="fa-solid fa-triangle-exclamation"></i>Erreur de chargement<br><small>${esc(e.message||'Erreur inconnue')}</small></div>`;toast(e.message||'Erreur de chargement','error')}})();
+</script>

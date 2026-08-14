@@ -1,0 +1,3413 @@
+<!-- =========================================================
+     Modules/suivi_achats.html
+     SUIVI DES ACHATS ET FOURNISSEURS
+     Architecture compatible avec dashboard.html
+========================================================= -->
+
+<div class="suivi-page">
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
+  <div class="suivi-head">
+
+    <div>
+      <h2>
+        <i class="fa-solid fa-chart-line"></i>
+        Suivi des achats et fournisseurs
+      </h2>
+
+      <p>
+        Suivi global des achats, fournisseurs, factures et paiements
+      </p>
+    </div>
+
+    <div class="suivi-head-actions">
+
+      <button id="suiviRefresh" class="sv-btn sv-light">
+        <i class="fa-solid fa-rotate"></i>
+        Actualiser
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       KPI
+  ====================================================== -->
+
+  <div class="suivi-stats">
+
+    <div class="sv-stat">
+      <div class="sv-stat-icon">
+        <i class="fa-solid fa-cart-shopping"></i>
+      </div>
+
+      <div>
+        <span>Total achats</span>
+        <strong id="svTotalAchats">0</strong>
+        <small>Bons d'achat enregistrés</small>
+      </div>
+    </div>
+
+
+    <div class="sv-stat">
+      <div class="sv-stat-icon">
+        <i class="fa-solid fa-money-bill-wave"></i>
+      </div>
+
+      <div>
+        <span>Montant achats TTC</span>
+        <strong id="svTotalAchatsTTC">0,00 MAD</strong>
+        <small>Total des bons d'achat</small>
+      </div>
+    </div>
+
+
+    <div class="sv-stat">
+      <div class="sv-stat-icon">
+        <i class="fa-solid fa-file-invoice"></i>
+      </div>
+
+      <div>
+        <span>Total factures</span>
+        <strong id="svTotalFactures">0</strong>
+        <small>Factures fournisseurs</small>
+      </div>
+    </div>
+
+
+    <div class="sv-stat">
+      <div class="sv-stat-icon">
+        <i class="fa-solid fa-hand-holding-dollar"></i>
+      </div>
+
+      <div>
+        <span>Total payé</span>
+        <strong id="svTotalPaye">0,00 MAD</strong>
+        <small>Montant déjà payé</small>
+      </div>
+    </div>
+
+
+    <div class="sv-stat warning">
+      <div class="sv-stat-icon">
+        <i class="fa-solid fa-hourglass-half"></i>
+      </div>
+
+      <div>
+        <span>Reste à payer</span>
+        <strong id="svTotalReste">0,00 MAD</strong>
+        <small>Montant restant</small>
+      </div>
+    </div>
+
+
+    <div class="sv-stat">
+      <div class="sv-stat-icon">
+        <i class="fa-solid fa-building"></i>
+      </div>
+
+      <div>
+        <span>Fournisseurs actifs</span>
+        <strong id="svTotalFournisseurs">0</strong>
+        <small>Fournisseurs actifs</small>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       FILTER BAR
+  ====================================================== -->
+
+  <div class="sv-filter-card">
+
+    <div class="sv-filter-title">
+      <i class="fa-solid fa-filter"></i>
+      Filtres
+    </div>
+
+    <div class="sv-filters">
+
+      <div class="sv-field sv-search">
+
+        <label>Recherche</label>
+
+        <div class="sv-input-icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          <input
+            id="svSearch"
+            type="text"
+            placeholder="Fournisseur, N° achat, N° facture..."
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="sv-field">
+
+        <label>Fournisseur</label>
+
+        <select id="svFournisseur">
+          <option value="TOUS">Tous les fournisseurs</option>
+        </select>
+
+      </div>
+
+
+      <div class="sv-field">
+
+        <label>Statut achat</label>
+
+        <select id="svStatutAchat">
+
+          <option value="TOUS">
+            Tous les statuts
+          </option>
+
+          <option value="BROUILLON">
+            Brouillon
+          </option>
+
+          <option value="RECEPTIONNE">
+            Réceptionné
+          </option>
+
+          <option value="A_RECEPTIONNER">
+            À réceptionner
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="sv-field">
+
+        <label>Statut facture</label>
+
+        <select id="svStatutFacture">
+
+          <option value="TOUS">
+            Tous
+          </option>
+
+          <option value="EN_ATTENTE">
+            En attente
+          </option>
+
+          <option value="VALIDEE">
+            Validée
+          </option>
+
+          <option value="A_PAYER">
+            À payer
+          </option>
+
+          <option value="PARTIELLEMENT_PAYEE">
+            Partiellement payée
+          </option>
+
+          <option value="PAYEE">
+            Payée
+          </option>
+
+          <option value="ANNULEE">
+            Annulée
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="sv-field sv-filter-action">
+
+        <label>&nbsp;</label>
+
+        <button
+          id="svReset"
+          class="sv-btn sv-light"
+        >
+          <i class="fa-solid fa-rotate-left"></i>
+          Réinitialiser
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       MAIN GRID
+  ====================================================== -->
+
+  <div class="sv-main-grid">
+
+
+    <!-- ===================================================
+         FOURNISSEURS
+    ==================================================== -->
+
+    <section class="sv-card">
+
+      <div class="sv-card-head">
+
+        <div>
+
+          <h3>
+            <i class="fa-solid fa-building"></i>
+            Fournisseurs
+          </h3>
+
+          <small>
+            Vue synthétique des achats et règlements
+          </small>
+
+        </div>
+
+        <span id="svSupplierCount" class="sv-count">
+          0
+        </span>
+
+      </div>
+
+
+      <div class="sv-table-wrap">
+
+        <table class="sv-table">
+
+          <thead>
+
+            <tr>
+
+              <th>Fournisseur</th>
+
+              <th>Achats</th>
+
+              <th>Total achats</th>
+
+              <th>Factures</th>
+
+              <th>Payé</th>
+
+              <th>Reste</th>
+
+              <th>État</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="svSuppliersBody">
+
+            <tr>
+              <td colspan="7" class="sv-loading-cell">
+
+                <i class="fa-solid fa-spinner fa-spin"></i>
+
+                Chargement...
+
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         DETAIL FOURNISSEUR
+    ==================================================== -->
+
+    <section class="sv-card sv-detail-card">
+
+      <div id="svSupplierEmpty" class="sv-empty">
+
+        <i class="fa-solid fa-building-circle-check"></i>
+
+        <b>
+          Sélectionnez un fournisseur
+        </b>
+
+        <span>
+          Les informations et opérations apparaîtront ici.
+        </span>
+
+      </div>
+
+
+      <div id="svSupplierDetail" style="display:none">
+
+        <div class="sv-detail-head">
+
+          <div>
+
+            <div
+              id="svDetailSupplierName"
+              class="sv-detail-title"
+            >
+              —
+            </div>
+
+            <div
+              id="svDetailSupplierCode"
+              class="sv-detail-sub"
+            >
+              —
+            </div>
+
+          </div>
+
+          <span
+            id="svDetailSupplierStatus"
+            class="sv-badge sv-active"
+          >
+            ACTIF
+          </span>
+
+        </div>
+
+
+        <!-- INFORMATIONS FOURNISSEUR -->
+
+        <div class="sv-section-title">
+
+          <i class="fa-solid fa-address-card"></i>
+
+          Informations fournisseur
+
+        </div>
+
+
+        <div class="sv-info-grid">
+
+          <div>
+            <span>Code fournisseur</span>
+            <b id="svInfoCode">—</b>
+          </div>
+
+          <div>
+            <span>Contact</span>
+            <b id="svInfoContact">—</b>
+          </div>
+
+          <div>
+            <span>Téléphone</span>
+            <b id="svInfoTelephone">—</b>
+          </div>
+
+          <div>
+            <span>Email</span>
+            <b id="svInfoEmail">—</b>
+          </div>
+
+          <div>
+            <span>Ville</span>
+            <b id="svInfoVille">—</b>
+          </div>
+
+          <div>
+            <span>Pays</span>
+            <b id="svInfoPays">—</b>
+          </div>
+
+          <div>
+            <span>ICE</span>
+            <b id="svInfoICE">—</b>
+          </div>
+
+          <div>
+            <span>RC</span>
+            <b id="svInfoRC">—</b>
+          </div>
+
+          <div>
+            <span>Identifiant fiscal</span>
+            <b id="svInfoIF">—</b>
+          </div>
+
+          <div>
+            <span>Délai paiement</span>
+            <b id="svInfoDelaiPaiement">—</b>
+          </div>
+
+          <div>
+            <span>Délai livraison</span>
+            <b id="svInfoDelaiLivraison">—</b>
+          </div>
+
+          <div>
+            <span>Devise</span>
+            <b id="svInfoDevise">MAD</b>
+          </div>
+
+        </div>
+
+
+        <!-- FOURNISSEUR KPI -->
+
+        <div class="sv-detail-kpis">
+
+          <div>
+            <span>Achats</span>
+            <strong id="svDetailAchats">0</strong>
+          </div>
+
+          <div>
+            <span>Montant achats</span>
+            <strong id="svDetailAchatsTTC">
+              0,00 MAD
+            </strong>
+          </div>
+
+          <div>
+            <span>Factures</span>
+            <strong id="svDetailFactures">0</strong>
+          </div>
+
+          <div>
+            <span>Payé</span>
+            <strong id="svDetailPaye">
+              0,00 MAD
+            </strong>
+          </div>
+
+          <div class="reste">
+            <span>Reste</span>
+            <strong id="svDetailReste">
+              0,00 MAD
+            </strong>
+          </div>
+
+        </div>
+
+
+        <!-- ACHATS FOURNISSEUR -->
+
+        <div class="sv-section-title">
+
+          <i class="fa-solid fa-cart-shopping"></i>
+
+          Achats du fournisseur
+
+          <span id="svDetailAchatsCount">
+            0
+          </span>
+
+        </div>
+
+
+        <div class="sv-table-wrap">
+
+          <table class="sv-table sv-small-table">
+
+            <thead>
+
+              <tr>
+
+                <th>N° achat</th>
+
+                <th>Date</th>
+
+                <th>Réception</th>
+
+                <th>HT</th>
+
+                <th>TTC</th>
+
+                <th>Statut</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="svDetailAchatsBody"></tbody>
+
+          </table>
+
+        </div>
+
+
+        <!-- FACTURES FOURNISSEUR -->
+
+        <div class="sv-section-title">
+
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+
+          Factures fournisseur
+
+          <span id="svDetailFacturesCount">
+            0
+          </span>
+
+        </div>
+
+
+        <div class="sv-table-wrap">
+
+          <table class="sv-table sv-small-table">
+
+            <thead>
+
+              <tr>
+
+                <th>N° facture</th>
+
+                <th>Bon d'achat</th>
+
+                <th>Date</th>
+
+                <th>Échéance</th>
+
+                <th>TTC</th>
+
+                <th>Payé</th>
+
+                <th>Reste</th>
+
+                <th>Statut</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="svDetailFacturesBody"></tbody>
+
+          </table>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- =====================================================
+       GLOBAL ACHATS
+  ====================================================== -->
+
+  <section class="sv-card sv-global-card">
+
+    <div class="sv-card-head">
+
+      <div>
+
+        <h3>
+          <i class="fa-solid fa-cart-shopping"></i>
+          Tous les achats
+        </h3>
+
+        <small>
+          Suivi global des bons d'achat
+        </small>
+
+      </div>
+
+      <span
+        id="svAchatCount"
+        class="sv-count"
+      >
+        0
+      </span>
+
+    </div>
+
+
+    <div class="sv-table-wrap">
+
+      <table class="sv-table">
+
+        <thead>
+
+          <tr>
+
+            <th>N° achat</th>
+
+            <th>Fournisseur</th>
+
+            <th>Date achat</th>
+
+            <th>Date prévue</th>
+
+            <th>Date réception</th>
+
+            <th>HT</th>
+
+            <th>TVA</th>
+
+            <th>TTC</th>
+
+            <th>Statut</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="svAchatsBody">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       GLOBAL FACTURES
+  ====================================================== -->
+
+  <section class="sv-card sv-global-card">
+
+    <div class="sv-card-head">
+
+      <div>
+
+        <h3>
+
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+
+          Factures fournisseurs
+
+        </h3>
+
+        <small>
+
+          Suivi des factures et paiements
+
+        </small>
+
+      </div>
+
+      <span
+        id="svFactureCount"
+        class="sv-count"
+      >
+        0
+      </span>
+
+    </div>
+
+
+    <div class="sv-table-wrap">
+
+      <table class="sv-table">
+
+        <thead>
+
+          <tr>
+
+            <th>N° facture</th>
+
+            <th>Fournisseur</th>
+
+            <th>Bon d'achat</th>
+
+            <th>Date facture</th>
+
+            <th>Échéance</th>
+
+            <th>TTC</th>
+
+            <th>Payé</th>
+
+            <th>Reste</th>
+
+            <th>Statut</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="svFacturesBody">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       TOAST
+  ====================================================== -->
+
+  <div
+    id="svToast"
+    class="sv-toast"
+  ></div>
+
+</div>
+
+
+<style>
+
+/* =========================================================
+   BASE
+========================================================= */
+
+.suivi-page{
+  padding:22px 26px 40px;
+  color:#17212b;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+.suivi-page *,
+.suivi-page *::before,
+.suivi-page *::after{
+  box-sizing:border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.suivi-head{
+  background:#fff;
+  border:1px solid #e4e8e6;
+  border-radius:16px;
+  min-height:76px;
+  padding:15px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:14px;
+  box-shadow:0 5px 22px #1018280b;
+}
+
+.suivi-head h2{
+  margin:0;
+  font-size:17px;
+  font-weight:900;
+}
+
+.suivi-head h2 i{
+  color:#008746;
+  margin-right:6px;
+}
+
+.suivi-head p{
+  margin:4px 0 0;
+  color:#7d8983;
+  font-size:10px;
+}
+
+.suivi-head-actions{
+  display:flex;
+  gap:8px;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.sv-btn{
+  height:36px;
+  padding:0 13px;
+  border-radius:9px;
+  border:1px solid transparent;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+
+.sv-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.sv-light{
+  background:#eef7f2;
+  color:#087f4e;
+  border-color:#d8ebdf;
+}
+
+.sv-light:hover{
+  background:#e2f2e9;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.suivi-stats{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.sv-stat{
+  background:#fff;
+  border:1px solid #e4e8e6;
+  border-radius:13px;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 5px 22px #1018280b;
+  min-width:0;
+}
+
+.sv-stat-icon{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  border-radius:9px;
+  background:#eef8f3;
+  color:#008746;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+}
+
+.sv-stat.warning .sv-stat-icon{
+  background:#fff7e8;
+  color:#a96a00;
+}
+
+.sv-stat span{
+  display:block;
+  font-size:7px;
+  color:#7d8983;
+  text-transform:uppercase;
+  font-weight:900;
+}
+
+.sv-stat strong{
+  display:block;
+  margin-top:3px;
+  color:#008746;
+  font-size:17px;
+  line-height:1.2;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.sv-stat.warning strong{
+  color:#a96a00;
+}
+
+.sv-stat small{
+  display:block;
+  margin-top:3px;
+  color:#98a29d;
+  font-size:8px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.sv-filter-card{
+  background:#fff;
+  border:1px solid #e4e8e6;
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:14px;
+  box-shadow:0 5px 22px #1018280b;
+}
+
+.sv-filter-title{
+  color:#087f4e;
+  font-size:10px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.sv-filter-title i{
+  margin-right:5px;
+}
+
+.sv-filters{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr auto;
+  gap:10px;
+  align-items:end;
+}
+
+.sv-field label{
+  display:block;
+  font-size:7px;
+  text-transform:uppercase;
+  color:#89958f;
+  font-weight:900;
+  margin-bottom:5px;
+}
+
+.sv-field select,
+.sv-field input{
+  width:100%;
+  height:35px;
+  border:1px solid #dce3df;
+  border-radius:8px;
+  background:#fff;
+  color:#344139;
+  padding:0 10px;
+  font-size:9px;
+  outline:none;
+}
+
+.sv-field select:focus,
+.sv-field input:focus{
+  border-color:#008746;
+  box-shadow:0 0 0 2px rgba(0,135,70,.08);
+}
+
+.sv-input-icon{
+  height:35px;
+  border:1px solid #dce3df;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  color:#98a29d;
+}
+
+.sv-input-icon input{
+  border:0;
+  height:33px;
+  padding-left:7px;
+}
+
+.sv-filter-action{
+  min-width:125px;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.sv-card{
+  background:#fff;
+  border:1px solid #e4e8e6;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 5px 22px #1018280b;
+  min-width:0;
+}
+
+.sv-main-grid{
+  display:grid;
+  grid-template-columns:520px minmax(0,1fr);
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.sv-card-head{
+  min-height:60px;
+  padding:12px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid #edf0ee;
+}
+
+.sv-card-head h3{
+  margin:0;
+  font-size:12px;
+  font-weight:900;
+}
+
+.sv-card-head h3 i{
+  color:#008746;
+  margin-right:5px;
+}
+
+.sv-card-head small{
+  display:block;
+  margin-top:3px;
+  color:#98a29d;
+  font-size:8px;
+}
+
+.sv-count{
+  min-width:26px;
+  height:24px;
+  padding:0 8px;
+  border-radius:20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#eef8f3;
+  color:#087f4e;
+  font-size:8px;
+  font-weight:900;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.sv-table-wrap{
+  width:100%;
+  overflow:auto;
+}
+
+.sv-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:850px;
+}
+
+.sv-table th{
+  background:#f7f9f8;
+  color:#78857e;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:900;
+  padding:9px 8px;
+  text-align:left;
+  border-bottom:1px solid #e4e9e6;
+  white-space:nowrap;
+}
+
+.sv-table td{
+  padding:9px 8px;
+  font-size:8px;
+  color:#344139;
+  border-bottom:1px solid #edf0ee;
+  white-space:nowrap;
+}
+
+.sv-table tbody tr{
+  cursor:pointer;
+  transition:.15s;
+}
+
+.sv-table tbody tr:hover{
+  background:#f6faf8;
+}
+
+.sv-table tbody tr.sv-selected{
+  background:#eef8f3;
+  box-shadow:inset 3px 0 #008746;
+}
+
+.sv-table td strong{
+  font-weight:900;
+}
+
+.sv-small-table{
+  min-width:700px;
+}
+
+.sv-small-table td,
+.sv-small-table th{
+  padding:7px;
+}
+
+.sv-loading-cell{
+  height:150px;
+  text-align:center !important;
+  color:#98a29d !important;
+}
+
+.sv-loading-cell i{
+  color:#008746;
+  margin-right:5px;
+}
+
+
+/* =========================================================
+   SUPPLIER NAME
+========================================================= */
+
+.sv-supplier-name{
+  color:#087f4e;
+  font-weight:900;
+}
+
+.sv-supplier-code{
+  display:block;
+  margin-top:2px;
+  color:#98a29d;
+  font-size:7px;
+}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.sv-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:21px;
+  padding:3px 7px;
+  border-radius:20px;
+  font-size:7px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.sv-active{
+  background:#eaf8f0;
+  color:#087f4e;
+  border:1px solid #cfe8d9;
+}
+
+.sv-inactive{
+  background:#f4f5f5;
+  color:#68736e;
+  border:1px solid #e0e3e1;
+}
+
+.sv-receptionne{
+  background:#eaf8f0;
+  color:#087f4e;
+  border:1px solid #cfe8d9;
+}
+
+.sv-attente{
+  background:#fff7e8;
+  color:#a96a00;
+  border:1px solid #f0ddb4;
+}
+
+.sv-brouillon{
+  background:#f5f5f5;
+  color:#68736e;
+  border:1px solid #e1e3e2;
+}
+
+.sv-facture-ok{
+  background:#eef4ff;
+  color:#315b9c;
+  border:1px solid #d5e1f5;
+}
+
+.sv-facture-paid{
+  background:#eaf8f0;
+  color:#087f4e;
+  border:1px solid #cfe8d9;
+}
+
+.sv-facture-warn{
+  background:#fff7e8;
+  color:#a96a00;
+  border:1px solid #f0ddb4;
+}
+
+.sv-facture-danger{
+  background:#fff0ef;
+  color:#c52b21;
+  border:1px solid #f1c7c3;
+}
+
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+.sv-detail-card{
+  min-height:500px;
+}
+
+.sv-empty{
+  min-height:500px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  color:#98a29d;
+}
+
+.sv-empty i{
+  font-size:35px;
+  color:#bcc7c1;
+  margin-bottom:10px;
+}
+
+.sv-empty b{
+  font-size:12px;
+  color:#65716b;
+}
+
+.sv-empty span{
+  margin-top:4px;
+  font-size:9px;
+}
+
+.sv-detail-head{
+  padding:15px 17px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid #edf0ee;
+}
+
+.sv-detail-title{
+  color:#008746;
+  font-size:17px;
+  font-weight:900;
+}
+
+.sv-detail-sub{
+  color:#8a9690;
+  font-size:8px;
+  margin-top:4px;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.sv-section-title{
+  margin:15px 15px 0;
+  padding-bottom:7px;
+  border-bottom:1px solid #e5eae7;
+  color:#087f4e;
+  font-size:10px;
+  font-weight:900;
+}
+
+.sv-section-title i{
+  margin-right:5px;
+}
+
+.sv-section-title span{
+  float:right;
+  color:#98a29d;
+  font-size:7px;
+  font-weight:700;
+}
+
+
+/* =========================================================
+   INFO GRID
+========================================================= */
+
+.sv-info-grid{
+  margin:12px 15px 0;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid #e0e6e2;
+  border-radius:9px;
+  overflow:hidden;
+}
+
+.sv-info-grid div{
+  min-height:48px;
+  padding:8px;
+  border-right:1px solid #e0e6e2;
+  border-bottom:1px solid #e0e6e2;
+}
+
+.sv-info-grid div:nth-child(4n){
+  border-right:0;
+}
+
+.sv-info-grid span{
+  display:block;
+  font-size:6px;
+  color:#89958f;
+  text-transform:uppercase;
+  font-weight:900;
+}
+
+.sv-info-grid b{
+  display:block;
+  margin-top:4px;
+  font-size:8px;
+  color:#344139;
+  word-break:break-word;
+}
+
+
+/* =========================================================
+   DETAIL KPIS
+========================================================= */
+
+.sv-detail-kpis{
+  margin:12px 15px 0;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  border:1px solid #dfe6e2;
+  border-radius:9px;
+  overflow:hidden;
+}
+
+.sv-detail-kpis > div{
+  padding:9px;
+  border-right:1px solid #dfe6e2;
+}
+
+.sv-detail-kpis > div:last-child{
+  border-right:0;
+}
+
+.sv-detail-kpis span{
+  display:block;
+  font-size:6px;
+  text-transform:uppercase;
+  color:#89958f;
+  font-weight:900;
+}
+
+.sv-detail-kpis strong{
+  display:block;
+  margin-top:4px;
+  color:#008746;
+  font-size:10px;
+}
+
+.sv-detail-kpis .reste{
+  background:#fff9eb;
+}
+
+.sv-detail-kpis .reste strong{
+  color:#a96a00;
+}
+
+
+/* =========================================================
+   GLOBAL CARDS
+========================================================= */
+
+.sv-global-card{
+  margin-bottom:14px;
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.sv-toast{
+  display:none;
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  z-index:999999;
+  padding:12px 16px;
+  border-radius:9px;
+  background:#087f4e;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  box-shadow:0 8px 25px #0002;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1450px){
+
+  .suivi-stats{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .sv-main-grid{
+    grid-template-columns:430px minmax(0,1fr);
+  }
+
+}
+
+@media(max-width:1100px){
+
+  .sv-main-grid{
+    grid-template-columns:1fr;
+  }
+
+  .sv-filters{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .sv-info-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .sv-info-grid div:nth-child(4n){
+    border-right:1px solid #e0e6e2;
+  }
+
+  .sv-info-grid div:nth-child(2n){
+    border-right:0;
+  }
+
+}
+
+@media(max-width:750px){
+
+  .suivi-page{
+    padding:12px;
+  }
+
+  .suivi-stats{
+    grid-template-columns:1fr;
+  }
+
+  .sv-filters{
+    grid-template-columns:1fr;
+  }
+
+  .sv-info-grid{
+    grid-template-columns:1fr;
+  }
+
+  .sv-info-grid div{
+    border-right:0 !important;
+  }
+
+  .sv-detail-kpis{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .sv-detail-kpis > div{
+    border-bottom:1px solid #dfe6e2;
+  }
+
+  .suivi-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.sv-table-wrap::-webkit-scrollbar{
+  height:6px;
+}
+
+.sv-table-wrap::-webkit-scrollbar-thumb{
+  background:#cbd5cf;
+  border-radius:10px;
+}
+
+</style>
+
+
+<script type="module">
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+import supabase from "../assets/js/core/supabase.js";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const SV = {
+
+  achats: [],
+
+  fournisseurs: [],
+
+  factures: [],
+
+  selectedFournisseur: null
+
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ = id => document.getElementById(id);
+
+
+function esc(value){
+
+  return String(value ?? '')
+    .replace(/[&<>"]/g, char => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;'
+    }[char]));
+
+}
+
+
+function num(value){
+
+  if(
+    value === null ||
+    value === undefined ||
+    value === ''
+  ){
+    return 0;
+  }
+
+  if(typeof value === 'number'){
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  const n = Number(
+    String(value)
+      .trim()
+      .replace(/\s/g,'')
+      .replace(',','.')
+  );
+
+  return Number.isFinite(n) ? n : 0;
+
+}
+
+
+function money(value){
+
+  return num(value).toLocaleString(
+    'fr-FR',
+    {
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    }
+  );
+
+}
+
+
+function date(value){
+
+  if(!value){
+    return '—';
+  }
+
+  try{
+
+    return new Date(value)
+      .toLocaleDateString('fr-FR');
+
+  }catch{
+
+    return String(value);
+
+  }
+
+}
+
+
+function normalize(value){
+
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
+
+}
+
+
+function toast(message,type='ok'){
+
+  const el = $('svToast');
+
+  if(!el){
+    return;
+  }
+
+  el.textContent = message;
+
+  if(type === 'error'){
+    el.style.background = '#d92d20';
+  }
+  else if(type === 'warn'){
+    el.style.background = '#b77900';
+  }
+  else{
+    el.style.background = '#087f4e';
+  }
+
+  el.style.display = 'block';
+
+  clearTimeout(window.__svToast);
+
+  window.__svToast = setTimeout(
+    () => {
+      el.style.display = 'none';
+    },
+    3500
+  );
+
+}
+
+
+/* =========================================================
+   FOURNISSEUR MAP
+========================================================= */
+
+function fournisseur(id){
+
+  return SV.fournisseurs.find(
+    f => String(f.id) === String(id)
+  ) || null;
+
+}
+
+
+function fournisseurNom(id){
+
+  const f = fournisseur(id);
+
+  return f?.nom || '—';
+
+}
+
+
+/* =========================================================
+   ACHAT STATUS
+========================================================= */
+
+function achatStatus(a){
+
+  const status =
+    String(a?.statut || '')
+      .toUpperCase();
+
+  if(
+    a?.date_reception ||
+    status === 'RECEPTIONNE'
+  ){
+
+    return {
+      label:'RÉCEPTIONNÉ',
+      cls:'sv-receptionne'
+    };
+
+  }
+
+
+  if(status === 'BROUILLON'){
+
+    return {
+      label:'BROUILLON',
+      cls:'sv-brouillon'
+    };
+
+  }
+
+
+  return {
+    label:status || 'À RÉCEPTIONNER',
+    cls:'sv-attente'
+  };
+
+}
+
+
+/* =========================================================
+   FACTURE STATUS
+========================================================= */
+
+function factureStatus(f){
+
+  const status =
+    String(f?.statut || '')
+      .toUpperCase();
+
+  if(status === 'PAYEE'){
+
+    return {
+      label:'PAYÉE',
+      cls:'sv-facture-paid'
+    };
+
+  }
+
+
+  if(status === 'PARTIELLEMENT_PAYEE'){
+
+    return {
+      label:'PARTIELLEMENT PAYÉE',
+      cls:'sv-facture-warn'
+    };
+
+  }
+
+
+  if(status === 'A_PAYER'){
+
+    return {
+      label:'À PAYER',
+      cls:'sv-facture-warn'
+    };
+
+  }
+
+
+  if(status === 'ANNULEE'){
+
+    return {
+      label:'ANNULÉE',
+      cls:'sv-facture-danger'
+    };
+
+  }
+
+
+  if(status === 'VALIDEE'){
+
+    return {
+      label:'VALIDÉE',
+      cls:'sv-facture-ok'
+    };
+
+  }
+
+
+  return {
+    label:status || 'EN ATTENTE',
+    cls:'sv-facture-ok'
+  };
+
+}
+
+
+/* =========================================================
+   LOAD FOURNISSEURS
+========================================================= */
+
+async function loadFournisseurs(){
+
+  const {data,error} = await supabase
+    .from('fournisseurs')
+    .select('*')
+    .order('nom');
+
+  if(error){
+    throw error;
+  }
+
+  SV.fournisseurs =
+    Array.isArray(data)
+      ? data
+      : [];
+
+}
+
+
+/* =========================================================
+   LOAD ACHATS
+========================================================= */
+
+async function loadAchats(){
+
+  const {data,error} = await supabase
+    .from('achats')
+    .select('*')
+    .order('date_achat',{
+      ascending:false
+    });
+
+  if(error){
+    throw error;
+  }
+
+  SV.achats =
+    Array.isArray(data)
+      ? data
+      : [];
+
+}
+
+
+/* =========================================================
+   LOAD FACTURES
+========================================================= */
+
+async function loadFactures(){
+
+  const {data,error} = await supabase
+    .from('factures_fournisseurs')
+    .select('*')
+    .order('date_facture',{
+      ascending:false
+    });
+
+  if(error){
+    throw error;
+  }
+
+  SV.factures =
+    Array.isArray(data)
+      ? data
+      : [];
+
+}
+
+
+/* =========================================================
+   LOAD ALL
+========================================================= */
+
+async function loadAll(){
+
+  await Promise.all([
+    loadFournisseurs(),
+    loadAchats(),
+    loadFactures()
+  ]);
+
+  populateSupplierFilter();
+
+  renderStats();
+
+  renderSuppliers();
+
+  renderAchats();
+
+  renderFactures();
+
+}
+
+
+/* =========================================================
+   SUPPLIER FILTER
+========================================================= */
+
+function populateSupplierFilter(){
+
+  const select =
+    $('svFournisseur');
+
+  if(!select){
+    return;
+  }
+
+  const current =
+    select.value;
+
+  select.innerHTML = `
+    <option value="TOUS">
+      Tous les fournisseurs
+    </option>
+  `;
+
+  SV.fournisseurs.forEach(f => {
+
+    const option =
+      document.createElement('option');
+
+    option.value = f.id;
+
+    option.textContent =
+      `${f.code_fournisseur || ''} - ${f.nom || ''}`;
+
+    select.appendChild(option);
+
+  });
+
+  if(
+    [...select.options]
+      .some(o => o.value === current)
+  ){
+    select.value = current;
+  }
+
+}
+
+
+/* =========================================================
+   GLOBAL STATS
+========================================================= */
+
+function renderStats(){
+
+  const totalAchats =
+    SV.achats.length;
+
+  const totalAchatsTTC =
+    SV.achats.reduce(
+      (s,a) =>
+        s + num(a.montant_ttc),
+      0
+    );
+
+
+  const totalFactures =
+    SV.factures.length;
+
+
+  const totalPaye =
+    SV.factures.reduce(
+      (s,f) =>
+        s + num(f.montant_paye),
+      0
+    );
+
+
+  const totalReste =
+    SV.factures.reduce(
+      (s,f) =>
+        s + num(f.montant_restant),
+      0
+    );
+
+
+  const fournisseursActifs =
+    SV.fournisseurs.filter(
+      f => f.actif === true
+    ).length;
+
+
+  $('svTotalAchats').textContent =
+    totalAchats;
+
+
+  $('svTotalAchatsTTC').textContent =
+    `${money(totalAchatsTTC)} MAD`;
+
+
+  $('svTotalFactures').textContent =
+    totalFactures;
+
+
+  $('svTotalPaye').textContent =
+    `${money(totalPaye)} MAD`;
+
+
+  $('svTotalReste').textContent =
+    `${money(totalReste)} MAD`;
+
+
+  $('svTotalFournisseurs').textContent =
+    fournisseursActifs;
+
+}
+
+
+/* =========================================================
+   SUPPLIER AGGREGATION
+========================================================= */
+
+function supplierStats(f){
+
+  const achats =
+    SV.achats.filter(
+      a =>
+        String(a.fournisseur_id) ===
+        String(f.id)
+    );
+
+
+  const factures =
+    SV.factures.filter(
+      x =>
+        String(x.fournisseur_id) ===
+        String(f.id)
+    );
+
+
+  const achatsTTC =
+    achats.reduce(
+      (s,a) =>
+        s + num(a.montant_ttc),
+      0
+    );
+
+
+  const paye =
+    factures.reduce(
+      (s,x) =>
+        s + num(x.montant_paye),
+      0
+    );
+
+
+  const reste =
+    factures.reduce(
+      (s,x) =>
+        s + num(x.montant_restant),
+      0
+    );
+
+
+  return {
+    achats,
+    factures,
+    achatsTTC,
+    paye,
+    reste
+  };
+
+}
+
+
+/* =========================================================
+   SUPPLIER FILTER
+========================================================= */
+
+function supplierMatches(f){
+
+  const search =
+    normalize(
+      $('svSearch')?.value
+    );
+
+
+  const supplierFilter =
+    $('svFournisseur')?.value ||
+    'TOUS';
+
+
+  if(
+    supplierFilter !== 'TOUS' &&
+    String(f.id) !== String(supplierFilter)
+  ){
+    return false;
+  }
+
+
+  if(!search){
+    return true;
+  }
+
+
+  const text = [
+
+    f.nom,
+
+    f.code_fournisseur,
+
+    f.contact,
+
+    f.telephone,
+
+    f.email,
+
+    f.ville,
+
+    f.ice,
+
+    f.rc,
+
+    f.identifiant_fiscal
+
+  ]
+    .join(' ')
+    .toLowerCase();
+
+
+  return text.includes(search);
+
+}
+
+
+/* =========================================================
+   RENDER SUPPLIERS
+========================================================= */
+
+function renderSuppliers(){
+
+  const body =
+    $('svSuppliersBody');
+
+  const rows =
+    SV.fournisseurs
+      .filter(supplierMatches)
+      .map(f => {
+
+        const st =
+          supplierStats(f);
+
+        const selected =
+          SV.selectedFournisseur &&
+          String(SV.selectedFournisseur.id) ===
+          String(f.id);
+
+
+        const active =
+          f.actif === true;
+
+
+        let stateClass =
+          active
+            ? 'sv-active'
+            : 'sv-inactive';
+
+
+        let stateText =
+          active
+            ? 'ACTIF'
+            : 'INACTIF';
+
+
+        if(st.reste > 0){
+          stateText += ' • À RÉGLER';
+        }
+
+
+        return `
+
+          <tr
+            class="${selected ? 'sv-selected' : ''}"
+            data-supplier-id="${esc(f.id)}"
+          >
+
+            <td>
+
+              <span class="sv-supplier-name">
+                ${esc(f.nom || '—')}
+              </span>
+
+              <span class="sv-supplier-code">
+                ${esc(f.code_fournisseur || '—')}
+              </span>
+
+            </td>
+
+
+            <td>
+              ${st.achats.length}
+            </td>
+
+
+            <td>
+              <strong>
+                ${money(st.achatsTTC)}
+              </strong>
+              ${esc(f.devise || 'MAD')}
+            </td>
+
+
+            <td>
+              ${st.factures.length}
+            </td>
+
+
+            <td>
+              ${money(st.paye)}
+              ${esc(f.devise || 'MAD')}
+            </td>
+
+
+            <td>
+              <strong>
+                ${money(st.reste)}
+              </strong>
+              ${esc(f.devise || 'MAD')}
+            </td>
+
+
+            <td>
+
+              <span class="sv-badge ${stateClass}">
+                ${stateText}
+              </span>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      });
+
+
+  $('svSupplierCount').textContent =
+    rows.length;
+
+
+  if(!rows.length){
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="7"
+          class="sv-loading-cell"
+        >
+
+          <i class="fa-solid fa-inbox"></i>
+
+          Aucun fournisseur trouvé.
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  body.innerHTML =
+    rows.join('');
+
+}
+
+
+/* =========================================================
+   PURCHASE FILTER
+========================================================= */
+
+function achatMatches(a){
+
+  const search =
+    normalize(
+      $('svSearch')?.value
+    );
+
+
+  const supplierFilter =
+    $('svFournisseur')?.value ||
+    'TOUS';
+
+
+  const statutFilter =
+    $('svStatutAchat')?.value ||
+    'TOUS';
+
+
+  if(
+    supplierFilter !== 'TOUS' &&
+    String(a.fournisseur_id) !==
+    String(supplierFilter)
+  ){
+    return false;
+  }
+
+
+  const status =
+    achatStatus(a);
+
+
+  if(
+    statutFilter === 'RECEPTIONNE' &&
+    status.cls !== 'sv-receptionne'
+  ){
+    return false;
+  }
+
+
+  if(
+    statutFilter === 'BROUILLON' &&
+    String(a.statut || '').toUpperCase() !==
+    'BROUILLON'
+  ){
+    return false;
+  }
+
+
+  if(
+    statutFilter === 'A_RECEPTIONNER' &&
+    (
+      a.date_reception ||
+      String(a.statut || '').toUpperCase() ===
+      'RECEPTIONNE'
+    )
+  ){
+    return false;
+  }
+
+
+  if(!search){
+    return true;
+  }
+
+
+  const text = [
+
+    a.numero_achat,
+
+    fournisseurNom(a.fournisseur_id),
+
+    a.statut,
+
+    a.commentaire,
+
+    a.devise
+
+  ]
+    .join(' ')
+    .toLowerCase();
+
+
+  return text.includes(search);
+
+}
+
+
+/* =========================================================
+   RENDER ACHATS
+========================================================= */
+
+function renderAchats(){
+
+  const body =
+    $('svAchatsBody');
+
+
+  const list =
+    SV.achats
+      .filter(achatMatches);
+
+
+  $('svAchatCount').textContent =
+    list.length;
+
+
+  if(!list.length){
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="sv-loading-cell"
+        >
+
+          <i class="fa-solid fa-inbox"></i>
+
+          Aucun achat trouvé.
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  body.innerHTML =
+    list.map(a => {
+
+      const st =
+        achatStatus(a);
+
+
+      return `
+
+        <tr
+          data-achat-id="${esc(a.id)}"
+        >
+
+          <td>
+
+            <strong class="sv-supplier-name">
+              ${esc(a.numero_achat || '—')}
+            </strong>
+
+          </td>
+
+
+          <td>
+            ${esc(
+              fournisseurNom(
+                a.fournisseur_id
+              )
+            )}
+          </td>
+
+
+          <td>
+            ${date(a.date_achat)}
+          </td>
+
+
+          <td>
+            ${date(a.date_prevue_reception)}
+          </td>
+
+
+          <td>
+            ${date(a.date_reception)}
+          </td>
+
+
+          <td>
+            ${money(a.montant_ht)}
+            ${esc(a.devise || 'MAD')}
+          </td>
+
+
+          <td>
+            ${money(a.montant_tva)}
+            ${esc(a.devise || 'MAD')}
+          </td>
+
+
+          <td>
+
+            <strong>
+              ${money(a.montant_ttc)}
+              ${esc(a.devise || 'MAD')}
+            </strong>
+
+          </td>
+
+
+          <td>
+
+            <span class="sv-badge ${st.cls}">
+              ${st.label}
+            </span>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join('');
+
+}
+
+
+/* =========================================================
+   INVOICE FILTER
+========================================================= */
+
+function factureMatches(f){
+
+  const search =
+    normalize(
+      $('svSearch')?.value
+    );
+
+
+  const supplierFilter =
+    $('svFournisseur')?.value ||
+    'TOUS';
+
+
+  const statusFilter =
+    $('svStatutFacture')?.value ||
+    'TOUS';
+
+
+  if(
+    supplierFilter !== 'TOUS' &&
+    String(f.fournisseur_id) !==
+    String(supplierFilter)
+  ){
+    return false;
+  }
+
+
+  if(
+    statusFilter !== 'TOUS' &&
+    String(f.statut || '').toUpperCase() !==
+    statusFilter
+  ){
+    return false;
+  }
+
+
+  if(!search){
+    return true;
+  }
+
+
+  const achat =
+    SV.achats.find(
+      a =>
+        String(a.id) ===
+        String(f.achat_id)
+    );
+
+
+  const text = [
+
+    f.numero_facture,
+
+    fournisseurNom(f.fournisseur_id),
+
+    achat?.numero_achat,
+
+    f.statut,
+
+    f.mode_paiement,
+
+    f.reference_paiement
+
+  ]
+    .join(' ')
+    .toLowerCase();
+
+
+  return text.includes(search);
+
+}
+
+
+/* =========================================================
+   RENDER FACTURES
+========================================================= */
+
+function renderFactures(){
+
+  const body =
+    $('svFacturesBody');
+
+
+  const list =
+    SV.factures
+      .filter(factureMatches);
+
+
+  $('svFactureCount').textContent =
+    list.length;
+
+
+  if(!list.length){
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="sv-loading-cell"
+        >
+
+          <i class="fa-solid fa-inbox"></i>
+
+          Aucune facture trouvée.
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  body.innerHTML =
+    list.map(f => {
+
+      const st =
+        factureStatus(f);
+
+
+      const achat =
+        SV.achats.find(
+          a =>
+            String(a.id) ===
+            String(f.achat_id)
+        );
+
+
+      const reste =
+        num(f.montant_restant);
+
+
+      return `
+
+        <tr
+          data-facture-id="${esc(f.id)}"
+        >
+
+          <td>
+
+            <strong class="sv-supplier-name">
+              ${esc(
+                f.numero_facture ||
+                '—'
+              )}
+            </strong>
+
+          </td>
+
+
+          <td>
+            ${esc(
+              fournisseurNom(
+                f.fournisseur_id
+              )
+            )}
+          </td>
+
+
+          <td>
+            ${esc(
+              achat?.numero_achat ||
+              f.achat_id ||
+              '—'
+            )}
+          </td>
+
+
+          <td>
+            ${date(f.date_facture)}
+          </td>
+
+
+          <td>
+
+            ${date(f.date_echeance)}
+
+          </td>
+
+
+          <td>
+
+            <strong>
+              ${money(f.montant_ttc)}
+              ${esc(f.devise || 'MAD')}
+            </strong>
+
+          </td>
+
+
+          <td>
+
+            ${money(f.montant_paye)}
+            ${esc(f.devise || 'MAD')}
+
+          </td>
+
+
+          <td>
+
+            <strong
+              style="
+                color:${reste > 0
+                  ? '#a96a00'
+                  : '#087f4e'}
+              "
+            >
+
+              ${money(reste)}
+              ${esc(f.devise || 'MAD')}
+
+            </strong>
+
+          </td>
+
+
+          <td>
+
+            <span class="sv-badge ${st.cls}">
+              ${st.label}
+            </span>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join('');
+
+}
+
+
+/* =========================================================
+   SELECT SUPPLIER
+========================================================= */
+
+function selectSupplier(id){
+
+  const f =
+    fournisseur(id);
+
+
+  if(!f){
+    return;
+  }
+
+
+  SV.selectedFournisseur =
+    f;
+
+
+  renderSuppliers();
+
+  renderSupplierDetail(f);
+
+}
+
+
+/* =========================================================
+   RENDER SUPPLIER DETAIL
+========================================================= */
+
+function renderSupplierDetail(f){
+
+  $('svSupplierEmpty').style.display =
+    'none';
+
+
+  $('svSupplierDetail').style.display =
+    'block';
+
+
+  const st =
+    supplierStats(f);
+
+
+  /* HEADER */
+
+  $('svDetailSupplierName').textContent =
+    f.nom || '—';
+
+
+  $('svDetailSupplierCode').textContent =
+    f.code_fournisseur || '—';
+
+
+  const status =
+    $('svDetailSupplierStatus');
+
+
+  if(f.actif){
+
+    status.textContent =
+      'ACTIF';
+
+    status.className =
+      'sv-badge sv-active';
+
+  }
+  else{
+
+    status.textContent =
+      'INACTIF';
+
+    status.className =
+      'sv-badge sv-inactive';
+
+  }
+
+
+  /* INFO */
+
+  $('svInfoCode').textContent =
+    f.code_fournisseur || '—';
+
+  $('svInfoContact').textContent =
+    f.contact || '—';
+
+  $('svInfoTelephone').textContent =
+    f.telephone || '—';
+
+  $('svInfoEmail').textContent =
+    f.email || '—';
+
+  $('svInfoVille').textContent =
+    f.ville || '—';
+
+  $('svInfoPays').textContent =
+    f.pays || '—';
+
+  $('svInfoICE').textContent =
+    f.ice || '—';
+
+  $('svInfoRC').textContent =
+    f.rc || '—';
+
+  $('svInfoIF').textContent =
+    f.identifiant_fiscal || '—';
+
+  $('svInfoDelaiPaiement').textContent =
+    f.delai_paiement || '—';
+
+  $('svInfoDelaiLivraison').textContent =
+    f.delai_livraison ?? '—';
+
+  $('svInfoDevise').textContent =
+    f.devise || 'MAD';
+
+
+  /* KPI */
+
+  $('svDetailAchats').textContent =
+    st.achats.length;
+
+
+  $('svDetailAchatsTTC').textContent =
+    `${money(st.achatsTTC)} ${f.devise || 'MAD'}`;
+
+
+  $('svDetailFactures').textContent =
+    st.factures.length;
+
+
+  $('svDetailPaye').textContent =
+    `${money(st.paye)} ${f.devise || 'MAD'}`;
+
+
+  $('svDetailReste').textContent =
+    `${money(st.reste)} ${f.devise || 'MAD'}`;
+
+
+  /* ACHATS */
+
+  $('svDetailAchatsCount').textContent =
+    `${st.achats.length}`;
+
+
+  const achatsBody =
+    $('svDetailAchatsBody');
+
+
+  if(!st.achats.length){
+
+    achatsBody.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="6"
+          class="sv-loading-cell"
+        >
+          Aucun achat.
+        </td>
+
+      </tr>
+
+    `;
+
+  }
+  else{
+
+    achatsBody.innerHTML =
+      st.achats.map(a => {
+
+        const as =
+          achatStatus(a);
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${esc(
+                a.numero_achat ||
+                '—'
+              )}
+            </td>
+
+            <td>
+              ${date(a.date_achat)}
+            </td>
+
+            <td>
+              ${date(a.date_reception)}
+            </td>
+
+            <td>
+              ${money(a.montant_ht)}
+            </td>
+
+            <td>
+              <strong>
+                ${money(a.montant_ttc)}
+              </strong>
+            </td>
+
+            <td>
+              <span
+                class="sv-badge ${as.cls}"
+              >
+                ${as.label}
+              </span>
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join('');
+
+  }
+
+
+  /* FACTURES */
+
+  $('svDetailFacturesCount').textContent =
+    `${st.factures.length}`;
+
+
+  const facturesBody =
+    $('svDetailFacturesBody');
+
+
+  if(!st.factures.length){
+
+    facturesBody.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="8"
+          class="sv-loading-cell"
+        >
+          Aucune facture.
+        </td>
+
+      </tr>
+
+    `;
+
+  }
+  else{
+
+    facturesBody.innerHTML =
+      st.factures.map(facture => {
+
+        const fs =
+          factureStatus(facture);
+
+
+        const achat =
+          SV.achats.find(
+            a =>
+              String(a.id) ===
+              String(facture.achat_id)
+          );
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${esc(
+                facture.numero_facture ||
+                '—'
+              )}
+            </td>
+
+            <td>
+              ${esc(
+                achat?.numero_achat ||
+                facture.achat_id ||
+                '—'
+              )}
+            </td>
+
+            <td>
+              ${date(
+                facture.date_facture
+              )}
+            </td>
+
+            <td>
+              ${date(
+                facture.date_echeance
+              )}
+            </td>
+
+            <td>
+              <strong>
+                ${money(
+                  facture.montant_ttc
+                )}
+              </strong>
+            </td>
+
+            <td>
+              ${money(
+                facture.montant_paye
+              )}
+            </td>
+
+            <td>
+
+              <strong
+                style="
+                  color:${num(
+                    facture.montant_restant
+                  ) > 0
+                    ? '#a96a00'
+                    : '#087f4e'}
+                "
+              >
+
+                ${money(
+                  facture.montant_restant
+                )}
+
+              </strong>
+
+            </td>
+
+            <td>
+
+              <span
+                class="sv-badge ${fs.cls}"
+              >
+                ${fs.label}
+              </span>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join('');
+
+  }
+
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+
+/* SEARCH */
+
+$('svSearch').oninput =
+  () => {
+
+    renderSuppliers();
+
+    renderAchats();
+
+    renderFactures();
+
+  };
+
+
+/* SUPPLIER */
+
+$('svFournisseur').onchange =
+  () => {
+
+    renderSuppliers();
+
+    renderAchats();
+
+    renderFactures();
+
+  };
+
+
+/* ACHAT STATUS */
+
+$('svStatutAchat').onchange =
+  renderAchats;
+
+
+/* FACTURE STATUS */
+
+$('svStatutFacture').onchange =
+  renderFactures;
+
+
+/* RESET */
+
+$('svReset').onclick =
+  () => {
+
+    $('svSearch').value =
+      '';
+
+    $('svFournisseur').value =
+      'TOUS';
+
+    $('svStatutAchat').value =
+      'TOUS';
+
+    $('svStatutFacture').value =
+      'TOUS';
+
+
+    renderSuppliers();
+
+    renderAchats();
+
+    renderFactures();
+
+    toast(
+      'Filtres réinitialisés.'
+    );
+
+  };
+
+
+/* SUPPLIER CLICK */
+
+$('svSuppliersBody').onclick =
+  e => {
+
+    const row =
+      e.target.closest(
+        '[data-supplier-id]'
+      );
+
+
+    if(!row){
+      return;
+    }
+
+
+    selectSupplier(
+      row.dataset.supplierId
+    );
+
+  };
+
+
+/* =========================================================
+   ACHAT CLICK
+========================================================= */
+
+$('svAchatsBody').onclick =
+  e => {
+
+    const row =
+      e.target.closest(
+        '[data-achat-id]'
+      );
+
+
+    if(!row){
+      return;
+    }
+
+
+    const achat =
+      SV.achats.find(
+        a =>
+          String(a.id) ===
+          String(row.dataset.achatId)
+      );
+
+
+    if(!achat){
+      return;
+    }
+
+
+    selectSupplier(
+      achat.fournisseur_id
+    );
+
+  };
+
+
+/* =========================================================
+   FACTURE CLICK
+========================================================= */
+
+$('svFacturesBody').onclick =
+  e => {
+
+    const row =
+      e.target.closest(
+        '[data-facture-id]'
+      );
+
+
+    if(!row){
+      return;
+    }
+
+
+    const facture =
+      SV.factures.find(
+        f =>
+          String(f.id) ===
+          String(row.dataset.factureId)
+      );
+
+
+    if(!facture){
+      return;
+    }
+
+
+    selectSupplier(
+      facture.fournisseur_id
+    );
+
+  };
+
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+$('suiviRefresh').onclick =
+  async () => {
+
+    const btn =
+      $('suiviRefresh');
+
+
+    btn.disabled = true;
+
+
+    btn.innerHTML = `
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      Actualisation...
+    `;
+
+
+    try{
+
+      await loadAll();
+
+
+      if(SV.selectedFournisseur){
+
+        const refreshed =
+          fournisseur(
+            SV.selectedFournisseur.id
+          );
+
+
+        if(refreshed){
+
+          renderSupplierDetail(
+            refreshed
+          );
+
+        }
+
+      }
+
+
+      toast(
+        'Données actualisées.'
+      );
+
+    }
+    catch(error){
+
+      console.error(
+        '[SUIVI ACHATS]',
+        error
+      );
+
+
+      toast(
+        error.message ||
+        'Erreur de chargement.',
+        'error'
+      );
+
+    }
+    finally{
+
+      btn.disabled = false;
+
+      btn.innerHTML = `
+        <i class="fa-solid fa-rotate"></i>
+        Actualiser
+      `;
+
+    }
+
+  };
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+(async function(){
+
+  try{
+
+    await loadAll();
+
+  }
+  catch(error){
+
+    console.error(
+      '[SUIVI ACHATS INIT]',
+      error
+    );
+
+
+    $('svSuppliersBody').innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="7"
+          class="sv-loading-cell"
+          style="color:#d92d20"
+        >
+
+          <i class="fa-solid fa-triangle-exclamation"></i>
+
+          Erreur de chargement
+
+          <br>
+
+          <small>
+            ${esc(
+              error.message ||
+              'Erreur inconnue'
+            )}
+          </small>
+
+        </td>
+
+      </tr>
+
+    `;
+
+
+    toast(
+      error.message ||
+      'Erreur de chargement.',
+      'error'
+    );
+
+  }
+
+})();
+
+</script>

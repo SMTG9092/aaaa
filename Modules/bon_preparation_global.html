@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bon de Préparation Global - SoufStock WMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .page-break { page-break-after: always; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans p-6 min-h-screen">
+
+    <!-- ACTION BAR (NO PRINT) -->
+    <div class="no-print max-w-5xl mx-auto mb-6 bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between shadow-lg">
+        <div>
+            <h1 class="text-sm font-bold text-emerald-400 uppercase tracking-wider"><i class="fas fa-layer-group mr-2"></i> Bon de Préparation Global (En Masse)</h1>
+            <p class="text-xs text-slate-400" id="globalSubTitle">Chargement des données...</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow cursor-pointer">
+                <i class="fas fa-print"></i> Imprimer Tout
+            </button>
+            <button onclick="window.close()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">
+                Fermer
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTAINER GLOBAL DE TOUTES LES COMMANDES -->
+    <div id="globalContainer" class="max-w-5xl mx-auto space-y-8">
+        <div class="text-center py-20 text-slate-400">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2 text-emerald-400"></i>
+            <p class="text-xs">Préparation et groupement de toutes les commandes...</p>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CHARGEMENT GLOBAL -->
+    <script type="module">
+        import supabase from '../assets/js/core/supabase.js';
+
+        async function loadGlobalBon() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode'); // 'filtre' wla 'tournee' wla 'cmd'
+            const value = urlParams.get('val'); // la valeur (tournee name, etc.)
+            const dateDebut = urlParams.get('debut');
+            const dateFin = urlParams.get('fin');
+
+            let query = supabase.from('commandes_excel').select('*');
+
+            if (mode === 'tournee') {
+                query = query.eq('itineraire', value);
+                if (dateDebut) query = query.gte('date_livraison', dateDebut);
+                if (dateFin) query = query.lte('date_livraison', dateFin);
+                document.getElementById('globalSubTitle').textContent = `Tournée : ${value} (Toutes les commandes)`;
+            } else if (mode === 'filtre') {
+                if (dateDebut) query = query.gte('date_livraison', dateDebut);
+                if (dateFin) query = query.lte('date_livraison', dateFin);
+                query = query.eq('statut', 'LANCEE');
+                document.getElementById('globalSubTitle').textContent = `Période du ${dateDebut || 'Début'} au ${dateFin || 'Fin'}`;
+            } else if (mode === 'cmd') {
+                const docs = value.split(',');
+                query = query.in('document_vente', docs);
+                document.getElementById('globalSubTitle').textContent = `Sélection groupée (${docs.length} commandes)`;
+            }
+
+            const { data: rows, error } = await query.order('document_vente', { ascending: true }).order('"Poste"', { ascending: true });
+
+            if (error || !rows || rows.length === 0) {
+                document.getElementById('globalContainer').innerHTML = `<div class="bg-slate-800 p-8 text-center rounded-xl text-slate-400 text-xs">Aucune commande trouvée pour cet affichage global.</div>`;
+                return;
+            }
+
+            // Grouper par document de vente (commande)
+            const grouped = {};
+            rows.forEach(r => {
+                if (!grouped[r.document_vente]) {
+                    grouped[r.document_vente] = {
+                        info: r,
+                        items: []
+                    };
+                }
+                grouped[r.document_vente].items.push(r);
+            });
+
+            const container = document.getElementById('globalContainer');
+            container.innerHTML = "";
+
+            let html = "";
+            Object.values(grouped).forEach((group) => {
+                const cmd = group.info;
+                const items = group.items;
+                const totalKg = items.reduce((acc, curr) => acc + Number(curr.quantite_commandee || 0), 0);
+                const totalPcs = items.reduce((acc, curr) => acc + Number(curr.nombre_pieces || 0), 0);
+
+                html += `
+                    <div class="bg-white text-slate-900 p-8 rounded-2xl shadow-xl border border-slate-200 page-break mb-8">
+                        <!-- ENTÊTE DU BON -->
+                        <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-4">
+                            <div>
+                                <h2 class="text-xl font-black tracking-tight text-slate-900">SOUFSTOCK WMS</h2>
+                                <p class="text-xs font-bold text-emerald-600 uppercase">Bon de Préparation de Commande</p>
+                            </div>
+                            <div class="text-right font-mono">
+                                <span class="text-xs text-slate-500 block">N° Commande</span>
+                                <span class="text-lg font-bold text-slate-900">${cmd.document_vente}</span>
+                            </div>
+                        </div>
+
+                        <!-- INFOS CLIENT & ITINÉRAIRE -->
+                        <div class="grid grid-cols-3 gap-4 bg-slate-100 p-4 rounded-xl text-xs font-mono mb-4">
+                            <div>
+                                <span class="text-slate-500 block text-[10px] uppercase">Client / Réceptionnaire</span>
+                                <strong class="text-slate-900 text-sm">${cmd.nom_receptionnaire || 'Client Divers'}</strong>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block text-[10px] uppercase">Date de Livraison</span>
+                                <strong class="text-slate-900">${cmd.date_livraison || '-'}</strong>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block text-[10px] uppercase">Itinéraire / Tournée</span>
+                                <strong class="text-slate-900">${cmd.itineraire || 'Non assigné'}</strong>
+                            </div>
+                        </div>
+
+                        <!-- TABLE DES ARTICLES -->
+                        <table class="w-full text-left text-xs font-mono border-collapse mb-4">
+                            <thead>
+                                <tr class="bg-slate-900 text-white uppercase text-[10px]">
+                                    <th class="p-2.5">Poste</th>
+                                    <th class="p-2.5">Article</th>
+                                    <th class="p-2.5">Désignation</th>
+                                    <th class="p-2.5 text-right">Quantité KG</th>
+                                    <th class="p-2.5 text-right">Pièces</th>
+                                    <th class="p-2.5 text-center w-16">Check</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-300">
+                `;
+
+                items.forEach(item => {
+                    html += `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-2.5 font-bold">${item.Poste}</td>
+                            <td class="p-2.5 font-bold text-emerald-700">${item.article}</td>
+                            <td class="p-2.5 text-slate-700">${item.designation_article}</td>
+                            <td class="p-2.5 text-right font-bold">${item.quantite_commandee} KG</td>
+                            <td class="p-2.5 text-right font-bold">${item.nombre_pieces} Pcs</td>
+                            <td class="p-2.5 text-center"><div class="w-4 h-4 border-2 border-slate-400 rounded mx-auto"></div></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+
+                        <!-- TOTAUX -->
+                        <div class="flex justify-between items-center bg-slate-900 text-white p-3 rounded-xl text-xs font-mono">
+                            <span>Total Postes : <strong>${items.length}</strong></span>
+                            <div class="flex gap-6">
+                                <span>Total KG : <strong>${totalKg.toFixed(2)} KG</strong></span>
+                                <span class="text-emerald-400">Total Pièces : <strong>${totalPcs} Pcs</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        loadGlobalBon();
+    </script>
+</body>
+</html>

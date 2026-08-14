@@ -1,0 +1,2717 @@
+<!-- =========================================================
+     Modules/reception_achats.html
+     RÉCEPTION DES BONS D'ACHAT
+========================================================= -->
+
+<div class="ba-page reception-page">
+
+  <div class="ba-head">
+    <div>
+      <h2>
+        <i class="fa-solid fa-truck-ramp-box"></i>
+        Réception des bons d'achat
+      </h2>
+      <p>
+        Réception et suivi des bons d'achat en attente de livraison
+      </p>
+    </div>
+
+    <div class="ba-actions">
+      <button id="recRefresh" class="ba-btn ba-light">
+        <i class="fa-solid fa-rotate"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <div class="ba-stats">
+
+    <div class="ba-stat">
+      <span>À réceptionner</span>
+      <strong id="recStatAttente">0</strong>
+      <small>Bons d'achat en attente</small>
+    </div>
+
+    <div class="ba-stat">
+      <span>Réceptionnés</span>
+      <strong id="recStatRecus">0</strong>
+      <small>Bons déjà réceptionnés</small>
+    </div>
+
+    <div class="ba-stat">
+      <span>Montant TTC</span>
+      <strong id="recStatTTC">0,00</strong>
+      <small>Total en attente de réception</small>
+    </div>
+
+    <div class="ba-stat">
+      <span>Réceptionnés aujourd'hui</span>
+      <strong id="recStatToday">0</strong>
+      <small>Réceptions du jour</small>
+    </div>
+
+  </div>
+
+  <div class="ba-layout">
+
+    <section class="ba-card ba-list-card">
+
+      <div class="ba-card-head">
+        <div>
+          <h3>
+            <i class="fa-solid fa-list"></i>
+            Bons d'achat à réceptionner
+          </h3>
+          <small>
+            Sélectionnez un bon d'achat pour afficher son contenu.
+          </small>
+        </div>
+
+        <span class="ba-badge a-receptionner">
+          À RÉCEPTIONNER
+        </span>
+      </div>
+
+      <div class="ba-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          id="recSearch"
+          type="text"
+          placeholder="Rechercher N° BA, fournisseur ou demande..."
+        >
+      </div>
+
+      <div id="recList" class="ba-list">
+        <div class="ba-loading">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          Chargement...
+        </div>
+      </div>
+
+    </section>
+
+    <section class="ba-card ba-detail-card">
+
+      <div id="recEmpty" class="ba-empty">
+        <i class="fa-solid fa-truck-ramp-box"></i>
+        <b>Sélectionnez un bon d'achat</b>
+        <span>
+          Les informations du bon d'achat apparaîtront ici.
+        </span>
+      </div>
+
+      <div id="recDetail" style="display:none">
+
+        <div class="ba-detail-head">
+          <div>
+            <div id="recNumero" class="ba-detail-number">—</div>
+            <small id="recDateAchat">—</small>
+          </div>
+
+          <span id="recStatus" class="ba-badge a-receptionner">
+            À RÉCEPTIONNER
+          </span>
+        </div>
+
+        <div class="ba-info-grid">
+
+          <div>
+            <span>Fournisseur</span>
+            <b id="recFournisseur">—</b>
+          </div>
+
+          <div>
+            <span>N° demande</span>
+            <b id="recDemande">—</b>
+          </div>
+
+          <div>
+            <span>Date prévue réception</span>
+            <b id="recDatePrevue">—</b>
+          </div>
+
+          <div>
+            <span>Devise</span>
+            <b id="recDevise">MAD</b>
+          </div>
+
+        </div>
+
+        <div class="ba-section-title">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          Articles commandés
+          <span id="recLinesCount">0 ligne</span>
+        </div>
+
+        <div class="ba-table-wrap">
+          <table class="ba-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Désignation</th>
+                <th>Quantité</th>
+                <th>Lot</th>
+                <th>Unité</th>
+                <th>Prix U.</th>
+                <th>Montant HT</th>
+              </tr>
+            </thead>
+            <tbody id="recLines"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2">TOTAL</td>
+                <td id="recTotalQty" class="ba-total">0,000</td>
+                <td id="recUnit">—</td>
+                <td></td>
+                <td id="recTotalHT" class="ba-total">0,00 MAD</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="ba-montants">
+
+          <div>
+            <span>Montant HT</span>
+            <strong id="recHT">0,00 MAD</strong>
+          </div>
+
+          <div>
+            <span>TVA</span>
+            <strong id="recTVA">0,00 MAD</strong>
+          </div>
+
+          <div class="ba-ttc">
+            <span>Montant TTC</span>
+            <strong id="recTTC">0,00 MAD</strong>
+          </div>
+
+        </div>
+
+        <div class="ba-comment">
+          <span>Observations</span>
+          <p id="recCommentaire">—</p>
+        </div>
+
+        <div class="ba-footer-actions">
+
+          <button id="recPrint" class="ba-btn ba-print">
+            <i class="fa-solid fa-print"></i>
+            Imprimer
+          </button>
+
+          <button id="recReceive" class="ba-btn ba-primary">
+            <i class="fa-solid fa-check"></i>
+            Réceptionner le bon
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+<div id="recToast" class="ba-toast"></div>
+
+<div id="recModal" class="ba-modal" style="display:none">
+  <div class="ba-modal-box">
+
+    <div class="ba-modal-head">
+      <div>
+        <h3>
+          <i class="fa-solid fa-truck-ramp-box"></i>
+          Réception du bon d'achat
+        </h3>
+        <small id="recModalNumero">—</small>
+      </div>
+
+      <button id="recModalClose" type="button" class="ba-modal-head button">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="ba-modal-body">
+
+      <div class="ba-warning">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>
+          Vérifiez chaque article avant validation. La quantité reçue sera ajoutée au stock.
+          Le lot peut être généré automatiquement par le système ou saisi manuellement.
+        </span>
+      </div>
+
+      <div class="ba-form-grid" style="margin-top:12px;">
+        <label class="wide">
+          Date de réception
+          <input id="recDateInput" type="date">
+        </label>
+      </div>
+
+      <div class="rec-reception-lines">
+        <div class="rec-lines-head">
+          <div>
+            <strong>Articles à réceptionner</strong>
+            <small>Quantité, lot et magasin de destination</small>
+          </div>
+          <span id="recModalLinesCount">0 ligne</span>
+        </div>
+
+        <div class="rec-lines-wrap">
+          <table class="rec-lines-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Désignation</th>
+                <th>Qté commandée</th>
+                <th>Qté reçue</th>
+                <th>Unité</th>
+                <th>Lot</th>
+                <th>Magasin</th>
+              </tr>
+            </thead>
+            <tbody id="recReceptionLines"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ba-form-grid" style="margin-top:12px;">
+        <label class="wide">
+          Observations
+          <textarea
+            id="recObservationInput"
+            rows="3"
+            placeholder="Observations concernant la réception..."
+          ></textarea>
+        </label>
+      </div>
+
+    </div>
+
+    <div class="ba-modal-footer">
+      <button id="recCancel" type="button" class="ba-btn ba-light">
+        Annuler
+      </button>
+
+      <button id="recConfirm" type="button" class="ba-btn ba-primary">
+        <i class="fa-solid fa-check"></i>
+        Confirmer la réception
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Zone d'impression invisible -->
+<div id="baPrintSheet"></div>
+
+<style>
+
+/* =========================================================
+   BASE
+========================================================= */
+
+.ba-page{
+  padding:24px 28px 40px;
+  color:#17212b;
+}
+
+.ba-head,
+.ba-card,
+.ba-stat{
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:16px;
+  box-shadow:0 5px 22px #1018280b;
+}
+
+.ba-head{
+  min-height:76px;
+  padding:15px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:15px;
+}
+
+.ba-head h2{
+  margin:0;
+  font-size:17px;
+  font-weight:800;
+}
+
+.ba-head h2 i{
+  color:#008746;
+}
+
+.ba-head p{
+  margin:4px 0 0;
+  color:#111827;
+  font-size:10px;
+}
+
+.ba-actions{
+  display:flex;
+  gap:8px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.ba-btn{
+  height:36px;
+  padding:0 13px;
+  border-radius:9px;
+  border:1px solid transparent;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+
+.ba-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.ba-light{
+  background:#eef7f2;
+  color:#087f4e;
+  border-color:#d8ebdf;
+}
+
+.ba-primary{
+  background:#008746;
+  color:#fff;
+}
+
+.ba-primary:hover{
+  background:#08753f;
+}
+
+.ba-print{
+  background:#f5f7f6;
+  color:#44524b;
+  border-color:#dce2de;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.ba-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.ba-stat{
+  padding:13px 16px;
+}
+
+.ba-stat span{
+  display:block;
+  color:#7b8780;
+  text-transform:uppercase;
+  font-size:8px;
+  font-weight:800;
+}
+
+.ba-stat strong{
+  display:block;
+  color:#008746;
+  font-size:22px;
+  line-height:1.2;
+  margin-top:4px;
+}
+
+.ba-stat small{
+  color:#98a29d;
+  font-size:9px;
+}
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.ba-layout{
+  display:grid;
+  grid-template-columns:430px minmax(0,1fr);
+  gap:15px;
+  align-items:stretch;
+}
+
+.ba-card{
+  min-width:0;
+  overflow:hidden;
+}
+
+.ba-list-card,
+.ba-detail-card{
+  min-height:600px;
+}
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.ba-card-head{
+  padding:15px 17px;
+  border-bottom:1px solid #1f2937;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.ba-card-head h3{
+  margin:0;
+  font-size:13px;
+}
+
+.ba-card-head h3 i{
+  color:#008746;
+}
+
+.ba-card-head small{
+  display:block;
+  margin-top:4px;
+  color:#8a9690;
+  font-size:9px;
+}
+
+.ba-badge.a-receptionner{
+  background:#fff7e8;
+  color:#a96a00;
+  border:1px solid #f0ddb4;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.ba-search{
+  margin:12px;
+  height:36px;
+  border:1px solid #dce2de;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  color:#98a29d;
+}
+
+.ba-search input{
+  width:100%;
+  border:0;
+  outline:0;
+  padding-left:8px;
+  font-size:10px;
+}
+
+/* =========================================================
+   LIST
+========================================================= */
+
+.ba-list{
+  max-height:480px;
+  overflow:auto;
+}
+
+.ba-item{
+  padding:12px 14px;
+  border-top:1px solid #eef1ef;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.ba-item:hover{
+  background:#f6faf8;
+}
+
+.ba-item.active{
+  background:#eef8f3;
+  border-left:3px solid #008746;
+  padding-left:11px;
+}
+
+.ba-item-top{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.ba-num{
+  color:#087f4e;
+  font-size:11px;
+  font-weight:800;
+}
+
+.ba-item-date{
+  color:#98a29d;
+  font-size:8px;
+  margin-top:3px;
+}
+
+.ba-item-main{
+  margin-top:7px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px 10px;
+}
+
+.ba-item-main span{
+  display:block;
+  color:#9aa49f;
+  font-size:7px;
+  text-transform:uppercase;
+}
+
+.ba-item-main b{
+  display:block;
+  margin-top:2px;
+  font-size:9px;
+  color:#111827;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.ba-empty{
+  min-height:600px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#98a29d;
+  text-align:center;
+}
+
+.ba-empty i{
+  font-size:32px;
+  color:#b9c4be;
+  margin-bottom:10px;
+}
+
+.ba-empty b{
+  color:#65716b;
+  font-size:12px;
+}
+
+.ba-empty span{
+  margin-top:4px;
+  font-size:9px;
+}
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+.ba-detail-head{
+  padding:17px 19px;
+  border-bottom:1px solid #1f2937;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.ba-detail-number{
+  color:#008746;
+  font-size:18px;
+  font-weight:900;
+}
+
+.ba-section-title{
+  margin:18px 17px 0;
+  padding-bottom:8px;
+  border-bottom:1px solid #e6eae8;
+  color:#087f4e;
+  font-size:11px;
+  font-weight:800;
+}
+
+.ba-section-title i{
+  margin-right:6px;
+}
+
+.ba-section-title span{
+  float:right;
+  color:#98a29d;
+  font-size:8px;
+  font-weight:600;
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.ba-info-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  margin:0 17px;
+  border:1px solid #e1e6e3;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:15px;
+}
+
+.ba-info-grid div{
+  padding:10px;
+  border-right:1px solid #e1e6e3;
+}
+
+.ba-info-grid div:last-child{
+  border-right:0;
+}
+
+.ba-info-grid span{
+  display:block;
+  font-size:7px;
+  color:#89958f;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.ba-info-grid b{
+  display:block;
+  margin-top:4px;
+  font-size:10px;
+  color:#111827;
+  word-break:break-word;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.ba-table-wrap{
+  margin:0 17px;
+  overflow:auto;
+}
+
+.ba-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:620px;
+}
+
+.ba-table th{
+  background:#f7f9f8;
+  color:#111827;
+  font-size:7px;
+  text-transform:uppercase;
+  text-align:left;
+  padding:9px;
+  border-bottom:1px solid #e4e8e6;
+}
+
+.ba-table td{
+  padding:9px;
+  font-size:9px;
+  border-bottom:1px solid #1f2937;
+}
+
+.ba-table tfoot td{
+  background:#f0f7f3;
+  font-weight:800;
+}
+
+.ba-total{
+  color:#008746;
+  text-align:right;
+}
+
+/* =========================================================
+   MONTANTS
+========================================================= */
+
+.ba-montants{
+  margin:15px 17px 0;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  border:1px solid #dfe6e2;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.ba-montants>div{
+  padding:11px;
+  border-right:1px solid #dfe6e2;
+}
+
+.ba-montants>div:last-child{
+  border-right:0;
+}
+
+.ba-montants span{
+  display:block;
+  color:#89958f;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.ba-montants strong{
+  display:block;
+  margin-top:5px;
+  font-size:11px;
+  color:#111827;
+}
+
+.ba-montants .ba-ttc{
+  background:#eef8f3;
+}
+
+.ba-montants .ba-ttc strong{
+  color:#008746;
+  font-size:13px;
+}
+
+/* =========================================================
+   COMMENT
+========================================================= */
+
+.ba-comment{
+  margin:15px 17px;
+  padding:10px 12px;
+  background:#f8faf9;
+  border:1px solid #e2e7e4;
+  border-radius:9px;
+}
+
+.ba-comment span{
+  color:#7c8882;
+  font-size:7px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.ba-comment p{
+  margin:5px 0 0;
+  font-size:9px;
+  color:#111827;
+  white-space:pre-line;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ba-footer-actions{
+  padding:13px 17px;
+  border-top:1px solid #edf0ee;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+/* =========================================================
+   LOADING / TOAST
+========================================================= */
+
+.ba-loading{
+  padding:50px;
+  text-align:center;
+  color:#98a29d;
+  font-size:10px;
+}
+
+.ba-loading i{
+  display:block;
+  margin-bottom:8px;
+  color:#008746;
+}
+
+.ba-toast{
+  display:none;
+  position:fixed;
+  right:25px;
+  bottom:25px;
+  z-index:99999;
+  padding:12px 15px;
+  border-radius:9px;
+  background:#087f4e;
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  box-shadow:0 8px 25px #0002;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.ba-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100002;
+  background:#10182866;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.ba-modal-box{
+  width:min(1180px,97vw);
+  max-height:94vh;
+  overflow:auto;
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:16px;
+  box-shadow:0 20px 60px #0003;
+}
+
+.ba-modal-head{
+  padding:15px 17px;
+  border-bottom:1px solid #1f2937;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.ba-modal-head h3{
+  margin:0;
+  font-size:13px;
+  color:#087f4f;
+}
+
+.ba-modal-head small{
+  display:block;
+  margin-top:4px;
+  color:#8a9690;
+  font-size:9px;
+}
+
+.ba-modal-body{
+  padding:17px;
+}
+
+.ba-form-grid label{
+  display:block;
+  font-size:9px;
+  font-weight:800;
+  color:#59665f;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.ba-form-grid input,
+.ba-form-grid textarea{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  margin-top:6px;
+  border:1px solid #dce2de;
+  border-radius:9px;
+  background:#fff;
+  color:#111827;
+  font:11px inherit;
+  outline:0;
+  padding:9px 10px;
+}
+
+.ba-form-grid input{
+  height:39px;
+}
+
+.ba-form-grid textarea{
+  resize:vertical;
+}
+
+.ba-warning{
+  padding:10px 12px;
+  border:1px solid #d7e9df;
+  border-radius:9px;
+  background:#f3faf6;
+  color:#4d685a;
+  font-size:9px;
+}
+
+.ba-warning i{
+  color:#087f4f;
+  margin-right:5px;
+}
+
+.ba-modal-footer{
+  padding:12px 17px;
+  border-top:1px solid #edf0ee;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+/* =========================================================
+   RECEPTION LINES
+========================================================= */
+
+.rec-reception-lines{
+  margin-top:14px;
+  border:1px solid #dfe6e2;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.rec-lines-head{
+  padding:10px 12px;
+  background:#f7faf8;
+  border-bottom:1px solid #e1e7e3;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.rec-lines-head strong{
+  display:block;
+  color:#087f4e;
+  font-size:10px;
+}
+
+.rec-lines-head small{
+  display:block;
+  margin-top:3px;
+  color:#8a9690;
+  font-size:8px;
+}
+
+.rec-lines-head > span{
+  color:#7d8983;
+  font-size:8px;
+  font-weight:800;
+}
+
+.rec-lines-wrap{
+  width:100%;
+  max-height:390px;
+  overflow-x:auto;
+  overflow-y:auto;
+}
+
+.rec-lines-table{
+  width:100%;
+  min-width:1100px;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+
+.rec-lines-table th{
+  background:#f8faf9;
+  color:#111827;
+  font-size:8px;
+  text-transform:uppercase;
+  text-align:left;
+  padding:10px 9px;
+  border-bottom:1px solid #111827;
+  white-space:nowrap;
+}
+
+.rec-lines-table td{
+  padding:10px 9px;
+  border-bottom:1px solid #1f2937;
+  font-size:9px;
+  vertical-align:middle;
+  color:#111827;
+}
+
+/* Large, readable reception table */
+.rec-lines-table th:nth-child(1),
+.rec-lines-table td:nth-child(1){width:11%;}
+
+.rec-lines-table th:nth-child(2),
+.rec-lines-table td:nth-child(2){width:24%;}
+
+.rec-lines-table th:nth-child(3),
+.rec-lines-table td:nth-child(3){width:12%; text-align:right;}
+
+.rec-lines-table th:nth-child(4),
+.rec-lines-table td:nth-child(4){width:12%; text-align:right;}
+
+.rec-lines-table th:nth-child(5),
+.rec-lines-table td:nth-child(5){width:6%; text-align:center;}
+
+.rec-lines-table th:nth-child(6),
+.rec-lines-table td:nth-child(6){width:23%;}
+
+.rec-lines-table th:nth-child(7),
+.rec-lines-table td:nth-child(7){width:12%;}
+
+.rec-lines-table td.ordered-cell{
+  color:#111827 !important;
+  font-weight:800;
+  text-align:right;
+  white-space:nowrap;
+}
+
+.rec-lines-table td.article-cell{
+  color:#111827;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.rec-lines-table td.designation-cell{
+  min-width:170px;
+  color:#111827;
+}
+
+.rec-line-input,
+.rec-line-select{
+  width:100%;
+  height:34px;
+  box-sizing:border-box;
+  border:1px solid #d6dfda;
+  border-radius:7px;
+  background:#fff;
+  color:#111827;
+  font-size:9px;
+  outline:none;
+  padding:0 8px;
+}
+
+.rec-line-input:focus,
+.rec-line-select:focus{
+  border-color:#008746;
+  box-shadow:0 0 0 2px #00874612;
+}
+
+.rec-line-qty{
+  min-width:105px;
+  text-align:right;
+}
+
+.rec-line-magasin{
+  min-width:0;
+  width:100%;
+  max-width:150px;
+  height:32px;
+  padding:0 7px;
+  cursor:pointer;
+}
+
+.rec-line-magasin option{
+  color:#111827;
+  background:#fff;
+}
+
+.rec-lot-cell{
+  min-width:0;
+  width:auto;
+  padding:6px 6px !important;
+  white-space:nowrap;
+}
+
+.rec-lot-control{
+  display:flex;
+  flex-wrap:nowrap;
+  flex-direction:row;
+  align-items:center;
+  gap:5px;
+  width:100%;
+}
+
+.rec-lot-mode{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:4px;
+  width:auto;
+  flex:0 0 auto;
+  margin:0;
+  order:2;
+}
+
+.rec-lot-mode button{
+  flex:0 0 56px;
+  min-width:56px;
+  height:28px;
+  padding:0 7px;
+  border:1px solid #d8e2dd;
+  border-radius:7px;
+  background:#f7faf8;
+  color:#53615a;
+  font-size:9px;
+  font-weight:800;
+  line-height:1;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+
+.rec-lot-mode button:hover{
+  border-color:#8ccdb0;
+  color:#008746;
+  background:#f0faf5;
+}
+
+.rec-lot-mode button.active{
+  background:#008f50;
+  border-color:#008f50;
+  color:#fff;
+  box-shadow:0 1px 3px rgba(0,143,80,.18);
+}
+
+.rec-lot-mode button:not(.active){
+  background:#fff;
+  color:#46534d;
+}
+
+.rec-lot-mode button:focus-visible{
+  outline:2px solid #008f50;
+  outline-offset:1px;
+}
+
+.rec-lot-input-wrap{
+  width:112px;
+  flex:0 0 112px;
+  order:1;
+}
+
+.rec-line-lot{
+  min-width:0 !important;
+  width:112px;
+  height:32px;
+  font-weight:700;
+  text-align:left;
+}
+
+.rec-line-lot.rec-lot-generated{
+  background:#f2faf6;
+  border-color:#b9ddca;
+  color:#008746;
+  font-weight:800;
+}
+
+.rec-lot-cell .rec-line-error{
+  display:block;
+  margin-top:2px;
+}
+
+
+/* Chaque ligne possède ses propres boutons Lot :
+   le clic sur une ligne ne modifie jamais les autres lignes. */
+.rec-lot-mode[data-rec-lot-group]{
+  position:relative;
+}
+
+.rec-lot-generated{
+  color:#087f4e !important;
+  background:#f2faf5 !important;
+  font-weight:800;
+}
+
+.rec-line-error{
+  display:block;
+  color:#d92d20;
+  font-size:7px;
+  margin-top:3px;
+}
+
+.rec-line-ok{
+  display:block;
+  color:#087f4e;
+  font-size:7px;
+  margin-top:3px;
+}
+
+/* =========================================================
+   PRINT SHEET STYLING
+========================================================= */
+
+#baPrintSheet{
+  display:none;
+}
+
+@page{
+  size:A4 landscape;
+  margin:10mm 11mm;
+}
+
+@media print{
+  body *{
+    visibility:hidden !important;
+  }
+  #baPrintSheet,
+  #baPrintSheet *{
+    visibility:visible !important;
+  }
+  #baPrintSheet{
+    display:block !important;
+    position:absolute;
+    inset:0;
+    background:#fff;
+    color:#17212b;
+  }
+}
+
+.ba-print-page{
+  width:100%;
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:9px;
+}
+
+.ba-print-header{
+  display:grid;
+  grid-template-columns:1fr 1.5fr 1fr;
+  align-items:center;
+  gap:15px;
+  border-bottom:2px solid #087f4e;
+  padding-bottom:9px;
+  margin-bottom:12px;
+}
+
+.ba-print-brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.ba-print-logo{
+  width:30px;
+  height:30px;
+  border-radius:7px;
+  background:#087f4e;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:900;
+}
+
+.ba-print-brand strong{
+  display:block;
+  color:#087f4e;
+  font-size:13px;
+}
+
+.ba-print-brand small{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+}
+
+.ba-print-title{
+  text-align:center;
+}
+
+.ba-print-title h1{
+  margin:0;
+  font-size:19px;
+}
+
+.ba-print-title span{
+  color:#7d8983;
+  font-size:8px;
+}
+
+.ba-print-meta{
+  text-align:right;
+  font-size:8px;
+}
+
+.ba-print-meta b,
+.ba-print-meta span{
+  display:block;
+  margin:2px 0;
+}
+
+.ba-print-meta em{
+  font-style:normal;
+  color:#087f4e;
+  font-weight:800;
+}
+
+.ba-print-info{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+
+.ba-print-info div{
+  padding:7px 8px;
+  border-right:1px solid #e1e6e3;
+}
+
+.ba-print-info div:last-child{
+  border-right:0;
+}
+
+.ba-print-info span{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+  text-transform:uppercase;
+}
+
+.ba-print-info b{
+  display:block;
+  margin-top:3px;
+  font-size:9px;
+}
+
+.ba-print-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.ba-print-table th,
+.ba-print-table td{
+  border:1px solid #cfd8d3;
+  padding:6px 7px;
+  font-size:8px;
+}
+
+.ba-print-table th{
+  background:#eaf4ef;
+  color:#111827;
+  text-transform:uppercase;
+  font-size:7px;
+}
+
+.ba-print-table tfoot td{
+  background:#f1f7f4;
+  font-weight:800;
+  text-align:right;
+}
+
+.ba-print-comment{
+  margin-top:10px;
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  padding:8px;
+}
+
+.ba-print-comment b{
+  font-size:8px;
+}
+
+.ba-print-comment p{
+  margin:4px 0 0;
+  font-size:8px;
+  min-height:20px;
+}
+
+.ba-signatures{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:15px;
+}
+
+.ba-signatures div{
+  height:105px;
+  border:1px solid #d7ded9;
+  border-radius:5px;
+  padding:8px;
+  position:relative;
+}
+
+.ba-signatures b{
+  display:block;
+  font-size:9px;
+}
+
+.ba-signatures span{
+  display:block;
+  color:#7d8983;
+  font-size:7px;
+  margin-top:2px;
+}
+
+.ba-signatures i{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:28px;
+  border-bottom:1px solid #66736c;
+}
+
+.ba-signatures small{
+  position:absolute;
+  left:8px;
+  bottom:8px;
+  color:#98a29d;
+  font-size:7px;
+}
+
+@media (max-width:900px){
+  .ba-modal{padding:10px;}
+  .ba-modal-box{width:100%; max-width:none; border-radius:12px;}
+  .rec-lines-table{min-width:0;}
+}
+
+</style>
+
+<script type="module">
+
+import supabase from "../assets/js/core/supabase.js";
+
+const REC = {
+  achats: [],
+  selected: null,
+  details: [],
+  fournisseurs: new Map(),
+  magasins: []
+};
+
+const $ = id => document.getElementById(id);
+
+const esc = value =>
+  String(value ?? '').replace(/[&<>"]/g, char => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;'
+  }[char]));
+
+function toNumber(value){
+  if(value === null || value === undefined || value === '') return 0;
+  if(typeof value === 'number') return Number.isFinite(value) ? value : 0;
+
+  const n = Number(
+    String(value)
+      .trim()
+      .replace(/\s/g,'')
+      .replace(',','.')
+  );
+
+  return Number.isFinite(n) ? n : 0;
+}
+
+function money(value){
+  return toNumber(value).toLocaleString('fr-FR',{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+function qty(value){
+  return toNumber(value).toLocaleString('fr-FR',{
+    minimumFractionDigits:3,
+    maximumFractionDigits:3
+  });
+}
+
+function formatDate(value){
+  if(!value) return '—';
+
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return String(value);
+
+  return d.toLocaleDateString('fr-FR');
+}
+
+function todayISO(){
+  const d = new Date();
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0,10);
+}
+
+/* =========================================================
+   CALCUL DATE D'ECHEANCE FOURNISSEUR
+   Exemples acceptés :
+   - comptant
+   - immédiat
+   - 30 jours
+   - 45 jours
+   - 30 jours fin de mois
+   - 60 jours fin du mois
+   ========================================================= */
+function calculerDateEcheance(dateFacture, delaiText){
+  if(!dateFacture) return null;
+
+  const text = String(delaiText || '')
+    .trim()
+    .toLowerCase();
+
+  if(!text) return null;
+
+  const base = new Date(`${dateFacture}T12:00:00`);
+
+  if(Number.isNaN(base.getTime())){
+    return null;
+  }
+
+  // Paiement immédiat / comptant / à réception
+  if(
+    text.includes('comptant') ||
+    text.includes('immédiat') ||
+    text.includes('immediat') ||
+    text.includes('réception') ||
+    text.includes('reception')
+  ){
+    return dateFacture;
+  }
+
+  const finDeMois =
+    text.includes('fin de mois') ||
+    text.includes('fin du mois');
+
+  // Cherche le nombre de jours : 30 jours, 45 jours, etc.
+  const match = text.match(/(\d+)\s*jours?/i);
+
+  // Cas particulier : seulement "fin de mois"
+  if(!match && finDeMois){
+    const fin = new Date(
+      base.getFullYear(),
+      base.getMonth() + 1,
+      0
+    );
+
+    return [
+      fin.getFullYear(),
+      String(fin.getMonth() + 1).padStart(2, '0'),
+      String(fin.getDate()).padStart(2, '0')
+    ].join('-');
+  }
+
+  if(!match){
+    // Permet aussi une valeur simple comme "30"
+    const simpleNumber = text.match(/^(\d+)$/);
+    if(!simpleNumber) return null;
+
+    const jours = Number(simpleNumber[1]);
+    const dateEcheance = new Date(base);
+    dateEcheance.setDate(dateEcheance.getDate() + jours);
+
+    return [
+      dateEcheance.getFullYear(),
+      String(dateEcheance.getMonth() + 1).padStart(2, '0'),
+      String(dateEcheance.getDate()).padStart(2, '0')
+    ].join('-');
+  }
+
+  const jours = Number(match[1]);
+
+  if(!Number.isFinite(jours)){
+    return null;
+  }
+
+  const dateIntermediaire = new Date(base);
+  dateIntermediaire.setDate(
+    dateIntermediaire.getDate() + jours
+  );
+
+  // Exemple : 30 jours fin de mois
+  if(finDeMois){
+    const fin = new Date(
+      dateIntermediaire.getFullYear(),
+      dateIntermediaire.getMonth() + 1,
+      0
+    );
+
+    return [
+      fin.getFullYear(),
+      String(fin.getMonth() + 1).padStart(2, '0'),
+      String(fin.getDate()).padStart(2, '0')
+    ].join('-');
+  }
+
+  return [
+    dateIntermediaire.getFullYear(),
+    String(dateIntermediaire.getMonth() + 1).padStart(2, '0'),
+    String(dateIntermediaire.getDate()).padStart(2, '0')
+  ].join('-');
+}
+
+function toast(message, type = 'ok'){
+  const el = $('recToast');
+  if(!el) return;
+
+  el.textContent = message;
+  el.style.background =
+    type === 'error'
+      ? '#d92d20'
+      : type === 'warn'
+        ? '#b77900'
+        : '#087f4e';
+
+  el.style.display = 'block';
+
+  clearTimeout(window.__recToast);
+
+  window.__recToast = setTimeout(
+    () => el.style.display = 'none',
+    3500
+  );
+}
+
+/* =========================================================
+   FOURNISSEURS
+========================================================= */
+
+async function loadFournisseurs(ids){
+  if(!ids.length) return;
+
+  const {data, error} = await supabase
+    .from('fournisseurs')
+    .select('id,nom')
+    .in('id', ids);
+
+  if(error) throw error;
+
+  (data || []).forEach(f => {
+    REC.fournisseurs.set(
+      String(f.id),
+      f.nom || '—'
+    );
+  });
+}
+
+/* =========================================================
+   MAGASINS AUTORISÉS POUR LA RÉCEPTION
+========================================================= */
+
+const MAGASIN_CODES_RECEPTION = ['MC01','MT01','MG01'];
+
+async function loadMagasins(){
+  const {data, error} = await supabase
+    .from('magasins')
+    .select('id,code_magasin,libelle_magasin,gere_emplacement,description,statut')
+    .in('code_magasin', MAGASIN_CODES_RECEPTION)
+    .eq('statut', 'ACTIF')
+    .order('code_magasin', {ascending:true});
+
+  if(error) throw error;
+
+  REC.magasins = (data || []).filter(m =>
+    MAGASIN_CODES_RECEPTION.includes(String(m.code_magasin || '').toUpperCase()) &&
+    String(m.statut || '').toUpperCase() === 'ACTIF'
+  );
+}
+
+function renderMagasinOptions(selectedCode = ''){
+  const current = String(selectedCode || '').toUpperCase();
+  return `
+    <option value="">Magasin...</option>
+    ${REC.magasins.map(m => `
+      <option value="${esc(m.code_magasin)}" ${String(m.code_magasin).toUpperCase() === current ? 'selected' : ''}>
+        ${esc(m.code_magasin)} — ${esc(m.libelle_magasin)}
+      </option>
+    `).join('')}
+  `;
+}
+
+/* =========================================================
+   LOAD ACHATS
+========================================================= */
+
+async function loadAchats(){
+  $('recList').innerHTML = `
+    <div class="ba-loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      Chargement des bons d'achat...
+    </div>
+  `;
+
+  const {data, error} = await supabase
+    .from('achats')
+    .select('*')
+    .order('date_achat', {ascending: false});
+
+  if(error) throw error;
+
+  REC.achats = Array.isArray(data) ? data : [];
+
+  const fournisseurIds = [
+    ...new Set(
+      REC.achats
+        .map(a => a.fournisseur_id)
+        .filter(Boolean)
+        .map(String)
+    )
+  ];
+
+  await loadFournisseurs(fournisseurIds);
+
+  updateStats();
+  renderList();
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(){
+  const pending = REC.achats.filter(a => !a.date_reception);
+  const received = REC.achats.filter(a => !!a.date_reception);
+  const today = todayISO();
+
+  const receivedToday = received.filter(a => {
+    if(!a.date_reception) return false;
+    const d = new Date(a.date_reception);
+    if(Number.isNaN(d.getTime())) return false;
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0,10) === today;
+  });
+
+  const ttc = pending.reduce(
+    (sum, a) => sum + toNumber(a.montant_ttc),
+    0
+  );
+
+  $('recStatAttente').textContent = pending.length;
+  $('recStatRecus').textContent = received.length;
+  $('recStatTTC').textContent = money(ttc);
+  $('recStatToday').textContent = receivedToday.length;
+}
+
+/* =========================================================
+   SEARCH & LIST RENDER
+========================================================= */
+
+$('recSearch').oninput = renderList;
+
+function renderList(){
+  const q = ($('recSearch').value || '').trim().toLowerCase();
+
+  const filtered = REC.achats.filter(a => {
+    if(a.date_reception) return false; // Uniquement non réceptionnés ou selon besoin
+    const fournisseurNom = REC.fournisseurs.get(String(a.fournisseur_id)) || '';
+    const text = `${a.numero_achat || ''} ${fournisseurNom}`.toLowerCase();
+    return text.includes(q);
+  });
+
+  if(!filtered.length){
+    $('recList').innerHTML = `
+      <div class="ba-loading">
+        Aucun bon d'achat trouvé.
+      </div>
+    `;
+    return;
+  }
+
+  $('recList').innerHTML = filtered.map(a => {
+    const fournisseurNom = REC.fournisseurs.get(String(a.fournisseur_id)) || '—';
+    const isActive = REC.selected && REC.selected.id === a.id;
+
+    return `
+      <div class="ba-item ${isActive ? 'active' : ''}" data-id="${esc(a.id)}">
+        <div class="ba-item-top">
+          <span class="ba-num">${esc(a.numero_achat || '—')}</span>
+          <span class="ba-item-date">${formatDate(a.date_achat)}</span>
+        </div>
+        <div class="ba-item-main">
+          <div>
+            <span>Fournisseur</span>
+            <b>${esc(fournisseurNom)}</b>
+          </div>
+          <div>
+            <span>Montant TTC</span>
+            <b>${money(a.montant_ttc)} ${esc(a.devise || 'MAD')}</b>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.querySelectorAll('.ba-item').forEach(el => {
+    el.onclick = async () => {
+      const id = el.getAttribute('data-id');
+      const found = REC.achats.find(x => String(x.id) === String(id));
+      if(found){
+        REC.selected = found;
+        renderList();
+        await loadDetails(found.id);
+        renderDetail();
+      }
+    };
+  });
+}
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+async function loadDetails(achatId){
+  const {data, error} = await supabase
+    .from('achats_details')
+    .select('id, achat_id, article_id, lot, quantite, unite, prix_unitaire, remise, montant_ht, date_limite, commentaire')
+    .eq('achat_id', achatId)
+    .order('id', {ascending:true});
+
+  if(error){
+    console.error(error);
+    toast("Erreur chargement des lignes : " + (error.message || ''), "error");
+    REC.details = [];
+    return;
+  }
+
+  const details = Array.isArray(data) ? data : [];
+
+  const articleIds = [
+    ...new Set(
+      details
+        .map(l => l.article_id)
+        .filter(Boolean)
+        .map(String)
+    )
+  ];
+
+  const articlesMap = new Map();
+
+  if(articleIds.length){
+    const {data: articles, error: articlesError} = await supabase
+      .from('articles')
+      .select('id,article,designation')
+      .in('id', articleIds);
+
+    if(articlesError){
+      console.error(articlesError);
+    } else {
+      (articles || []).forEach(article => {
+        articlesMap.set(String(article.id), article);
+      });
+    }
+  }
+
+  REC.details = details.map(l => {
+    const article = articlesMap.get(String(l.article_id)) || {};
+
+    return {
+      ...l,
+      article_code: article.article || l.article_id || '—',
+      designation: article.designation || '—'
+    };
+  });
+}
+
+function renderDetail(){
+  const a = REC.selected;
+  if(!a){
+    $('recEmpty').style.display = 'flex';
+    $('recDetail').style.display = 'none';
+    return;
+  }
+
+  $('recEmpty').style.display = 'none';
+  $('recDetail').style.display = 'block';
+
+  $('recNumero').textContent = a.numero_achat || '—';
+  $('recDateAchat').textContent = `Du ${formatDate(a.date_achat)}`;
+  $('recFournisseur').textContent = REC.fournisseurs.get(String(a.fournisseur_id)) || '—';
+  $('recDemande').textContent = a.numero_demande || '—';
+  $('recDatePrevue').textContent = formatDate(a.date_prevue_reception);
+  $('recDevise').textContent = a.devise || 'MAD';
+
+  const isReceived = !!a.date_reception;
+  const statusEl = $('recStatus');
+  statusEl.className = `ba-badge ${isReceived ? 'devis-valide' : 'a-receptionner'}`;
+  statusEl.textContent = isReceived ? 'RÉCEPTIONNÉ' : 'À RÉCEPTIONNER';
+
+  $('recReceive').style.display = isReceived ? 'none' : 'inline-flex';
+
+  const linesContainer = $('recLines');
+  let totalQty = 0;
+  let totalHT = 0;
+
+  if(!REC.details.length){
+    linesContainer.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#98a29d;">Aucune ligne</td></tr>`;
+  } else {
+    linesContainer.innerHTML = REC.details.map(l => {
+      const qte = toNumber(l.quantite);
+      const pu = toNumber(l.prix_unitaire);
+      const mht = qte * pu;
+      totalQty += qte;
+      totalHT += mht;
+
+      return `
+        <tr>
+          <td>${esc(l.article_code || '—')}</td>
+          <td>${esc(l.designation || '—')}</td>
+          <td>${qty(qte)}</td>
+          <td>${esc(l.lot || '—')}</td>
+          <td>${esc(l.unite || '—')}</td>
+          <td>${money(pu)}</td>
+          <td class="ba-total">${money(mht)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  $('recLinesCount').textContent = `${REC.details.length} ligne${REC.details.length > 1 ? 's' : ''}`;
+  $('recTotalQty').textContent = qty(totalQty);
+  $('recTotalHT').textContent = `${money(totalHT)} ${esc(a.devise || 'MAD')}`;
+
+  const ht = toNumber(a.montant_ht) || totalHT;
+  const tva = toNumber(a.montant_tva);
+  const ttc = toNumber(a.montant_ttc) || (ht + tva);
+
+  $('recHT').textContent = `${money(ht)} ${esc(a.devise || 'MAD')}`;
+  $('recTVA').textContent = `${money(tva)} ${esc(a.devise || 'MAD')}`;
+  $('recTTC').textContent = `${money(ttc)} ${esc(a.devise || 'MAD')}`;
+  $('recCommentaire').textContent = a.commentaire || '—';
+}
+
+/* =========================================================
+   ACTIONS & MODAL
+========================================================= */
+
+/* =========================================================
+   RECEPTION MODAL
+========================================================= */
+
+function generateSystemLot(index){
+  const d = new Date();
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yy}${mm}${dd}R${String(index + 1).padStart(3,'0')}`;
+}
+
+function getReceptionLineState(){
+  return REC.details.map((line, index) => {
+    const qtyInput = document.querySelector(`[data-rec-qty="${line.id}"]`);
+    const lotInput = document.querySelector(`[data-rec-lot="${line.id}"]`);
+    const magasinInput = document.querySelector(`[data-rec-magasin="${line.id}"]`);
+    const mode = document.querySelector(`[data-rec-lot-mode="${line.id}"].active`)?.dataset.mode || 'systeme';
+
+    return {
+      detail: line,
+      quantite: toNumber(qtyInput?.value),
+      lot: String(lotInput?.value || '').trim().toUpperCase(),
+      magasin: String(magasinInput?.value || '').trim(),
+      mode
+    };
+  });
+}
+
+function setLotMode(detailId, mode){
+  const row = document.querySelector(`[data-rec-row="${detailId}"]`);
+  if(!row) return;
+
+  row.querySelectorAll(`[data-rec-lot-mode="${detailId}"]`).forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+
+  const input = row.querySelector(`[data-rec-lot="${detailId}"]`);
+  if(!input) return;
+
+  if(mode === 'systeme'){
+    const index = REC.details.findIndex(x => String(x.id) === String(detailId));
+    input.value = generateSystemLot(Math.max(index, 0));
+    input.readOnly = true;
+    input.classList.add('rec-lot-generated');
+  }else{
+    input.value = '';
+    input.readOnly = false;
+    input.classList.remove('rec-lot-generated');
+    input.focus();
+  }
+}
+
+function renderReceptionLines(){
+  const tbody = $('recReceptionLines');
+  if(!tbody) return;
+
+  $('recModalLinesCount').textContent =
+    `${REC.details.length} ligne${REC.details.length > 1 ? 's' : ''}`;
+
+  if(!REC.details.length){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center;color:#98a29d;padding:25px;">
+          Aucune ligne à réceptionner.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = REC.details.map((line, index) => {
+    const ordered = toNumber(line.quantite);
+    const lot = line.lot || generateSystemLot(index);
+
+    return `
+      <tr data-rec-row="${esc(line.id)}">
+        <td class="article-cell">${esc(line.article_code || line.article_id || '—')}</td>
+        <td class="designation-cell">${esc(line.designation || '—')}</td>
+        <td class="ordered-cell">${qty(ordered)}</td>
+        <td>
+          <input
+            class="rec-line-input rec-line-qty"
+            type="number"
+            min="0"
+            step="0.001"
+            data-rec-qty="${esc(line.id)}"
+            value="${ordered}"
+          >
+          <span class="rec-line-ok" data-rec-qty-msg="${esc(line.id)}"></span>
+        </td>
+        <td>${esc(line.unite || 'KG')}</td>
+        <td class="rec-lot-cell">
+          <div class="rec-lot-control">
+            <div class="rec-lot-mode" data-rec-lot-group="${esc(line.id)}">
+              <button
+                type="button"
+                class="active"
+                data-rec-lot-mode="${esc(line.id)}"
+                data-mode="systeme"
+                aria-label="Générer automatiquement le lot pour cette ligne"
+              >Système</button>
+              <button
+                type="button"
+                data-rec-lot-mode="${esc(line.id)}"
+                data-mode="manuel"
+                aria-label="Saisir manuellement le lot pour cette ligne"
+              >Manuel</button>
+            </div>
+            <div class="rec-lot-input-wrap">
+              <input
+                class="rec-line-input rec-line-lot rec-lot-generated"
+                type="text"
+                maxlength="80"
+                data-rec-lot="${esc(line.id)}"
+                value="${esc(lot)}"
+                readonly
+                placeholder="Lot..."
+              >
+              <span class="rec-line-error" data-rec-lot-msg="${esc(line.id)}"></span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <select
+            class="rec-line-select rec-line-magasin"
+            data-rec-magasin="${esc(line.id)}"
+            aria-label="Magasin de destination"
+          >
+            ${renderMagasinOptions()}
+          </select>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  tbody.querySelectorAll('[data-rec-lot-mode]').forEach(btn => {
+    btn.onclick = () => setLotMode(btn.dataset.recLotMode, btn.dataset.mode);
+  });
+
+  tbody.querySelectorAll('[data-rec-qty]').forEach(input => {
+    input.oninput = () => {
+      const line = REC.details.find(x => String(x.id) === String(input.dataset.recQty));
+      const value = toNumber(input.value);
+      const msg = document.querySelector(`[data-rec-qty-msg="${input.dataset.recQty}"]`);
+
+      if(value <= 0){
+        msg.className = 'rec-line-error';
+        msg.textContent = 'Quantité reçue obligatoire.';
+      }else if(value > toNumber(line?.quantite)){
+        msg.className = 'rec-line-error';
+        msg.textContent = 'La quantité reçue ne peut pas dépasser la quantité commandée.';
+      }else{
+        msg.className = 'rec-line-ok';
+        msg.textContent = 'OK';
+      }
+    };
+  });
+}
+
+$('recReceive').onclick = () => {
+  if(!REC.selected) return;
+
+  $('recModalNumero').textContent = REC.selected.numero_achat || '';
+  $('recDateInput').value = todayISO();
+  $('recObservationInput').value = '';
+
+  renderReceptionLines();
+
+  $('recModal').style.display = 'flex';
+};
+
+$('recModalClose').onclick = () => {
+  $('recModal').style.display = 'none';
+};
+
+$('recCancel').onclick = () => {
+  $('recModal').style.display = 'none';
+};
+
+async function getCurrentUserId(){
+  try{
+    const {data} = await supabase.auth.getUser();
+    return data?.user?.id || null;
+  }catch{
+    return null;
+  }
+}
+
+async function findOrCreateStock(line, reception, userId){
+  const article = String(line.article_code || '').trim();
+
+  if(!article){
+    throw new Error(`Article introuvable pour la ligne ${line.id}.`);
+  }
+
+  if(!reception.magasin){
+    throw new Error(`Magasin obligatoire pour l'article ${article}.`);
+  }
+
+  if(!reception.lot){
+    throw new Error(`Lot obligatoire pour l'article ${article}.`);
+  }
+
+  const {data: existingRows, error: searchError} = await supabase
+    .from('stock')
+    .select(`
+      id,
+      historique_import_id,
+      division,
+      magasin,
+      emplacement,
+      article,
+      designation_article,
+      lot,
+      quantite,
+      unite,
+      type_article,
+      groupe_article,
+      famille_article,
+      controle_qualite,
+      stock_reserve,
+      stock_disponible,
+      statut
+    `)
+    .eq('article', article)
+    .eq('lot', reception.lot)
+    .eq('magasin', reception.magasin)
+    .limit(1);
+
+  if(searchError) throw searchError;
+
+  const existing = existingRows?.[0] || null;
+  const qte = reception.quantite;
+
+  if(existing){
+    const oldQty = toNumber(existing.quantite);
+    const oldDisp = toNumber(existing.stock_disponible);
+
+    const {data: updated, error:updateError} = await supabase
+      .from('stock')
+      .update({
+        quantite: oldQty + qte,
+        stock_disponible: oldDisp + qte,
+        statut: existing.statut || 'DISPONIBLE',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', existing.id)
+      .select()
+      .single();
+
+    if(updateError) throw updateError;
+
+    return {
+      mode:'update',
+      stock:updated,
+      oldQty,
+      oldDisp
+    };
+  }
+
+  const payload = {
+    magasin: reception.magasin,
+    emplacement: null,
+    article,
+    designation_article: line.designation || article,
+    lot: reception.lot,
+    quantite: qte,
+    unite: line.unite || 'KG',
+    type_article: null,
+    groupe_article: null,
+    famille_article: null,
+    controle_qualite: 0,
+    stock_reserve: 0,
+    stock_disponible: qte,
+    statut: 'DISPONIBLE',
+    date_import: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  const {data: created, error:createError} = await supabase
+    .from('stock')
+    .insert(payload)
+    .select()
+    .single();
+
+  if(createError) throw createError;
+
+  return {
+    mode:'insert',
+    stock:created
+  };
+}
+
+async function rollbackStock(changes){
+  for(const change of changes.reverse()){
+    try{
+      if(change.mode === 'insert'){
+        await supabase
+          .from('stock')
+          .delete()
+          .eq('id', change.stock.id);
+      }else{
+        await supabase
+          .from('stock')
+          .update({
+            quantite: change.oldQty,
+            stock_disponible: change.oldDisp,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', change.stock.id);
+      }
+    }catch(error){
+      console.error('Rollback stock impossible:', error);
+    }
+  }
+}
+
+$('recConfirm').onclick = async () => {
+  if(!REC.selected) return;
+
+  const dateRec = $('recDateInput').value || todayISO();
+  const obs = $('recObservationInput').value.trim();
+  const lines = getReceptionLineState();
+
+  if(!lines.length){
+    toast('Aucune ligne à réceptionner.', 'error');
+    return;
+  }
+
+  for(const item of lines){
+    if(item.quantite <= 0){
+      toast(`Quantité reçue invalide pour ${item.detail.designation || item.detail.article_code}.`, 'error');
+      return;
+    }
+
+    if(item.quantite > toNumber(item.detail.quantite)){
+      toast(`La quantité reçue dépasse la quantité commandée pour ${item.detail.article_code}.`, 'error');
+      return;
+    }
+
+    if(!item.lot){
+      toast(`Lot obligatoire pour ${item.detail.article_code}.`, 'error');
+      return;
+    }
+
+    if(!item.magasin){
+      toast(`Magasin obligatoire pour ${item.detail.article_code}.`, 'error');
+      return;
+    }
+
+    if(!MAGASIN_CODES_RECEPTION.includes(item.magasin.toUpperCase())){
+      toast(`Magasin non autorisé pour ${item.detail.article_code}.`, 'error');
+      return;
+    }
+  }
+
+  const btn = $('recConfirm');
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Réception en cours...`;
+
+  const stockChanges = [];
+  const movementRows = [];
+
+  try{
+    const userId = await getCurrentUserId();
+
+    /*
+      1. Mettre à jour/créer le stock.
+      La structure correspond à la table stock existante :
+      magasin, article, designation_article, lot, quantite,
+      unite, stock_reserve, stock_disponible, statut, etc.
+    */
+    for(const item of lines){
+      const change = await findOrCreateStock(item.detail, item, userId);
+      stockChanges.push(change);
+
+      movementRows.push({
+        stock_id: change.stock.id,
+        document_vente: REC.selected.numero_achat || null,
+        type_mouvement: 'ENTREE',
+        article: item.detail.article_code,
+        designation_article: item.detail.designation,
+        lot: item.lot,
+        magasin_source: null,
+        magasin_destination: item.magasin,
+        quantite: item.quantite,
+        unite: item.detail.unite || 'KG',
+        utilisateur: userId,
+        commentaire: `Réception bon d'achat ${REC.selected.numero_achat || ''}`.trim()
+      });
+    }
+
+    /*
+      2. Enregistrer les mouvements.
+    */
+    const {data: insertedMovements, error: movementError} = await supabase
+      .from('mouvements_stock')
+      .insert(movementRows)
+      .select('id,stock_id,article,designation_article,lot,quantite,unite,magasin_destination');
+
+    if(movementError) throw movementError;
+
+    if(!insertedMovements || insertedMovements.length !== movementRows.length){
+      throw new Error('Les mouvements de stock n’ont pas tous été enregistrés.');
+    }
+
+    /*
+      3. Créer automatiquement une FACTURE FOURNISSEUR
+         à partir des quantités réellement réceptionnées.
+    */
+
+    const {data: existingFacture, error: existingFactureError} = await supabase
+      .from('factures_fournisseurs')
+      .select('id,numero_facture,statut')
+      .eq('achat_id', REC.selected.id)
+      .neq('statut', 'ANNULEE')
+      .limit(1)
+      .maybeSingle();
+
+    if(existingFactureError) throw existingFactureError;
+
+    if(existingFacture){
+      throw new Error(
+        `Une facture fournisseur existe déjà pour le bon ${REC.selected.numero_achat} : ${existingFacture.numero_facture}.`
+      );
+    }
+
+    const receivedHT = lines.reduce((sum, item) => {
+      const qte = toNumber(item.quantite);
+      const pu = toNumber(item.detail.prix_unitaire);
+      const remise = toNumber(item.detail.remise);
+      return sum + Math.max(0, (qte * pu) - remise);
+    }, 0);
+
+    const achatHT = toNumber(REC.selected.montant_ht);
+    const achatTVA = toNumber(REC.selected.montant_tva);
+    const tvaRate = achatHT > 0 ? achatTVA / achatHT : 0;
+    const receivedTVA = receivedHT * tvaRate;
+    const receivedTTC = receivedHT + receivedTVA;
+
+    const factureNumero =
+      `FF-${dateRec.replaceAll('-','')}-${String(REC.selected.id).padStart(6,'0')}`;
+
+    /*
+      Récupérer le délai de paiement du fournisseur afin de calculer
+      automatiquement la date d'échéance de la facture.
+    */
+    const {
+      data: fournisseurFacture,
+      error: fournisseurFactureError
+    } = await supabase
+      .from('fournisseurs')
+      .select('id,nom,delai_paiement')
+      .eq('id', REC.selected.fournisseur_id)
+      .single();
+
+    if(fournisseurFactureError){
+      throw fournisseurFactureError;
+    }
+
+    const dateEcheance = calculerDateEcheance(
+      dateRec,
+      fournisseurFacture?.delai_paiement
+    );
+
+    console.log('[FACTURE FOURNISSEUR] Délai de paiement', {
+      fournisseur: fournisseurFacture?.nom || '—',
+      delai_paiement: fournisseurFacture?.delai_paiement || null,
+      date_facture: dateRec,
+      date_echeance: dateEcheance
+    });
+
+    const {data: facture, error: factureError} = await supabase
+      .from('factures_fournisseurs')
+      .insert({
+        numero_facture: factureNumero,
+        achat_id: REC.selected.id,
+        fournisseur_id: REC.selected.fournisseur_id,
+        date_facture: dateRec,
+        date_echeance: dateEcheance,
+        devise: REC.selected.devise || 'MAD',
+        montant_ht: receivedHT,
+        montant_tva: receivedTVA,
+        montant_ttc: receivedTTC,
+        montant_paye: 0,
+        montant_restant: receivedTTC,
+        statut: 'EN_ATTENTE',
+        commentaire:
+          `Facture fournisseur créée automatiquement après réception du bon ${REC.selected.numero_achat}.`
+      })
+      .select('id,numero_facture')
+      .single();
+
+    if(factureError) throw factureError;
+
+    const factureDetails = lines.map((item, index) => {
+      const movement = insertedMovements[index];
+      const qte = toNumber(item.quantite);
+      const pu = toNumber(item.detail.prix_unitaire);
+      const remise = toNumber(item.detail.remise);
+
+      return {
+        facture_id: facture.id,
+        mouvement_stock_id: movement?.id || null,
+        stock_id: movement?.stock_id || stockChanges[index]?.stock?.id || null,
+        article: item.detail.article_code,
+        designation_article: item.detail.designation,
+        lot: item.lot,
+        quantite: qte,
+        unite: item.detail.unite || 'KG',
+        prix_unitaire: pu,
+        remise,
+        montant_ht: Math.max(0, (qte * pu) - remise),
+        commentaire: `Réception du ${dateRec} — ${REC.selected.numero_achat}`
+      };
+    });
+
+    const {error: factureDetailsError} = await supabase
+      .from('factures_fournisseurs_details')
+      .insert(factureDetails);
+
+    if(factureDetailsError) throw factureDetailsError;
+
+    /*
+      4. Sauvegarder le lot dans achats_details.
+      Cela conserve la traçabilité de la réception sur chaque ligne.
+    */
+    for(const item of lines){
+      const {error: detailError} = await supabase
+        .from('achats_details')
+        .update({
+          lot: item.lot
+        })
+        .eq('id', item.detail.id);
+
+      if(detailError) throw detailError;
+    }
+
+    /*
+      4. Fermer le bon d'achat.
+    */
+    const ancienneObservation = REC.selected.commentaire || '';
+    const nouveauCommentaire = obs
+      ? (ancienneObservation
+          ? `${ancienneObservation}\n${obs}`
+          : obs)
+      : ancienneObservation;
+
+    const {error: achatError} = await supabase
+      .from('achats')
+      .update({
+        date_reception: dateRec,
+        statut: 'RECEPTIONNE',
+        commentaire: nouveauCommentaire || null
+      })
+      .eq('id', REC.selected.id);
+
+    if(achatError) throw achatError;
+
+    toast(`Réception enregistrée. ${facture.numero_facture} créée avec les quantités réellement reçues.`);
+
+    $('recModal').style.display = 'none';
+
+    await loadAchats();
+    REC.selected = null;
+    REC.details = [];
+    renderDetail();
+
+  }catch(err){
+    console.error('[RECEPTION ACHAT]', err);
+
+    /*
+      Si une étape échoue après une modification du stock,
+      on tente de revenir à l'état précédent.
+    */
+    if(stockChanges.length){
+      await rollbackStock(stockChanges);
+    }
+
+    toast(
+      err?.message || 'Erreur lors de la réception.',
+      'error'
+    );
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-check"></i> Confirmer la réception`;
+  }
+};
+
+/* =========================================================
+   PRINT SHEET GENERATOR
+========================================================= */
+
+$('recPrint').onclick = () => {
+  const a = REC.selected;
+  if(!a) return;
+
+  const fournisseurNom = REC.fournisseurs.get(String(a.fournisseur_id)) || '—';
+  
+  let totalQty = 0;
+  let totalHT = 0;
+
+  const rows = REC.details.map(l => {
+    const qte = toNumber(l.quantite);
+    const pu = toNumber(l.prix_unitaire);
+    const mht = qte * pu;
+    totalQty += qte;
+    totalHT += mht;
+
+    return `
+      <tr>
+        <td>${esc(l.article_code || '—')}</td>
+        <td>${esc(l.designation || '—')}</td>
+        <td>${qty(qte)}</td>
+        <td>${esc(l.unite || '—')}</td>
+        <td>${money(pu)}</td>
+        <td style="text-align:right;">${money(mht)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const ht = toNumber(a.montant_ht) || totalHT;
+  const tva = toNumber(a.montant_tva);
+  const ttc = toNumber(a.montant_ttc) || (ht + tva);
+
+  $('baPrintSheet').innerHTML = `
+    <div class="ba-print-page">
+      <div class="ba-print-header">
+        <div class="ba-print-brand">
+          <div class="ba-print-logo">S</div>
+          <div>
+            <strong>SMTG</strong>
+            <small>Traçabilité Globale</small>
+          </div>
+        </div>
+        <div class="ba-print-title">
+          <h1>BON D'ACHAT</h1>
+          <span>RÉCEPTION & SUIVI</span>
+        </div>
+        <div class="ba-print-meta">
+          <b>N° <em>${esc(a.numero_achat)}</em></b>
+          <span>Date : ${formatDate(a.date_achat)}</span>
+        </div>
+      </div>
+
+      <div class="ba-print-info">
+        <div>
+          <span>Fournisseur</span>
+          <b>${esc(fournisseurNom)}</b>
+        </div>
+        <div>
+          <span>N° Demande</span>
+          <b>—</b>
+        </div>
+        <div>
+          <span>Date Prévue</span>
+          <b>${formatDate(a.date_prevue_reception)}</b>
+        </div>
+        <div>
+          <span>Devise</span>
+          <b>${esc(a.devise || 'MAD')}</b>
+        </div>
+      </div>
+
+      <table class="ba-print-table">
+        <thead>
+          <tr>
+            <th>Article</th>
+            <th>Désignation</th>
+            <th>Quantité</th>
+            <th>Unité</th>
+            <th>Prix U.</th>
+            <th style="text-align:right;">Montant HT</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">TOTAL</td>
+            <td>${qty(totalQty)}</td>
+            <td colspan="2"></td>
+            <td style="text-align:right;">${money(ht)} ${esc(a.devise || 'MAD')}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="ba-print-comment">
+        <b>Observations :</b>
+        <p>${esc(a.commentaire || '—')}</p>
+      </div>
+
+      <div class="ba-signatures">
+        <div>
+          <b>Service Achat</b>
+          <i></i>
+          <small>Visa / Signature</small>
+        </div>
+        <div>
+          <b>Magasin / Réception</b>
+          <i></i>
+          <small>Visa / Signature</small>
+        </div>
+        <div>
+          <b>Direction</b>
+          <i></i>
+          <small>Validation</small>
+        </div>
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    window.print();
+  }, 250);
+};
+
+/* =========================================================
+   REFRESH & INIT
+========================================================= */
+
+$('recRefresh').onclick = async () => {
+  try {
+    await loadAchats();
+    REC.selected = null;
+    renderDetail();
+    toast('Données actualisées.');
+  } catch(error){
+    console.error(error);
+    toast(error.message || 'Erreur de chargement.', 'error');
+  }
+};
+
+(async () => {
+  try {
+    await loadMagasins();
+    await loadAchats();
+  } catch(error){
+    console.error(error);
+    $('recList').innerHTML = `
+      <div class="ba-loading">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Erreur de chargement
+      </div>
+    `;
+    toast(error.message || 'Erreur de chargement.', 'error');
+  }
+})();
+
+</script>

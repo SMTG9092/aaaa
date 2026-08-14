@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Emplacements - SoufStock Enterprise ERP/WMS</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            400: '#94a3b8',
+                            300: '#cbd5e1',
+                            100: '#f1f5f9'
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            400: '#34d399',
+                            300: '#6ee7b7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-screen p-4 select-none shrink-0">
+        <div class="flex items-center gap-3 px-2 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <i class="fas fa-snowflake text-lg"></i>
+            </div>
+            <div>
+                <span class="font-bold text-base tracking-wide block text-slate-100">SoufStock</span>
+                <span class="text-[10px] text-slate-400 tracking-wider uppercase block">Enterprise ERP</span>
+            </div>
+        </div>
+        
+        <nav id="sidebarNav" class="flex-1 overflow-y-auto pr-1">
+            <!-- Dynamic Sidebar -->
+        </nav>
+
+        <div class="pt-4 mt-auto border-t border-slate-800/80">
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 mb-2">
+                <span id="sidebarUserName" class="block text-xs font-bold text-slate-200 truncate uppercase">YAHYA SOUFIANE</span>
+                <span class="block text-[10px] text-emerald-400 font-medium mt-0.5">Administrateur</span>
+            </div>
+            <button id="logoutBtn" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl py-2 px-3 text-xs font-semibold transition flex items-center justify-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col h-screen min-w-0 overflow-hidden relative">
+        
+        <!-- HEADER -->
+        <header class="h-20 bg-slate-900/40 border-b border-slate-800/80 px-8 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100">Gestion des Emplacements</h1>
+                    <div class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span>Accueil</span>
+                        <span>/</span>
+                        <strong class="text-slate-300">Emplacements & Racks</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="openBulkModal()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg flex items-center gap-2">
+                <i class="fas fa-plus"></i> Génération en Masse
+            </button>
+        </header>
+
+        <!-- PAGE BODY -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="max-w-6xl mx-auto flex flex-col gap-6">
+                
+                <!-- FILTER BAR -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
+                    <div class="flex-1">
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-1">Filtrer par Magasin :</label>
+                        <select id="filterMagasin" onchange="loadEmplacements()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                            <option value="">-- Tous les Magasins --</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[11px] font-semibold text-slate-400 block mb-1">Recherche Emplacement :</label>
+                        <input type="text" id="searchEmp" oninput="loadEmplacements()" placeholder="Ex: A408-A-01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- TABLE -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-950/60 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-800">
+                                    <th class="py-3 px-4">Magasin</th>
+                                    <th class="py-3 px-4">Code Emplacement</th>
+                                    <th class="py-3 px-4">Libellé / Description</th>
+                                    <th class="py-3 px-4 text-center">Statut</th>
+                                    <th class="py-3 px-4 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emplacementsTableBody" class="divide-y divide-slate-800/60 text-xs text-slate-300">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL BULK GENERATION -->
+    <div id="bulkModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto">
+            <h3 class="text-base font-bold text-slate-100 mb-4">Génération en Masse des Emplacements</h3>
+            
+            <form onsubmit="saveEmplacementsBulk(event)" class="flex flex-col gap-4">
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Magasin Parent *</label>
+                    <select id="bulkMagasin" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                        <!-- Options chargées dynamiquement -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Lettre Début (Ex: A)</label>
+                        <input type="text" id="lettreDebut" value="A" maxlength="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Lettre Fin (Ex: E)</label>
+                        <input type="text" id="lettreFin" value="E" maxlength="1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Numéro Allée Début</label>
+                        <input type="number" id="numDebut" value="1" min="1" max="99" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Numéro Allée Fin</label>
+                        <input type="number" id="numFin" value="13" min="1" max="99" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Niveau Début</label>
+                        <input type="text" id="niveauDebut" value="00" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Niveau Fin</label>
+                        <input type="text" id="niveauFin" value="03" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Palette Début</label>
+                        <input type="number" id="paletteDebut" value="1" min="1" max="9" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-semibold text-slate-300 block mb-1">Palette Fin</label>
+                        <input type="number" id="paletteFin" value="3" min="1" max="9" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 text-center font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Statut Global</label>
+                    <select id="bulkStatut" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500">
+                        <option value="ACTIF">ACTIF</option>
+                        <option value="INACTIF">INACTIF</option>
+                    </select>
+                </div>
+
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3">
+                    <span class="text-[10px] text-slate-400 block font-semibold mb-1">Aperçu du format généré :</span>
+                    <span id="previewFormat" class="text-xs text-emerald-400 font-mono font-bold">MAGASIN-A-01-00-1</span>
+                </div>
+
+                <div class="flex items-center gap-3 w-full mt-2">
+                    <button type="button" onclick="closeBulkModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition cursor-pointer">
+                        Annuler
+                    </button>
+                    <button type="submit" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg">
+                        Générer Tout
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT / BLOCAGE UNIQUE -->
+    <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl flex flex-col">
+            <h3 class="text-base font-bold text-slate-100 mb-4">Modifier / Bloquer Emplacement</h3>
+            
+            <form onsubmit="saveSingleEmplacement(event)" class="flex flex-col gap-4">
+                <input type="hidden" id="editEmpId">
+                
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Code Emplacement</label>
+                    <input type="text" id="editCodeEmp" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 uppercase font-mono cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Libellé / Description</label>
+                    <input type="text" id="editLibelle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-semibold text-slate-300 block mb-1">Statut (Activer / Bloquer)</label>
+                    <select id="editStatut" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase focus:outline-none focus:border-emerald-500 font-bold">
+                        <option value="ACTIF" class="text-emerald-400">ACTIF (Disponible)</option>
+                        <option value="INACTIF" class="text-red-400">INACTIF (Bloqué)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-3 w-full mt-4">
+                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition cursor-pointer">
+                        Annuler
+                    </button>
+                    <button type="submit" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow-lg">
+                        Mettre à jour
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import Navigation from '../assets/js/core/navigation.js';
+        import supabase from '../assets/js/core/supabase.js';
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await Navigation.init();
+
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "login.html";
+                });
+            }
+
+            await loadMagasinsDropdowns();
+            await loadEmplacements();
+            setupPreview();
+        });
+
+        async function loadMagasinsDropdowns() {
+            const { data, error } = await supabase.from('magasins').select('code_magasin, libelle_magasin').eq('statut', 'ACTIF');
+            if (error) {
+                console.error("Erreur chargement magasins:", error);
+                return;
+            }
+
+            const filterSelect = document.getElementById("filterMagasin");
+            const bulkSelect = document.getElementById("bulkMagasin");
+
+            let optionsHtml = '<option value="">-- Choisir un Magasin --</option>';
+            let filterHtml = '<option value="">-- Tous les Magasins --</option>';
+
+            data.forEach(mag => {
+                optionsHtml += `<option value="${mag.code_magasin}">${mag.code_magasin} - ${mag.libelle_magasin}</option>`;
+                filterHtml += `<option value="${mag.code_magasin}">${mag.code_magasin} - ${mag.libelle_magasin}</option>`;
+            });
+
+            filterSelect.innerHTML = filterHtml;
+            bulkSelect.innerHTML = optionsHtml;
+            setupPreview();
+        }
+
+        function setupPreview() {
+            const mag = document.getElementById("bulkMagasin").value || "A408";
+            const lettre = document.getElementById("lettreDebut").value || "A";
+            const num = String(document.getElementById("numDebut").value || 1).padStart(2, '0');
+            const niv = document.getElementById("niveauDebut").value || "00";
+            const pal = document.getElementById("paletteDebut").value || "1";
+
+            document.getElementById("previewFormat").textContent = `${mag}-${lettre}-${num}-${niv}-${pal}`;
+        }
+
+        ['bulkMagasin', 'lettreDebut', 'numDebut', 'niveauDebut', 'paletteDebut'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', setupPreview);
+            document.getElementById(id)?.addEventListener('change', setupPreview);
+        });
+
+        window.loadEmplacements = async function() {
+            const selectedMag = document.getElementById("filterMagasin").value;
+            const searchVal = document.getElementById("searchEmp").value.trim().toUpperCase();
+
+            let query = supabase.from('emplacements').select('*').order('magasin_code', { ascending: true });
+
+            if (selectedMag) {
+                query = query.eq('magasin_code', selectedMag);
+            }
+            if (searchVal) {
+                query = query.ilike('code_emplacement', `%${searchVal}%`);
+            }
+
+            const { data, error } = await query;
+            const tbody = document.getElementById("emplacementsTableBody");
+
+            if (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-red-400">Erreur de chargement des données.</td></tr>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-500">Aucun emplacement trouvé.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach(emp => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/60 transition">
+                        <td class="py-3 px-4 font-bold text-emerald-400 font-mono">${emp.magasin_code}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-100 font-mono">${emp.code_emplacement}</td>
+                        <td class="py-3 px-4 text-slate-400">${emp.libelle_emplacement || '-'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${emp.statut === 'ACTIF' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">${emp.statut}</span>
+                        </td>
+                        <td class="py-3 px-4 text-center space-x-2">
+                            <button onclick="openEditModal(${emp.id}, '${emp.code_emplacement}', '${(emp.libelle_emplacement || '').replace(/'/g, "\\'")}', '${emp.statut}')" class="text-blue-400 hover:text-blue-300 p-1 cursor-pointer" title="Modifier / Bloquer"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteEmplacement(${emp.id}, '${emp.code_emplacement}')" class="text-red-400 hover:text-red-300 p-1 cursor-pointer" title="Supprimer"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.openBulkModal = function() {
+            document.getElementById("bulkModal").classList.remove("hidden");
+        }
+
+        window.closeBulkModal = function() {
+            document.getElementById("bulkModal").classList.add("hidden");
+        }
+
+        window.openEditModal = function(id, code, libelle, statut) {
+            document.getElementById("editEmpId").value = id;
+            document.getElementById("editCodeEmp").value = code;
+            document.getElementById("editLibelle").value = libelle === 'null' ? '' : libelle;
+            document.getElementById("editStatut").value = statut;
+            document.getElementById("editModal").classList.remove("hidden");
+        }
+
+        window.closeEditModal = function() {
+            document.getElementById("editModal").classList.add("hidden");
+        }
+
+        window.saveEmplacementsBulk = async function(event) {
+            event.preventDefault();
+            const magasin_code = document.getElementById("bulkMagasin").value;
+            if (!magasin_code) {
+                alert("Veuillez sélectionner un magasin.");
+                return;
+            }
+
+            const lDebut = document.getElementById("lettreDebut").value.toUpperCase().charCodeAt(0);
+            const lFin = document.getElementById("lettreFin").value.toUpperCase().charCodeAt(0);
+            const nDebut = parseInt(document.getElementById("numDebut").value);
+            const nFin = parseInt(document.getElementById("numFin").value);
+            const nivDebut = parseInt(document.getElementById("niveauDebut").value);
+            const nivFin = parseInt(document.getElementById("niveauFin").value);
+            const pDebut = parseInt(document.getElementById("paletteDebut").value);
+            const pFin = parseInt(document.getElementById("paletteFin").value);
+            const statut = document.getElementById("bulkStatut").value;
+
+            let inserts = [];
+
+            for (let l = lDebut; l <= lFin; l++) {
+                let lettre = String.fromCharCode(l);
+                for (let n = nDebut; n <= nFin; n++) {
+                    let numStr = String(n).padStart(2, '0');
+                    for (let niv = nivDebut; niv <= nivFin; niv++) {
+                        let nivStr = String(niv).padStart(2, '0');
+                        for (let p = pDebut; p <= pFin; p++) {
+                            let code_emplacement = `${magasin_code}-${lettre}-${numStr}-${nivStr}-${p}`;
+                            inserts.push({
+                                magasin_code: magasin_code,
+                                code_emplacement: code_emplacement,
+                                libelle_emplacement: `Allée ${lettre} Num ${numStr} Niv ${nivStr} Pal ${p}`,
+                                statut: statut
+                            });
+                        }
+                    }
+                }
+            }
+
+            closeBulkModal();
+
+            const { error } = await supabase.from('emplacements').upsert(inserts, { onConflict: 'magasin_code,code_emplacement' });
+
+            if (error) {
+                alert("Erreur lors de la génération: " + error.message);
+            } else {
+                alert(`Succès ! ${inserts.length} emplacements générés ou mis à jour avec succès.`);
+                loadEmplacements();
+            }
+        }
+
+        window.saveSingleEmplacement = async function(event) {
+            event.preventDefault();
+            const id = document.getElementById("editEmpId").value;
+            const libelle_emplacement = document.getElementById("editLibelle").value.trim();
+            const statut = document.getElementById("editStatut").value;
+
+            closeEditModal();
+
+            const { error } = await supabase.from('emplacements')
+                .update({ libelle_emplacement, statut, updated_at: new Date().toISOString() })
+                .eq('id', id);
+
+            if (error) {
+                alert("Erreur de mise à jour: " + error.message);
+            } else {
+                loadEmplacements();
+            }
+        }
+
+        window.deleteEmplacement = async function(id, code) {
+            if (confirm(`Voulez-vous vraiment supprimer l'emplacement [ ${code} ] ?`)) {
+                const { error } = await supabase.from('emplacements').delete().eq('id', id);
+                if (error) {
+                    alert("Erreur de suppression: " + error.message);
+                } else {
+                    loadEmplacements();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

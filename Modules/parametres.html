@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres & Administration - SoufStock Enterprise ERP/WMS Pro Max</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darker: '#010309',
+                        dark: '#070b14',
+                        cardbg: '#0d1322',
+                        cardhover: '#131c38',
+                        bordercolor: '#1e293b',
+                        neonemerald: '#10b981'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- BLOCKAGE TOTAL MN L-ASL BACH MATBANCH LA PAGE BIDA -->
+    <style>
+        html { background-color: #010309; display: none; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #010309; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        body { background-color: #010309; color: #f8fafc; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+        
+        .bg-cyber-grid {
+            background-image: linear-gradient(to right, rgba(30, 41, 59, 0.15) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(30, 41, 59, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .pro-card {
+            background: linear-gradient(135deg, rgba(13, 19, 34, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pro-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
+        .pro-card:hover {
+            border-color: rgba(16, 185, 129, 0.45);
+            box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+            filter: blur(60px);
+        }
+    </style>
+
+    <!-- VERIFICATION SYNCHRONISÉE ULTRA-RAPIDE -->
+    <script type="module">
+        import SecurityManager from '../assets/js/core/security.js';
+        
+        window.alert = function(msg) {};
+
+        try {
+            const authorized = await SecurityManager.protectPage('parametres');
+            if (!authorized) {
+                window.location.replace('dashboard.html');
+            } else {
+                document.documentElement.style.display = 'block';
+            }
+        } catch (e) {
+            window.location.replace('dashboard.html');
+        }
+    </script>
+</head>
+<body class="bg-darker text-slate-100 font-sans antialiased min-h-screen flex overflow-hidden selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- SIDEBAR PRO MAX -->
+    <aside class="w-72 bg-dark/95 border-r border-bordercolor flex flex-col h-screen p-5 select-none shrink-0 backdrop-blur-2xl z-20 shadow-2xl">
+        <div class="flex items-center gap-3.5 px-2 mb-8">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-transparent border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/10">
+                <i class="fas fa-cubes text-xl animate-pulse"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <span class="font-black text-base tracking-wider text-white">SoufStock</span>
+                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase">PRO MAX</span>
+                </div>
+                <span class="text-[10px] text-slate-400 font-semibold tracking-widest uppercase block mt-0.5">Enterprise WMS Core</span>
+            </div>
+        </div>
+        
+        <nav id="sidebarNav" class="flex-1 overflow-y-auto pr-1 space-y-1.5">
+            <!-- Dynamic Sidebar -->
+        </nav>
+
+        <div class="pt-4 mt-auto border-t border-bordercolor/80">
+            <div class="bg-cardbg/90 border border-bordercolor rounded-2xl p-4 mb-3 shadow-inner relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl"></div>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50 animate-ping"></div>
+                    <span id="sidebarUserName" class="block text-xs font-black text-slate-100 truncate uppercase tracking-wider">CHARGEMENT...</span>
+                </div>
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80 text-[10px] text-slate-400">
+                    <span class="font-mono text-emerald-400">SESSION_ACTIVE</span>
+                    <span class="flex items-center gap-1"><i class="fas fa-lock text-[9px]"></i> TLS 1.3</span>
+                </div>
+            </div>
+            <button id="logoutBtn" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl py-2.5 px-3 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer group shadow-lg shadow-red-500/5">
+                <i class="fas fa-power-off group-hover:rotate-90 transition-transform duration-300"></i> Déconnexion Sécurisée
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col h-screen min-w-0 overflow-hidden relative bg-cyber-grid">
+        
+        <!-- HEADER PRO MAX -->
+        <header class="h-20 bg-dark/70 border-b border-bordercolor px-10 flex items-center justify-between shrink-0 backdrop-blur-xl z-10 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-xl font-black tracking-tight text-white flex items-center gap-2.5">
+                        <i class="fas fa-cogs text-emerald-400 text-lg"></i> Paramètres & Administration
+                    </h1>
+                    <div class="text-xs text-slate-400 flex items-center gap-2 mt-1 font-medium">
+                        <span class="hover:text-white transition">Accueil</span>
+                        <i class="fas fa-chevron-right text-[8px] text-slate-600"></i>
+                        <strong class="text-emerald-400 font-bold">Console des Paramètres Système</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2.5 bg-cardbg border border-bordercolor px-4 py-2 rounded-xl text-xs font-mono text-emerald-400 shadow-inner">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Firewall : Actif & Synchronisé</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <main class="flex-1 p-8 overflow-y-auto pt-6 relative z-10">
+            <div class="glow-effect top-10 left-1/4"></div>
+            <div class="glow-effect bottom-1/4 right-1/4" style="background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);"></div>
+
+            <div class="max-w-7xl w-full mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4.5 py-2 rounded-full mb-3 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-emerald-400 text-[11px] font-black uppercase tracking-[0.25em]">Centre de Configuration Global</span>
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-black text-white tracking-tight">Panneau d'Administration SoufStock</h2>
+                    <p class="text-xs text-slate-400 mt-2 max-w-xl mx-auto leading-relaxed font-normal">
+                        Gérez les accès utilisateurs, les rôles, les sécurités et la configuration générale du système ERP/WMS.
+                    </p>
+                </div>
+
+                <!-- CARDS GRID -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    
+                    <!-- CARTE PERMISSIONS (Li bġiti) -->
+                    <a href="permissions.html" class="pro-card rounded-2xl p-6 transition-all duration-300 group flex flex-col items-center text-center cursor-pointer">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl mb-4 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-darker transition-all duration-300 shadow-xl shadow-emerald-500/5">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h3 class="text-sm font-black text-white group-hover:text-emerald-400 transition-colors">Permissions & Rôles</h3>
+                        <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
+                            Matrice des accès par page et par action (Afficher, Ajouter, Modifier, Supprimer, Valider, etc.).
+                        </p>
+                        <div class="mt-5 inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl group-hover:bg-emerald-500 group-hover:text-darker transition-all duration-300 shadow-md">
+                            <span>Configurer</span>
+                            <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </a>
+
+                    <!-- مثال إضافي لكارت أخرى (مثلاً المستخدمين) -->
+                    <a href="users.html" class="pro-card rounded-2xl p-6 transition-all duration-300 group flex flex-col items-center text-center cursor-pointer">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xl mb-4 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-darker transition-all duration-300 shadow-xl shadow-blue-500/5">
+                            <i class="fas fa-users-gear"></i>
+                        </div>
+                        <h3 class="text-sm font-black text-white group-hover:text-blue-400 transition-colors">Gestion des Utilisateurs</h3>
+                        <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
+                            Création des comptes, assignation des rôles et supervision des statuts d'activité.
+                        </p>
+                        <div class="mt-5 inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3.5 py-1.5 rounded-xl group-hover:bg-blue-500 group-hover:text-darker transition-all duration-300 shadow-md">
+                            <span>Gérer</span>
+                            <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import Navigation from '../assets/js/core/navigation.js';
+        import SessionManager from '../assets/js/core/session.js';
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await Navigation.init();
+
+            const profile = await SessionManager.getProfile();
+            if (profile) {
+                const userNameEl = document.getElementById("sidebarUserName");
+                if (userNameEl) {
+                    userNameEl.textContent = profile.nom_complet || profile.username || profile.email || "UTILISATEUR";
+                }
+            }
+
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", async () => {
+                    await SessionManager.logout();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
