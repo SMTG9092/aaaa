@@ -494,6 +494,16 @@ label{
         gap:10px;
     }
 }
+
+.btn-red{
+    background:#c62828;
+    color:#fff;
+    border:0;
+}
+
+.btn-red:hover{
+    opacity:.9;
+}
 </style>
 </head>
 
@@ -669,11 +679,18 @@ label{
                                 Informations générales
                             </div>
 
+                            <div id="retourInfoHint"
+                                 class="notice show warning hidden"
+                                 style="margin-bottom:10px">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                Informations à compléter au retour du camion.
+                            </div>
+
                             <div class="grid-3">
 
                                 <div class="field">
 
-                                    <label>N° Mission</label>
+                                    <label>N° Mission <span class="required">*</span></label>
 
                                     <input
                                         id="numeroMission"
@@ -686,7 +703,6 @@ label{
 
                                     <label>
                                         Firma
-                                        <span class="required">*</span>
                                     </label>
 
                                     <select id="firmaId">
@@ -701,7 +717,6 @@ label{
 
                                     <label>
                                         Fournisseur
-                                        <span class="required">*</span>
                                     </label>
 
                                     <select id="fournisseurId"
@@ -723,7 +738,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>N° Commande</label>
+                                    <label>N° Commande <span class="required">*</span></label>
 
                                     <input
                                         id="numeroCommande"
@@ -745,7 +760,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>N° VIF / BL</label>
+                                    <label>N° VIF / BL <span class="required">*</span></label>
 
                                     <input
                                         id="numeroVifBl"
@@ -789,7 +804,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>N° transporteur</label>
+                                    <label>N° transporteur <span class="required">*</span></label>
 
                                     <input
                                         id="numeroTransporteur"
@@ -800,7 +815,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>Nom transporteur</label>
+                                    <label>Nom transporteur <span class="required">*</span></label>
 
                                     <input
                                         id="nomTransporteur"
@@ -835,7 +850,7 @@ label{
                                 <div class="field">
 
                                     <label>
-                                        Téléphone chauffeur
+                                        Téléphone chauffeur <span class="required">*</span>
                                     </label>
 
                                     <input
@@ -847,7 +862,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>Date départ</label>
+                                    <label>Date départ <span class="required">*</span></label>
 
                                     <input
                                         id="dateDepart"
@@ -859,7 +874,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>Heure départ</label>
+                                    <label>Heure départ <span class="required">*</span></label>
 
                                     <input
                                         id="heureDepart"
@@ -871,7 +886,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>Statut</label>
+                                    <label>Statut <span class="required">*</span></label>
 
                                     <div
                                         id="statut"
@@ -900,7 +915,7 @@ label{
                                 <div class="field">
 
                                     <label>
-                                        Désignation
+                                        Désignation <span class="required">*</span>
                                     </label>
 
                                     <input
@@ -913,7 +928,7 @@ label{
                                 <div class="field">
 
                                     <label>
-                                        Ferme / Origine
+                                        Ferme / Origine <span class="required">*</span>
                                     </label>
 
                                     <input
@@ -924,7 +939,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>Lot</label>
+                                    <label>Lot <span class="required">*</span></label>
 
                                     <input
                                         id="lot"
@@ -934,7 +949,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>Sexe</label>
+                                    <label>Sexe <span class="required">*</span></label>
 
                                     <select id="sexeAnimal">
 
@@ -963,7 +978,7 @@ label{
                                 <div class="field">
 
                                     <label>
-                                        Effectif prévu
+                                        Effectif prévu <span class="required">*</span>
                                     </label>
 
                                     <input
@@ -978,7 +993,7 @@ label{
                                 <div class="field">
 
                                     <label>
-                                        Calibre prévu
+                                        Calibre prévu <span class="required">*</span>
                                     </label>
 
                                     <input
@@ -993,7 +1008,7 @@ label{
                                 <div class="field">
 
                                     <label>
-                                        Quantité prévue KG
+                                        Quantité prévue KG <span class="required">*</span>
                                     </label>
 
                                     <input
@@ -1007,7 +1022,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>Unité</label>
+                                    <label>Unité <span class="required">*</span></label>
 
                                     <input
                                         id="unite"
@@ -1034,7 +1049,7 @@ label{
 
                                 <div class="field">
 
-                                    <label>N° Ticket pesée</label>
+                                    <label>N° Ticket pesée <span class="required">*</span></label>
 
                                     <input
                                         id="numeroTicket"
@@ -1074,7 +1089,7 @@ label{
                             <div style="margin-top:9px">
 
                                 <label>
-                                    Poids sortie camion — P1
+                                    Poids sortie camion — P1 <span class="required">*</span>
                                 </label>
 
                                 <input
@@ -1250,60 +1265,90 @@ label{
 
                             <div class="section-title">
                                 <i class="fa-solid fa-box-open"></i>
-                                Réception réelle
+                                Réception réelle — informations à compléter
                             </div>
 
                             <div class="grid-4">
 
                                 <div class="field">
-
                                     <label>
-                                        Effectif réel
+                                        Désignation <span class="required">*</span>
                                     </label>
 
+                                    <select id="designationReelle">
+                                        <option value="">
+                                            Sélectionner une désignation VIF
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label>Ferme / Origine réelle</label>
+                                    <input
+                                        id="origineFermeReelle"
+                                        placeholder="Origine reçue..."
+                                    >
+                                </div>
+
+                                <div class="field">
+                                    <label>Lot réel</label>
+                                    <input
+                                        id="lotReel"
+                                        placeholder="Généré automatiquement..."
+                                        readonly
+                                    >
+                                </div>
+
+                                <div class="field">
+                                    <label>Sexe réel</label>
+                                    <select id="sexeAnimalReel">
+                                        <option value="">—</option>
+                                        <option value="M">M</option>
+                                        <option value="F">F</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="grid-4" style="margin-top:9px">
+
+                                <div class="field">
+                                    <label>Effectif réel</label>
                                     <input
                                         id="effectifReel"
                                         type="number"
                                         min="0"
                                         step="1"
+                                        placeholder="Effectif reçu..."
                                     >
-
                                 </div>
 
                                 <div class="field">
-
-                                    <label>
-                                        Calibre réel
-                                    </label>
-
+                                    <label>Calibre réel</label>
                                     <input
                                         id="calibreReel"
                                         type="number"
                                         min="0"
                                         step="0.001"
-                                    >
-
+                                        placeholder="Calibre reçu..."
+                                     readonly>
                                 </div>
 
                                 <div class="field">
-
-                                    <label>Lot réel</label>
-
-                                    <input id="lotReel">
-
-                                </div>
-
-                                <div class="field">
-
-                                    <label>
-                                        Quantité réelle KG
-                                    </label>
-
+                                    <label>Quantité réelle KG</label>
                                     <input
                                         id="quantiteReelle"
                                         readonly
+                                        placeholder="Calculée avec P1 / P2"
                                     >
+                                </div>
 
+                                <div class="field">
+                                    <label>Unité</label>
+                                    <input
+                                        id="uniteReelle"
+                                        value="KG"
+                                    >
                                 </div>
 
                             </div>
@@ -1369,6 +1414,13 @@ label{
                             <button id="backSortieBtn">
                                 <i class="fa-solid fa-arrow-left"></i>
                                 Retour sortie
+                            </button>
+
+                            <button
+                                id="cancelMissionBtn"
+                                class="btn-red">
+                                <i class="fa-solid fa-ban"></i>
+                                Annuler la mission
                             </button>
 
                             <button
@@ -1441,6 +1493,9 @@ const T_CHAUFFEUR =
 const T_CAMION =
     "camions_transporteurs";
 
+const T_ARTICLES =
+    "articles";
+
 
 /* =========================================================
    STATE
@@ -1450,6 +1505,7 @@ let missions=[];
 let current=null;
 let currentDetail=null;
 let currentPesee=null;
+let articlesVif=[];
 
 
 /* =========================================================
@@ -1531,9 +1587,38 @@ function vifNumber(){
     return `VIF-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${random6()}`;
 }
 
-function ticketNumber(){
+async function ticketNumber(){
 
-    return `T-${random6()}`;
+    const {data,error} =
+        await db
+            .from(T_PESEE)
+            .select("numero_ticket")
+            .order("id",{ascending:false});
+
+    if(error){
+        console.error("Ticket pesée:",error);
+        throw new Error("Impossible de générer le N° Ticket pesée.");
+    }
+
+    let max=0;
+
+    (data || []).forEach(row=>{
+        const ticket=String(row.numero_ticket || "").trim();
+        const match=ticket.match(/^(?:T-)?(\d{4})$/);
+
+        if(match){
+            const n=parseInt(match[1],10);
+            if(n>max) max=n;
+        }
+    });
+
+    const next=max+1;
+
+    if(next>9999){
+        throw new Error("Le numéro de ticket a atteint 9999.");
+    }
+
+    return String(next).padStart(4,"0");
 }
 
 function showMessage(text,type="success"){
@@ -1586,6 +1671,7 @@ async function init(){
         loadFirmas(),
         loadCamions(),
         loadChauffeurs(),
+        loadArticlesVif(),
         loadMissions()
     ]);
 }
@@ -1614,12 +1700,33 @@ function bindEvents(){
         renderMissions;
 
     $("firmaId").onchange =
-        ()=>loadFournisseurs(
-            value("firmaId")
-        );
+        async()=>{
+            await loadFournisseurs(value("firmaId"));
+            autoFillOrigineFromFirma();
+            await updateLotReelAuto();
+        };
 
     $("fournisseurId").onchange =
         supplierReference;
+
+    $("designationReelle").onchange =
+        async()=>{
+            articleVifSelected();
+            await updateLotReelAuto();
+        };
+
+    $("sexeAnimalReel").onchange =
+        updateLotReelAuto;
+
+    $("effectifReel").addEventListener(
+        "input",
+        calculateCalibreReel
+    );
+
+    $("poidsP2").addEventListener(
+        "input",
+        calculateCalibreReel
+    );
 
     $("camionId").onchange =
         camionSelected;
@@ -1637,6 +1744,12 @@ function bindEvents(){
     $("poidsP2").oninput =
         calculateNet;
 
+    $("effectifPrevu").oninput =
+        calculateCalibrePrevu;
+
+    $("quantitePrevue").oninput =
+        calculateCalibrePrevu;
+
     $("effectifReel").oninput =
         updateComparison;
 
@@ -1651,6 +1764,9 @@ function bindEvents(){
 
     $("saveEntreeBtn").onclick =
         saveEntree;
+
+    $("cancelMissionBtn").onclick =
+        cancelMission;
 
     $("printBtn").onclick =
         printBon;
@@ -1697,7 +1813,10 @@ async function loadFirmas(){
         </option>`+
         (data || [])
         .map(f=>`
-            <option value="${f.id}">
+            <option
+                value="${f.id}"
+                data-code="${escapeHtml(f.code_firma || "")}"
+                data-name="${escapeHtml(f.nom_firma || "")}">
                 ${escapeHtml(f.code_firma)} -
                 ${escapeHtml(f.nom_firma)}
             </option>
@@ -1927,8 +2046,425 @@ async function loadChauffeurs(){
 
 
 /* =========================================================
+   ARTICLES VIF
+   Source: public.articles
+   On ne prend que les articles dont le groupe contient VIF.
+========================================================= */
+
+async function loadArticlesVif(){
+
+    const {data,error} =
+        await db
+            .from(T_ARTICLES)
+            .select("id,article,designation,groupe,type_produit")
+            .ilike("groupe","%VIF%")
+            .order("designation");
+
+    if(error){
+
+        console.error(
+            "Articles VIF:",
+            error
+        );
+
+        articlesVif=[];
+
+        showMessage(
+            "Erreur chargement des articles VIF.",
+            "error"
+        );
+
+        return;
+    }
+
+    articlesVif =
+        (data || []).filter(a =>
+            a &&
+            a.id &&
+            a.designation
+        );
+
+    populateDesignationVif("designationReelle");
+}
+
+function populateDesignationVif(id){
+
+    const select=$(id);
+
+    if(!select)
+        return;
+
+    const currentValue =
+        select.value || "";
+
+    select.innerHTML =
+        `<option value="">
+            Sélectionner une désignation
+        </option>`+
+        articlesVif
+            .map(a=>`
+                <option
+                    value="${a.id}"
+                    data-article="${escapeHtml(a.article || "")}"
+                    data-designation="${escapeHtml(a.designation || "")}"
+                    data-groupe="${escapeHtml(a.groupe || "")}"
+                    data-type="${escapeHtml(a.type_produit || "")}">
+                    ${escapeHtml(a.article || "")}
+                    - 
+                    ${escapeHtml(a.designation || "")}
+                </option>
+            `)
+            .join("");
+
+    if(currentValue)
+        select.value=currentValue;
+}
+
+function articleVifSelected(){
+
+    const select =
+        $("designationReelle");
+
+    const option =
+        select?.selectedOptions?.[0];
+
+    if(!option || !option.value)
+        return;
+
+    /*
+       L'article_id sera enregistré dans
+       camions_vif_details.article_id.
+       La désignation reste la valeur lisible
+       de la ligne article.
+    */
+
+    if($("origineFermeReelle") &&
+       !value("origineFermeReelle")){
+
+        const firma =
+            $("firmaId")?.selectedOptions?.[0]
+                ?.dataset?.name || "";
+
+        if(firma)
+            $("origineFermeReelle").value=firma;
+    }
+}
+
+/* =========================================================
    AUTO
 ========================================================= */
+
+    updateLotReelAuto();
+
+function autoFillOrigineFromFirma(){
+
+    const option =
+        $("firmaId")?.selectedOptions?.[0];
+
+    if(!option || !value("firmaId"))
+        return;
+
+    /*
+       Aucun tableau "fermes" n'a été fourni.
+       On utilise donc le nom de la Firma comme
+       origine par défaut dans Ferme / Origine.
+    */
+    const codeFirma =
+        option.dataset.code || "";
+
+    const nomFirma =
+        option.dataset.name || "";
+
+    const origine =
+        [codeFirma, nomFirma]
+            .filter(Boolean)
+            .join(" - ");
+
+    if(origine && $("origineFermeReelle"))
+        $("origineFermeReelle").value = origine;
+}
+
+
+/* =========================================================
+   LOT AUTOMATIQUE — YY + JJJ + CODE PRODUIT + CODE FIRMA
+========================================================= */
+
+function businessDate(dateValue=null, timeValue=null){
+    /*
+       JOUR MÉTIER LOT : 06:00 → 06:00.
+       Le lot est déterminé par la date/heure de SORTIE du camion,
+       jamais par la date/heure de réception.
+    */
+    let d;
+
+    if(dateValue){
+        const datePart = String(dateValue).slice(0,10);
+        const timePart = String(timeValue || "00:00").slice(0,8);
+        d = new Date(`${datePart}T${timePart}`);
+    }else{
+        d = new Date();
+    }
+
+    if(Number.isNaN(d.getTime()))
+        d = new Date();
+
+    /*
+       00:00 → 05:59 = journée métier de la veille.
+       06:00 = nouveau jour métier.
+    */
+    if(d.getHours() < 6)
+        d.setDate(d.getDate()-1);
+
+    return d;
+}
+
+function ymdLocal(d){
+    return [
+        d.getFullYear(),
+        String(d.getMonth()+1).padStart(2,"0"),
+        String(d.getDate()).padStart(2,"0")
+    ].join("-");
+}
+
+function dayOfYear(d){
+    const start =
+        new Date(d.getFullYear(),0,1);
+
+    return Math.floor(
+        (new Date(
+            d.getFullYear(),
+            d.getMonth(),
+            d.getDate()
+        ) - start) /
+        86400000
+    ) + 1;
+}
+
+/*
+=========================================================
+LOT FINAL VIF
+Format : YY + JJJ + CODE_PRODUIT + CODE_FIRMA
+
+Exemple : 26227PF001
+
+26  = année
+227 = jour métier
+PF  = code produit
+001 = code Firma
+
+Journée métier : 06:00 -> 05:59 du lendemain.
+=========================================================
+*/
+
+function getVifProductCode(){
+
+    const option =
+        $("designationReelle")?.selectedOptions?.[0];
+
+    if(!option || !value("designationReelle"))
+        return "";
+
+    const article =
+        String(option.dataset.article || "")
+            .trim()
+            .toUpperCase();
+
+    const sexe =
+        String(value("sexeAnimalReel") || "")
+            .trim()
+            .toUpperCase();
+
+    const codes = {
+        "AVP03": "PF",
+        "AVP01": "PC",
+        "AVC01": "CP",
+        "AVP02": "PR"
+    };
+
+    if(article === "AVD01"){
+
+        if(sexe === "M")
+            return "DY";
+
+        if(sexe === "F")
+            return "DX";
+
+        return "";
+    }
+
+    return codes[article] || "";
+}
+
+function getFirmaCode(){
+
+    const option =
+        $("firmaId")?.selectedOptions?.[0];
+
+    if(!option || !value("firmaId"))
+        return "";
+
+    return String(option.dataset.code || "")
+        .trim()
+        .toUpperCase();
+}
+
+function getBusinessLotNumber(
+    dateValue=null,
+    timeValue=null
+){
+
+    const bd =
+        businessDate(
+            dateValue,
+            timeValue
+        );
+
+    const yy =
+        String(bd.getFullYear())
+            .slice(-2);
+
+    const jjj =
+        String(dayOfYear(bd))
+            .padStart(3,"0");
+
+    return yy + jjj;
+}
+
+function buildVifLot(
+    dateValue=null,
+    timeValue=null
+){
+
+    const base =
+        getBusinessLotNumber(
+            dateValue,
+            timeValue
+        );
+
+    const productCode =
+        getVifProductCode();
+
+    const firmaCode =
+        getFirmaCode();
+
+    if(!productCode || !firmaCode)
+        return "";
+
+    return base +
+        productCode +
+        firmaCode;
+}
+
+async function generateLotAuto(
+    dateValue=null,
+    timeValue=null
+){
+
+    const sortieDate =
+        dateValue ||
+        current?.date_depart ||
+        value("dateDepart") ||
+        today();
+
+    const sortieHeure =
+        timeValue ||
+        current?.heure_depart ||
+        value("heureDepart") ||
+        nowTime();
+
+    const lot =
+        buildVifLot(
+            sortieDate,
+            sortieHeure
+        );
+
+    if(!lot){
+
+        if(!getFirmaCode())
+            throw new Error(
+                "Sélectionnez une Firma pour générer le Lot."
+            );
+
+        if(!getVifProductCode())
+            throw new Error(
+                "Sélectionnez la désignation VIF et, pour la dinde, le sexe."
+            );
+    }
+
+    return lot;
+}
+
+async function ensureLotAuto(){
+
+    const sortieDate =
+        current?.date_depart ||
+        value("dateDepart") ||
+        today();
+
+    const sortieHeure =
+        current?.heure_depart ||
+        value("heureDepart") ||
+        nowTime();
+
+    const lot =
+        await generateLotAuto(
+            sortieDate,
+            sortieHeure
+        );
+
+    if($("lotReel"))
+        $("lotReel").value = lot;
+
+    return lot;
+}
+
+async function updateLotReelAuto(){
+
+    if(!value("firmaId") ||
+       !value("designationReelle")){
+
+        if($("lotReel"))
+            $("lotReel").value = "";
+
+        return "";
+    }
+
+    const article =
+        String(
+            $("designationReelle")
+                ?.selectedOptions?.[0]
+                ?.dataset?.article || ""
+        )
+        .trim()
+        .toUpperCase();
+
+    if(article === "AVD01" &&
+       !value("sexeAnimalReel")){
+
+        if($("lotReel"))
+            $("lotReel").value = "";
+
+        return "";
+    }
+
+    try{
+
+        return await ensureLotAuto();
+
+    }catch(error){
+
+        console.error(
+            "LOT VIF AUTO:",
+            error
+        );
+
+        if($("lotReel"))
+            $("lotReel").value = "";
+
+        return "";
+    }
+}
+
 
 function supplierReference(){
 
@@ -1937,6 +2473,30 @@ function supplierReference(){
 
     $("referenceFournisseur").value =
         id || "";
+}
+
+/* =========================================================
+   CALIBRE PREVU AUTO
+   Calibre = Quantité prévue / Effectif prévu
+========================================================= */
+
+function calculateCalibrePrevu(){
+
+    const effectif =
+        number("effectifPrevu");
+
+    const quantite =
+        number("quantitePrevue");
+
+    const calibre =
+        effectif > 0 && quantite > 0
+            ? quantite / effectif
+            : 0;
+
+    $("calibrePrevu").value =
+        calibre > 0
+            ? calibre.toFixed(3)
+            : "";
 }
 
 function camionSelected(){
@@ -2138,8 +2698,13 @@ async function newMission(){
     $("numeroVifBl").value =
         vifNumber();
 
-    $("numeroTicket").value =
-        ticketNumber();
+    try{
+        $("numeroTicket").value =
+            await ticketNumber();
+    }catch(error){
+        showMessage(error.message,"error");
+        return;
+    }
 
     $("dateDepart").value =
         today();
@@ -2187,10 +2752,13 @@ function resetForm(){
         "dateEntree",
         "heureEntree",
         "poidsP2",
+        "designationReelle",
+        "origineFermeReelle",
         "effectifReel",
         "calibreReel",
         "lotReel",
         "quantiteReelle",
+        "uniteReelle",
         "observationsEntree"
     ]
     .forEach(id=>{
@@ -2213,6 +2781,11 @@ function resetForm(){
     $("designation").value="";
     $("sexeAnimal").value="";
     $("unite").value="KG";
+
+    $("designationReelle").value="";
+    $("origineFermeReelle").value="";
+    $("sexeAnimalReel").value="";
+    $("uniteReelle").value="KG";
 
     $("postePesee").value="PB2";
 
@@ -2240,6 +2813,9 @@ function resetForm(){
     $("printBtn").classList.add("hidden");
 
     $("saveEntreeBtn").disabled=false;
+
+    // À la création : les informations de retour restent verrouillées.
+    lockSortie(false);
 }
 
 
@@ -2346,17 +2922,21 @@ async function fillMission(){
     $("numeroVifBl").value =
         m.numero_vif_bl || "";
 
-    $("firmaId").value =
-        m.firma_id || "";
+    const receptionDone =
+        m.statut === "RECEPTIONNE";
 
-    await loadFournisseurs(
-        m.firma_id
-    );
-
-    $("fournisseurId").value =
-        m.fournisseur_id || "";
-
-    supplierReference();
+    if(receptionDone){
+        $("firmaId").value = m.firma_id || "";
+        await loadFournisseurs(m.firma_id);
+        $("fournisseurId").value = m.fournisseur_id || "";
+        supplierReference();
+    }else{
+        $("firmaId").value = "";
+        $("fournisseurId").innerHTML =
+            `<option value="">Sélectionner d'abord une firma</option>`;
+        $("fournisseurId").disabled = true;
+        $("referenceFournisseur").value = "";
+    }
 
     $("camionId").value="";
 
@@ -2417,29 +2997,15 @@ async function fillMission(){
         m.statut || "PREPARE";
 
 
-    $("designation").value =
-        d?.designation || "";
-
-    $("origineFerme").value =
-        d?.origine_ferme || "";
-
-    $("lot").value =
-        d?.lot || "";
-
-    $("sexeAnimal").value =
-        d?.sexe_animal || "";
-
-    $("effectifPrevu").value =
-        d?.effectif_prevu ?? "";
-
-    $("calibrePrevu").value =
-        d?.calibre_prevu ?? "";
-
-    $("quantitePrevue").value =
-        d?.quantite_prevue ?? "";
-
-    $("unite").value =
-        d?.unite || "KG";
+    /* Ne jamais recopier les données de réception dans SORTIE. */
+    $("designation").value = "";
+    $("origineFerme").value = "";
+    $("lot").value = "";
+    $("sexeAnimal").value = "";
+    $("effectifPrevu").value = "";
+    $("calibrePrevu").value = "";
+    $("quantitePrevue").value = "";
+    $("unite").value = "KG";
 
 
     $("numeroTicket").value =
@@ -2462,17 +3028,44 @@ async function fillMission(){
         m.heure_entree || "";
 
 
-    $("effectifReel").value =
-        d?.effectif_reel ?? "";
+    populateDesignationVif("designationReelle");
 
-    $("calibreReel").value =
-        d?.calibre_reel ?? "";
+    if(receptionDone){
+        if(d?.article_id){
+            $("designationReelle").value = String(d.article_id);
+        }else if(d?.designation){
+            const option = [...$("designationReelle").options].find(o =>
+                String(o.dataset.designation || "").trim().toLowerCase() ===
+                String(d.designation || "").trim().toLowerCase()
+            );
+            $("designationReelle").value = option?.value || "";
+        }
 
-    $("lotReel").value =
-        d?.lot || "";
+        $("origineFermeReelle").value = d?.origine_ferme || "";
+        $("sexeAnimalReel").value = d?.sexe_animal || "";
+        $("effectifReel").value = d?.effectif_reel ?? "";
+        $("calibreReel").value = d?.calibre_reel ?? "";
+        $("lotReel").value = d?.lot || "";
 
-    $("quantiteReelle").value =
-        d?.quantite_reelle ?? "";
+        if(
+            value("lotReel") &&
+            /^\d{5}$/.test(value("lotReel"))
+        ){
+
+            await updateLotReelAuto();
+        }
+        $("quantiteReelle").value = d?.quantite_reelle ?? "";
+        $("uniteReelle").value = d?.unite || "KG";
+    }else{
+        $("designationReelle").value = "";
+        $("origineFermeReelle").value = "";
+        $("sexeAnimalReel").value = "";
+        $("effectifReel").value = "";
+        $("calibreReel").value = "";
+        $("lotReel").value = "";
+        $("quantiteReelle").value = "";
+        $("uniteReelle").value = "KG";
+    }
 
 
     $("observationsSortie").value =
@@ -2489,6 +3082,7 @@ async function fillMission(){
         `${format(p?.poids_p1)} KG`;
 
     calculateNet();
+    calculateCalibreReel();
     calculateDuration();
     updateComparison();
 
@@ -2521,10 +3115,17 @@ async function fillMission(){
     if(m.statut==="RECEPTIONNE"){
 
         $("saveEntreeBtn").disabled=true;
+        $("cancelMissionBtn").disabled=true;
+
+    }else if(m.statut==="ANNULE"){
+
+        $("saveEntreeBtn").disabled=true;
+        $("cancelMissionBtn").disabled=true;
 
     }else{
 
         $("saveEntreeBtn").disabled=false;
+        $("cancelMissionBtn").disabled=false;
     }
 }
 
@@ -2535,19 +3136,16 @@ async function fillMission(){
 
 function lockSortie(lock){
 
+    /*
+       Champs réellement connus à la sortie :
+       camion + chauffeur + poste + P1 + observations.
+       Les informations de marchandise/firma/fournisseur
+       restent verrouillées jusqu'au retour.
+    */
+
     [
-        "firmaId",
-        "fournisseurId",
         "camionId",
         "chauffeurId",
-        "designation",
-        "origineFerme",
-        "lot",
-        "sexeAnimal",
-        "effectifPrevu",
-        "calibrePrevu",
-        "quantitePrevue",
-        "unite",
         "postePesee",
         "poidsP1",
         "observationsSortie"
@@ -2557,6 +3155,43 @@ function lockSortie(lock){
         if($(id))
             $(id).disabled=lock;
     });
+
+    /*
+       Champs à compléter uniquement au retour.
+       Ils sont désactivés pendant PREPARE et activés
+       dès que la mission est EN_ROUTE/RETOUR/ARRIVE.
+    */
+
+    [
+        "firmaId",
+        "fournisseurId"
+    ]
+    .forEach(id=>{
+        if($(id))
+            $(id).disabled=!lock;
+    });
+
+    /* La marchandise est saisie uniquement dans RÉCEPTION RÉELLE. */
+    [
+        "designation",
+        "origineFerme",
+        "lot",
+        "sexeAnimal",
+        "effectifPrevu",
+        "calibrePrevu",
+        "quantitePrevue",
+        "unite"
+    ]
+    .forEach(id=>{
+        if($(id)){
+            $(id).disabled=true;
+            $(id).value="";
+        }
+    });
+
+    /*
+       Ces références restent automatiques / verrouillées.
+    */
 
     [
         "numeroMission",
@@ -2574,9 +3209,12 @@ function lockSortie(lock){
 
         if($(id))
             $(id).readOnly=true;
-    });
-}
 
+    });
+
+    if($("retourInfoHint"))
+        $("retourInfoHint").classList.toggle("hidden",!lock);
+}
 
 /* =========================================================
    SAVE SORTIE
@@ -2595,26 +3233,6 @@ async function saveSortie(){
         return;
     }
 
-
-    if(!value("firmaId")){
-
-        showMessage(
-            "Sélectionnez une firma.",
-            "warning"
-        );
-
-        return;
-    }
-
-    if(!value("fournisseurId")){
-
-        showMessage(
-            "Sélectionnez un fournisseur.",
-            "warning"
-        );
-
-        return;
-    }
 
     if(!value("camionId")){
 
@@ -2636,10 +3254,54 @@ async function saveSortie(){
         return;
     }
 
-    if(!value("designation")){
+    if(!value("numeroMission") ||
+       !value("numeroCommande") ||
+       !value("numeroVifBl")){
 
         showMessage(
-            "Saisissez la désignation.",
+            "Les références automatiques de la mission sont obligatoires.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("numeroTransporteur") ||
+       !value("nomTransporteur")){
+
+        showMessage(
+            "Les informations du transporteur sont obligatoires.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("telephoneChauffeur")){
+
+        showMessage(
+            "Le téléphone du chauffeur est obligatoire.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("dateDepart") ||
+       !value("heureDepart")){
+
+        showMessage(
+            "La date et l'heure de départ sont obligatoires.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("numeroTicket")){
+
+        showMessage(
+            "Le N° Ticket pesée est obligatoire.",
             "warning"
         );
 
@@ -2675,10 +3337,14 @@ async function saveSortie(){
             value("numeroVifBl"),
 
         firma_id:
-            Number(value("firmaId")),
+            value("firmaId")
+                ? Number(value("firmaId"))
+                : null,
 
         fournisseur_id:
-            Number(value("fournisseurId")),
+            value("fournisseurId")
+                ? Number(value("fournisseurId"))
+                : null,
 
         numero_commande:
             value("numeroCommande") || null,
@@ -2764,7 +3430,8 @@ async function saveSortie(){
             article_id:null,
 
             designation:
-                value("designation"),
+                value("designation") ||
+                "À COMPLÉTER À LA RÉCEPTION",
 
             origine_ferme:
                 value("origineFerme") || null,
@@ -2857,8 +3524,10 @@ async function saveSortie(){
             poids_p1:
                 number("poidsP1"),
 
+            // P2 temporairement égal à P1 : la contrainte SQL exige P2 >= P1.
+            // Au retour, P2 sera remplacé par le poids réel.
             poids_p2:
-                0
+                number("poidsP1")
         };
 
 
@@ -2881,16 +3550,44 @@ async function saveSortie(){
 
         }else{
 
-            const {data,error} =
-                await db
-                    .from(T_PESEE)
-                    .insert(peseePayload)
-                    .select()
-                    .single();
+            let inserted=null;
+            let insertError=null;
 
-            if(error) throw error;
+            for(let attempt=0; attempt<3; attempt++){
 
-            peseeData=data;
+                const {data,error} =
+                    await db
+                        .from(T_PESEE)
+                        .insert(peseePayload)
+                        .select()
+                        .single();
+
+                if(!error){
+                    inserted=data;
+                    insertError=null;
+                    break;
+                }
+
+                insertError=error;
+
+                // Si le ticket existe déjà, prendre le suivant et réessayer.
+                if(
+                    String(error.code || "") === "23505" ||
+                    String(error.message || "").toLowerCase().includes("ticket")
+                ){
+                    peseePayload.numero_ticket =
+                        await ticketNumber();
+                    $("numeroTicket").value =
+                        peseePayload.numero_ticket;
+                    continue;
+                }
+
+                break;
+            }
+
+            if(insertError) throw insertError;
+
+            peseeData=inserted;
         }
 
 
@@ -2946,6 +3643,9 @@ function showSortie(){
     $("entreePanel")
         .classList.add("hidden");
 
+    if($("retourInfoHint"))
+        $("retourInfoHint").classList.add("hidden");
+
     $("stepSortie")
         .classList.add("active");
 
@@ -2961,10 +3661,38 @@ function showSortie(){
    SHOW ENTREE
 ========================================================= */
 
-function showEntree(){
+async function showEntree(){
 
+    /* Date/heure du retour : automatiques au premier affichage de l'entrée. */
+    if(!value("dateEntree"))
+        $("dateEntree").value = today();
+
+    if(!value("heureEntree"))
+        $("heureEntree").value = nowTime();
+
+    /*
+       Au retour, les informations inconnues à la sortie
+       deviennent disponibles.
+    */
+    autoFillOrigineFromFirma();
+
+    /*
+       Le Lot réel dépend de la journée métier + produit + Firma.
+       Pour la dinde, le sexe détermine DY/DX.
+    */
+    if(value("firmaId") &&
+       value("designationReelle")){
+
+        await updateLotReelAuto();
+    }
+
+    /*
+       On garde la partie informations/marchandise visible :
+       elle contient les champs à compléter au retour.
+       Les champs de sortie sont verrouillés par lockSortie().
+    */
     $("sortiePanel")
-        .classList.add("hidden");
+        .classList.remove("hidden");
 
     $("entreePanel")
         .classList.remove("hidden");
@@ -2982,6 +3710,7 @@ function showEntree(){
         `${format(number("poidsP1"))} KG`;
 
     calculateNet();
+    calculateCalibreReel();
     updateComparison();
     calculateDuration();
 }
@@ -2990,6 +3719,37 @@ function showEntree(){
 /* =========================================================
    NET
 ========================================================= */
+
+
+function calculateCalibreReel(){
+
+    const effectif =
+        Number(value("effectifReel") || 0);
+
+    const p1 =
+        Number(value("poidsP1") || 0);
+
+    const p2 =
+        Number(value("poidsP2") || 0);
+
+    const net =
+        Math.max(0, p2 - p1);
+
+    const calibre =
+        effectif > 0
+            ? net / effectif
+            : 0;
+
+    if($("calibreReel")){
+
+        $("calibreReel").value =
+            effectif > 0 && net >= 0
+                ? calibre.toFixed(3)
+                : "";
+    }
+
+    return calibre;
+}
 
 function calculateNet(){
 
@@ -3013,6 +3773,8 @@ function calculateNet(){
             : "";
 
     updateComparison();
+
+    calculateCalibreReel();
 }
 
 
@@ -3103,12 +3865,293 @@ function calculateDuration(){
    SAVE ENTREE
 ========================================================= */
 
+
+
+async function enregistrerMouvementEntreeVIF({mission, detail, net}){
+
+    const option = $("designationReelle")?.selectedOptions?.[0];
+
+    const article = String(option?.dataset?.article || "").trim();
+    const designation = String(
+        option?.dataset?.designation ||
+        detail?.designation ||
+        ""
+    ).trim();
+
+    const lot = value("lotReel") || detail?.lot || null;
+    const unite = value("uniteReelle") || detail?.unite || "KG";
+    const magasin = "VIF01";
+    const quantite = Number(net);
+
+    if(!article) throw new Error("Article VIF introuvable pour le stock.");
+    if(!lot) throw new Error("Lot VIF introuvable pour le stock.");
+    if(!(quantite > 0)) throw new Error("La quantité reçue doit être supérieure à 0.");
+
+    /*
+      Vérifier d'abord si cette réception a déjà été enregistrée.
+      Cela évite d'ajouter deux fois la même quantité au stock.
+    */
+    const {data:existingMove,error:existingMoveError} = await db
+        .from("mouvements_stock")
+        .select("id, stock_id")
+        .eq("document_vente", mission.numero_commande || "")
+        .eq("type_mouvement", "ENTREE")
+        .eq("article", article)
+        .eq("lot", lot)
+        .eq("magasin_destination", magasin)
+        .limit(1);
+
+    if(existingMoveError) throw existingMoveError;
+
+    if(existingMove?.length){
+        return {
+            stock_id: existingMove[0].stock_id,
+            mouvement_id: existingMove[0].id,
+            deja_existant: true
+        };
+    }
+
+    /*
+      Stock VIF01 : on utilise emplacement NULL car aucun emplacement
+      n'est demandé au moment de la réception VIF.
+    */
+    const {data:stockRows,error:stockFindError} = await db
+        .from("stock")
+        .select("id, quantite, designation_article, unite")
+        .eq("article", article)
+        .eq("lot", lot)
+        .eq("magasin", magasin)
+        .is("emplacement", null)
+        .limit(1);
+
+    if(stockFindError) throw stockFindError;
+
+    let stockId;
+
+    if(stockRows?.length){
+
+        const stockRow = stockRows[0];
+
+        const {error:updateError} = await db
+            .from("stock")
+            .update({
+                quantite: Number(stockRow.quantite || 0) + quantite,
+                designation_article:
+                    designation || stockRow.designation_article,
+                unite: unite,
+                updated_at: new Date().toISOString()
+            })
+            .eq("id", stockRow.id);
+
+        if(updateError) throw updateError;
+
+        stockId = stockRow.id;
+
+    }else{
+
+        const {data:newStock,error:insertError} = await db
+            .from("stock")
+            .insert({
+                historique_import_id: null,
+                division: null,
+                magasin: magasin,
+                emplacement: null,
+                article: article,
+                designation_article: designation,
+                lot: lot,
+                quantite: quantite,
+                unite: unite,
+                type_article: "VIF",
+                groupe_article: "VIF",
+                famille_article: null,
+                controle_qualite: 0,
+                stock_reserve: 0,
+                statut: "DISPONIBLE",
+                date_import: new Date().toISOString(),
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            })
+            .select("id")
+            .single();
+
+        if(insertError) throw insertError;
+
+        stockId = newStock.id;
+    }
+
+    let utilisateur = null;
+
+    try{
+        const {data:userData} = await db.auth.getUser();
+        utilisateur = userData?.user?.id || null;
+    }catch(_){
+        utilisateur = null;
+    }
+
+    const {data:movement,error:movementError} = await db
+        .from("mouvements_stock")
+        .insert({
+            stock_id: stockId,
+            document_vente: mission.numero_commande || null,
+            type_mouvement: "ENTREE",
+            article: article,
+            designation_article: designation || null,
+            lot: lot,
+            magasin_source: null,
+            magasin_destination: magasin,
+            quantite: quantite,
+            unite: unite,
+            utilisateur: utilisateur,
+            commentaire: `Réception VIF ${mission.numero_mission || ""}`,
+            date_mouvement: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+    if(movementError) throw movementError;
+
+    return {
+        stock_id: stockId,
+        mouvement_id: movement.id,
+        deja_existant: false
+    };
+}
+
+
+
+async function creerDemandeAchatDepuisVIF({mission,detail,net}){
+    const option=$("designationReelle")?.selectedOptions?.[0];
+    const articleId=Number(value("designationReelle"));
+    const article=String(option?.dataset?.article||"").trim();
+    const designation=String(option?.dataset?.designation||detail?.designation||"").trim();
+    const groupe=String(option?.dataset?.groupe||"VIF").trim();
+    const typeProduit=String(option?.dataset?.type||"").trim();
+    const quantite=Number(net);
+    const unite=value("uniteReelle")||"KG";
+    if(!articleId) throw new Error("Article ID introuvable pour la demande d'achat.");
+    if(!(quantite>0)) throw new Error("Quantité invalide pour la demande d'achat.");
+
+    const motif=`Réception VIF ${mission.numero_mission||""}`;
+    const {data:ex,error:exErr}=await db.from("demandes_achat")
+        .select("id,numero_demande").eq("motif",motif).limit(1);
+    if(exErr) throw exErr;
+    if(ex?.length) return {demande_id:ex[0].id,numero_demande:ex[0].numero_demande,deja_existante:true};
+
+    const {data:last,error:lastErr}=await db.from("demandes_achat")
+        .select("id").order("id",{ascending:false}).limit(1);
+    if(lastErr) throw lastErr;
+    const nextId=Number(last?.[0]?.id||0)+1;
+    const d=new Date(), y=d.getFullYear(),
+          m=String(d.getMonth()+1).padStart(2,"0"),
+          j=String(d.getDate()).padStart(2,"0");
+    const numero=`DA-VIF-${y}${m}${j}-${String(nextId).padStart(4,"0")}`;
+
+    let userId=null,demandeur=null;
+    try{
+        const {data:u}=await db.auth.getUser();
+        userId=u?.user?.id||null;
+        demandeur=u?.user?.user_metadata?.full_name||u?.user?.email||null;
+    }catch(_){}
+
+    const {data:demande,error:demErr}=await db.from("demandes_achat").insert({
+        numero_demande:numero,date_demande:today(),demandeur_id:userId,
+        demandeur,service:"VIF",priorite:"NORMALE",motif,statut:"BROUILLON",
+        created_at:new Date().toISOString(),updated_at:new Date().toISOString()
+    }).select().single();
+    if(demErr) throw demErr;
+
+    const {error:detErr}=await db.from("demandes_achat_details").insert({
+        demande_achat_id:demande.id,article_id:articleId,article,
+        designation,groupe,type_produit:typeProduit,quantite,unite,
+        created_at:new Date().toISOString()
+    });
+    if(detErr){
+        await db.from("demandes_achat").delete().eq("id",demande.id);
+        throw detErr;
+    }
+    return {demande_id:demande.id,numero_demande:demande.numero_demande,deja_existante:false};
+}
+
 async function saveEntree(){
 
     if(!current?.id){
 
         showMessage(
             "Aucune mission sélectionnée.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("designationReelle")){
+
+        showMessage(
+            "Sélectionnez une désignation VIF.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("firmaId")){
+
+        showMessage(
+            "Sélectionnez la Firma à la réception.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("fournisseurId")){
+
+        showMessage(
+            "Sélectionnez le Fournisseur à la réception.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("designationReelle")){
+
+        showMessage(
+            "Saisissez la désignation réelle de la marchandise.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(!value("origineFermeReelle")){
+
+        showMessage(
+            "Saisissez la Ferme / Origine réelle.",
+            "warning"
+        );
+
+        return;
+    }
+
+    await updateLotReelAuto();
+
+    if(!value("lotReel")){
+
+        showMessage(
+            "Impossible de générer automatiquement le Lot. Vérifiez Firma, Désignation et Sexe.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if(number("effectifReel") <= 0){
+
+        showMessage(
+            "Saisissez l'effectif réel.",
             "warning"
         );
 
@@ -3161,6 +4204,15 @@ async function saveEntree(){
                 .from(T_MISSION)
                 .update({
 
+                    firma_id:
+                        Number(value("firmaId")),
+
+                    fournisseur_id:
+                        Number(value("fournisseurId")),
+
+                    reference_fournisseur:
+                        value("referenceFournisseur") || null,
+
                     date_entree:
                         value("dateEntree"),
 
@@ -3198,11 +4250,34 @@ async function saveEntree(){
                     .from(T_DETAIL)
                     .update({
 
+                        article_id:
+                            Number(value("designationReelle")),
+
+                        designation:
+                            $("designationReelle")
+                                ?.selectedOptions?.[0]
+                                ?.dataset?.designation ||
+                            currentDetail.designation,
+
+                        origine_ferme:
+                            value("origineFermeReelle") ||
+                            currentDetail.origine_ferme,
+
+                        sexe_animal:
+                            value("sexeAnimalReel") ||
+                            currentDetail.sexe_animal,
+
                         effectif_reel:
                             number("effectifReel"),
 
                         calibre_reel:
-                            number("calibreReel"),
+                            number("calibreReel") > 0
+                                ? number("calibreReel")
+                                : (
+                                    number("effectifReel") > 0
+                                        ? net / number("effectifReel")
+                                        : 0
+                                  ),
 
                         quantite_reelle:
                             net,
@@ -3210,6 +4285,16 @@ async function saveEntree(){
                         lot:
                             value("lotReel") ||
                             currentDetail.lot,
+
+                        unite:
+                            value("uniteReelle") ||
+                            currentDetail.unite ||
+                            "KG",
+
+                        observations:
+                            value("observationsEntree") ||
+                            currentDetail.observations ||
+                            null,
 
                         updated_at:
                             new Date().toISOString()
@@ -3265,6 +4350,35 @@ async function saveEntree(){
         }
 
 
+        /*
+           MOUVEMENT STOCK
+           ----------------
+           Réception VIF = ENTREE
+           Magasin destination automatique = VIF01
+           N° Commande = document_vente
+           Quantité = poids NET réel
+        */
+
+        await enregistrerMouvementEntreeVIF({
+
+            mission:
+                current,
+
+            detail:
+                currentDetail,
+
+            net:
+                net
+
+        });
+
+        const demandeAchat =
+            await creerDemandeAchatDepuisVIF({
+                mission: current,
+                detail: currentDetail,
+                net: net
+            });
+
         $("saveEntreeBtn")
             .disabled=true;
 
@@ -3276,7 +4390,7 @@ async function saveEntree(){
         updateComparison();
 
         showMessage(
-            `Réception validée. Poids net : ${format(net)} KG.`,
+            `Réception validée : stock VIF01 + mouvement ENTREE + demande d'achat ${demandeAchat.numero_demande}. Poids net : ${format(net)} KG.`,
             "success"
         );
 
@@ -3290,6 +4404,70 @@ async function saveEntree(){
         showMessage(
             "Erreur lors de la réception : "+
             error.message,
+            "error"
+        );
+    }
+}
+
+
+async function cancelMission(){
+
+    if(!current?.id)
+        return;
+
+    if(current.statut === "RECEPTIONNE"){
+        showMessage(
+            "Une mission déjà réceptionnée ne peut plus être annulée.",
+            "warning"
+        );
+        return;
+    }
+
+    const ok =
+        window.confirm(
+            "Voulez-vous vraiment annuler cette mission ?"
+        );
+
+    if(!ok)
+        return;
+
+    try{
+
+        const {data,error} =
+            await db
+                .from(T_MISSION)
+                .update({
+                    statut:"ANNULE",
+                    updated_at:new Date().toISOString()
+                })
+                .eq("id",current.id)
+                .select()
+                .single();
+
+        if(error)
+            throw error;
+
+        current=data;
+
+        $("saveEntreeBtn").disabled=true;
+
+        updateStatus("ANNULE");
+
+        lockSortie(true);
+
+        await loadMissions();
+
+        showMessage(
+            "Mission annulée.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error("CANCEL MISSION:",error);
+
+        showMessage(
+            "Erreur lors de l'annulation : "+error.message,
             "error"
         );
     }
@@ -3349,15 +4527,12 @@ function printBon(){
     if(!current)
         return;
 
-    const firma =
-        $("firmaId")
-        .selectedOptions[0]
-        ?.textContent.trim() || "";
-
-    const fournisseur =
-        $("fournisseurId")
-        .selectedOptions[0]
-        ?.textContent.trim() || "";
+    /*
+       BON DE SORTIE :
+       uniquement les informations connues AVANT le retour.
+       Firma / fournisseur / produit / lot / effectif
+       restent volontairement VIDES.
+    */
 
     const camion =
         value("camionId")
@@ -3380,7 +4555,7 @@ function printBon(){
         window.open(
             "",
             "_blank",
-            "width=800,height=900"
+            "width=800,height=1000"
         );
 
     if(!w){
@@ -3406,18 +4581,30 @@ function printBon(){
 
 <style>
 
+@page{
+    size:A4 portrait;
+    margin:0;
+}
+
+html,body{
+    width:210mm;
+    min-height:297mm;
+}
+
 body{
     font-family:Arial,sans-serif;
-    padding:25px;
+    margin:0;
+    padding:0;
     color:#111;
 }
 
 .sheet{
-    width:100%;
-    max-width:700px;
-    margin:auto;
+    width:190mm;
+    min-height:277mm;
+    margin:10mm auto;
     border:1px solid #222;
-    padding:25px;
+    padding:8mm;
+    box-sizing:border-box;
 }
 
 .logo{
@@ -3444,10 +4631,17 @@ body{
     justify-content:space-between;
     padding:4px 0;
     gap:20px;
+    min-height:18px;
 }
 
 .label{
     font-weight:bold;
+}
+
+.blank{
+    min-width:80mm;
+    border-bottom:1px dotted #555;
+    height:18px;
 }
 
 .weight{
@@ -3460,14 +4654,25 @@ body{
 }
 
 .signatures{
-    margin-top:55px;
+    margin-top:70px;
     display:flex;
     justify-content:space-between;
 }
 
+.signature{
+    width:75mm;
+}
+
 @media print{
-    body{
-        padding:0;
+    html,body{
+        width:210mm;
+        min-height:297mm;
+    }
+
+    .sheet{
+        width:190mm;
+        min-height:277mm;
+        margin:10mm auto;
     }
 }
 
@@ -3491,7 +4696,7 @@ BON DE SORTIE VIF
 
 <div class="row">
 <span class="label">N° Mission</span>
-<span>${escapeHtml(current.numero_mission)}</span>
+<span>${escapeHtml(current.numero_mission || "")}</span>
 </div>
 
 <div class="row">
@@ -3511,21 +4716,21 @@ BON DE SORTIE VIF
 
 </div>
 
+<!-- Informations volontairement vides jusqu'au retour -->
 
 <div class="line">
 
 <div class="row">
 <span class="label">Firma</span>
-<span>${escapeHtml(firma)}</span>
+<span class="blank"></span>
 </div>
 
 <div class="row">
 <span class="label">Fournisseur</span>
-<span>${escapeHtml(fournisseur)}</span>
+<span class="blank"></span>
 </div>
 
 </div>
-
 
 <div class="line">
 
@@ -3556,31 +4761,29 @@ BON DE SORTIE VIF
 
 </div>
 
-
 <div class="line">
 
 <div class="row">
 <span class="label">Produit</span>
-<span>${escapeHtml(value("designation"))}</span>
+<span class="blank"></span>
 </div>
 
 <div class="row">
 <span class="label">Ferme / Origine</span>
-<span>${escapeHtml(value("origineFerme"))}</span>
+<span class="blank"></span>
 </div>
 
 <div class="row">
 <span class="label">Lot</span>
-<span>${escapeHtml(value("lot"))}</span>
+<span class="blank"></span>
 </div>
 
 <div class="row">
 <span class="label">Effectif prévu</span>
-<span>${format(number("effectifPrevu"),0)}</span>
+<span class="blank"></span>
 </div>
 
 </div>
-
 
 <div class="weight">
 
@@ -3589,7 +4792,6 @@ POIDS SORTIE CAMION<br>
 ${format(p1)} KG
 
 </div>
-
 
 <div class="line">
 
@@ -3605,19 +4807,18 @@ ${format(p1)} KG
 
 </div>
 
-
 <div class="signatures">
 
-<div>
+<div class="signature">
 Signature chauffeur
 <br><br>
-________________________
+____________________________
 </div>
 
-<div>
+<div class="signature" style="text-align:right">
 Cachet / Signature
 <br><br>
-________________________
+____________________________
 </div>
 
 </div>
