@@ -47,7 +47,7 @@ input[readonly]{background:#f3f5f6}
 .mfoot{padding:13px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
 .toast{position:fixed;right:18px;bottom:18px;background:#1f2937;color:#fff;padding:11px 15px;border-radius:7px;font-size:12px;display:none;z-index:10000}
 .toast.show{display:block}.toast.error{background:#b42318}
-.loading{opacity:.6;pointer-events:none}
+.loading{opacity:.6;pointer-events:none}.btn:disabled{opacity:.6;cursor:not-allowed}
 @media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(170px,1fr))}}
 @media(max-width:650px){.page{padding:10px}.top{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
@@ -132,7 +132,6 @@ input[readonly]{background:#f3f5f6}
           <label>Statut</label>
           <select id="statut">
             <option value="BROUILLON">BROUILLON</option>
-            <option value="PLANIFIE">PLANIFIÉ</option>
             <option value="EN_COURS">EN COURS</option>
             <option value="TERMINE">TERMINÉ</option>
             <option value="ANNULE">ANNULÉ</option>
@@ -282,6 +281,7 @@ let articles = [];
 let nomenclatures = [];
 let orders = [];
 let stockRows = [];
+let stockSelectionTarget = null;
 let editId = null;
 
 const $ = id => document.getElementById(id);
@@ -444,15 +444,20 @@ function loadLinkedRelations(){
           ${
             transformation
             ? `<input class="rel-lot" data-id="${r.id}" value="${esc(lotPrincipal.value.trim())}" readonly placeholder="Automatique">`
-            : `<input class="rel-lot" data-id="${r.id}" maxlength="100" placeholder="Lot consommé">`
+            : `<div style="display:flex;gap:5px">
+                 <input class="rel-lot" data-id="${r.id}" maxlength="100" placeholder="Lot consommé">
+                 <button type="button" class="btn secondary choose-rel-stock" data-rel-id="${r.id}" title="Choisir le stock">▣</button>
+               </div>`
           }
         </td>
-        <td>
-          <input class="rel-qty" data-id="${r.id}" type="number" min="0" step="0.001" placeholder="0.000">
-        </td>
+        <td><span class="rel-qty-text" data-id="${r.id}">À définir</span></td>
         <td>KG</td>
       </tr>`;
   }).join("");
+
+  document.querySelectorAll(".choose-rel-stock").forEach(btn=>{
+    btn.addEventListener("click",()=>openStockSelector(btn.dataset.relId));
+  });
 
   if(type==="TRANSFORMATION") syncTransformationLot();
 }
@@ -468,32 +473,36 @@ function syncTransformationLot(){
 function collectLinked(){
   const type=$("typeProduction").value;
   const globalLot=lotPrincipal.value.trim();
+  const selectedRelations=window.__ofRelationStock || {};
 
   return [...document.querySelectorAll("#linkedBody tr[data-rel-id]")].map(row=>{
     const id=row.dataset.relId;
     const rel=nomenclatures.find(x=>String(x.id)===String(id));
     const a=articles.find(x=>String(x.id)===String(rel?.article_lie_id));
+    const selectedStock=selectedRelations[id];
 
-    const lot = type==="TRANSFORMATION"
+    const lot=type==="TRANSFORMATION"
       ? globalLot || null
-      : (row.querySelector(".rel-lot")?.value.trim() || null);
+      : (selectedStock?.lot || row.querySelector(".rel-lot")?.value.trim() || null);
 
     return {
       nomenclature_id:Number(id),
       article_id:Number(rel.article_lie_id),
       article:a?.article || null,
       designation:a?.designation || null,
-      magasin_source:rel?.magasin_source || null,
-      magasin_destination:rel?.magasin_destination || null,
+      role:type==="TRANSFORMATION" ? "SORTIE" : "CONSOMMATION",
+      stock_id:selectedStock?.id || null,
       lot,
-      quantite:Number(row.querySelector(".rel-qty")?.value || 0),
-      unite:$("unite").value.trim() || "KG"
+      quantite_prevue:0,
+      unite:$("unite").value.trim() || "KG",
+      magasin_source:rel?.magasin_source || null,
+      magasin_destination:rel?.magasin_destination || null
     };
   });
 }
 
-async function loadStockForArticle(){
-  const article=selectedArticle();
+async function loadStockForArticle(articleOverride=null, magasinOverride=null){
+  const article=articleOverride || selectedArticle();
   const rels=getRelationsForCurrent();
 
   if(!article){
@@ -502,15 +511,14 @@ async function loadStockForArticle(){
     return;
   }
 
-  let magasin = rels[0]?.magasin_source || "";
+  const magasin=magasinOverride || rels[0]?.magasin_source || "";
 
-  $("stockHint").textContent = magasin
+  $("stockHint").textContent=magasin
     ? `Stock recherché pour ${article.article} dans ${magasin}.`
     : `Stock recherché pour ${article.article}.`;
 
   try{
     const db=await getSupabase();
-
     let query=db
       .from("stock")
       .select("id,article,designation_article,lot,magasin,emplacement,quantite,stock_reserve,stock_disponible,unite,statut")
@@ -522,7 +530,6 @@ async function loadStockForArticle(){
 
     const {data,error}=await query;
     if(error) throw error;
-
     stockRows=data || [];
   }catch(e){
     console.error(e);
@@ -565,29 +572,54 @@ function renderStockRows(){
 function selectSourceStock(row){
   const qty=Number(row.stock_disponible || 0);
 
+  if(stockSelectionTarget){
+    const relId=String(stockSelectionTarget);
+    const input=[...document.querySelectorAll(".rel-lot")].find(x=>String(x.dataset.id)===relId);
+    if(input){
+      input.value=row.lot || "";
+      const q=[...document.querySelectorAll(".rel-qty-text")].find(x=>String(x.dataset.id)===relId);
+      if(q) q.textContent=`Stock disponible: ${qty.toLocaleString("fr-FR",{minimumFractionDigits:3})} ${row.unite || "KG"}`;
+      const btn=[...document.querySelectorAll(".choose-rel-stock")].find(x=>String(x.dataset.relId)===relId);
+      if(btn) btn.dataset.stockId=row.id;
+      if(!window.__ofRelationStock) window.__ofRelationStock={};
+      window.__ofRelationStock[relId]=row;
+    }
+    stockSelectionTarget=null;
+    $("stockModal").classList.remove("show");
+    return;
+  }
+
   $("lotPrincipal").value=row.lot || "";
   $("quantitePrevue").value=qty.toFixed(3);
   $("unite").value=row.unite || "KG";
   $("magasinSource").value=row.magasin || "";
+  window.__ofSourceStock=row;
 
-  $("stockHint").textContent =
-    `Stock sélectionné : ${row.lot} — ${qty.toLocaleString("fr-FR",{minimumFractionDigits:3})} ${row.unite || "KG"} — ${row.emplacement || "sans emplacement"}.`;
+  $("stockHint").textContent=`Stock sélectionné : ${row.lot} — ${qty.toLocaleString("fr-FR",{minimumFractionDigits:3})} ${row.unite || "KG"} — ${row.emplacement || "sans emplacement"}.`;
 
   syncTransformationLot();
   $("stockModal").classList.remove("show");
 }
 
-async function openStockSelector(){
-  if(!selectedArticle()){
-    toast("Choisissez d'abord l'article principal.",true);
+async function openStockSelector(relId=null){
+  const article=relId
+    ? articles.find(a=>{
+        const r=nomenclatures.find(x=>String(x.id)===String(relId));
+        return String(a.id)===String(r?.article_lie_id);
+      })
+    : selectedArticle();
+
+  if(!article){
+    toast("Article introuvable.",true);
     return;
   }
 
+  stockSelectionTarget=relId ? String(relId) : null;
   $("stockModal").classList.add("show");
-  $("stockBody").innerHTML =
-    `<tr><td colspan="7" class="empty">Chargement du stock...</td></tr>`;
+  $("stockBody").innerHTML=`<tr><td colspan="7" class="empty">Chargement du stock...</td></tr>`;
 
-  await loadStockForArticle();
+  const rel=relId ? nomenclatures.find(x=>String(x.id)===String(relId)) : null;
+  await loadStockForArticle(article,rel?.magasin_source || null);
   renderStockRows();
 }
 
@@ -669,12 +701,13 @@ async function loadNomenclature(){
 }
 
 async function loadOrders(){
-  /*
-   * Cette partie est volontairement préparée pour la table OF.
-   * Aucun INSERT/SELECT n'est effectué dans une table qui n'a pas
-   * encore été définie dans la conversation.
-   */
-  orders=[];
+  const db=await getSupabase();
+  const {data,error}=await db
+    .from("ordres_fabrication")
+    .select("id,numero_of,date_of,type_production,article_id,article,designation:designation_article,stock_source_id,lot,quantite_prevue,unite,magasin_source,magasin_destination,statut,commentaire,utilisateur,created_at")
+    .order("created_at",{ascending:false});
+  if(error) throw error;
+  orders=data || [];
   renderOrders();
 }
 
@@ -712,6 +745,9 @@ function resetForm(){
   $("magasinSource").value="";
   $("stockHint").textContent="Choisissez d'abord l'article principal.";
   stockRows=[];
+  window.__ofSourceStock=null;
+  window.__ofRelationStock={};
+  stockSelectionTarget=null;
   $("magasinDestination").value="";
   $("observations").value="";
   $("linkedBody").innerHTML =
@@ -721,13 +757,31 @@ function resetForm(){
 
 function openNew(){
   resetForm();
+  $("saveBtn").style.display="";
   $("ofModal").classList.add("show");
 }
 
-function openEdit(id){
+async function openEdit(id){
   const o=orders.find(x=>String(x.id)===String(id));
   if(!o) return;
-  toast("La table des OF doit être créée avant l'édition réelle.",true);
+  resetForm();
+  editId=o.id;
+  $("modalTitle").textContent=`OF ${o.numero_of}`;
+  $("numeroOf").value=o.numero_of;
+  $("dateOf").value=(o.date_of||"").slice(0,10);
+  $("typeProduction").value=o.type_production;
+  $("statut").value=o.statut||"BROUILLON";
+  $("articlePrincipal").value=String(o.article_id);
+  $("designation").value=o.designation||"";
+  $("quantitePrevue").value=Number(o.quantite_prevue||0).toFixed(3);
+  $("unite").value=o.unite||"KG";
+  $("lotPrincipal").value=o.lot||"";
+  $("magasinSource").value=o.magasin_source||"";
+  $("magasinDestination").value=o.magasin_destination||"";
+  $("observations").value=o.commentaire||"";
+  await loadLinkedRelations();
+  $("saveBtn").style.display="none";
+  $("ofModal").classList.add("show");
 }
 
 function closeModal(){
@@ -735,70 +789,129 @@ function closeModal(){
   editId=null;
 }
 
+async function nextOFNumber(db){
+  const now=new Date();
+  const z=n=>String(n).padStart(2,"0");
+  const prefix=`OF-${now.getFullYear()}${z(now.getMonth()+1)}${z(now.getDate())}-`;
+
+  const {data,error}=await db.from("ordres_fabrication")
+    .select("numero_of")
+    .like("numero_of",`${prefix}%`)
+    .order("numero_of",{ascending:false})
+    .limit(1);
+  if(error) throw error;
+
+  let n=1;
+  const last=data?.[0]?.numero_of;
+  const m=last?.match(/-(\d+)$/);
+  if(m) n=Number(m[1])+1;
+  return `${prefix}${String(n).padStart(4,"0")}`;
+}
+
+async function currentUserId(db){
+  try{
+    const {data}=await db.auth.getUser();
+    return data?.user?.id || null;
+  }catch{return null;}
+}
+
 async function saveOF(){
   const article=selectedArticle();
   const qty=Number($("quantitePrevue").value);
   const type=$("typeProduction").value;
   const lot=lotPrincipal.value.trim();
+  const observations=$("observations").value.trim();
 
-  if(!article){
-    toast("Veuillez choisir l'article.",true);
-    return;
-  }
+  if(!article){toast("Veuillez choisir l'article.",true);return;}
 
-  if(!Number.isFinite(qty) || qty<=0){
-    toast(
-      type==="TRANSFORMATION"
-        ? "Choisissez d'abord une ligne de stock source."
-        : "Veuillez saisir une quantité valide.",
-      true
-    );
+  if(!Number.isFinite(qty)||qty<=0){
+    toast(type==="TRANSFORMATION"
+      ?"Choisissez d'abord une ligne de stock source."
+      :"Saisissez la quantité prévue du produit final.",true);
     return;
   }
 
   if(!lot){
-    toast(
-      type==="TRANSFORMATION"
-        ? "Choisissez le lot depuis le stock source."
-        : "Veuillez saisir le lot du produit final.",
-      true
-    );
-    lotPrincipal.focus();
+    toast(type==="TRANSFORMATION"
+      ?"Choisissez le lot depuis le stock source."
+      :"Saisissez le lot du produit final.",true);
     return;
   }
 
   const rels=getRelationsForCurrent();
-
   if(!rels.length){
     toast("Aucune nomenclature active n'est configurée pour cet article.",true);
     return;
   }
 
   const linked=collectLinked();
-
-  if(type==="ASSEMBLAGE"){
-    const missing=linked.filter(x=>!x.lot);
-    if(missing.length){
-      toast("Chaque matière consommée doit avoir son propre lot.",true);
-      return;
-    }
+  if(type==="ASSEMBLAGE" && linked.some(x=>!x.lot)){
+    toast("Choisissez le stock/lot de chaque matière consommée.",true);
+    return;
   }
 
-  console.log("OF prêt:",{
-    type,
-    article_id:article.id,
-    article:article.article,
-    quantite_prevue:qty,
-    unite:$("unite").value.trim() || "KG",
-    lot_production:lot,
-    lignes:linked
-  });
+  const db=await getSupabase();
+  $("saveBtn").disabled=true;
+  $("saveBtn").textContent="Enregistrement...";
 
-  toast(
-    type==="TRANSFORMATION"
-      ? "OF préparé : le même lot sera appliqué aux produits sortants."
-      : "OF préparé : le lot final est séparé des lots consommés."
-  );
+  try{
+    const numero=await nextOFNumber(db);
+    const userId=await currentUserId(db);
+
+    const header={
+      numero_of:numero,
+      date_of:$("dateOf").value||today(),
+      type_production:type,
+      article_id:article.id,
+      article:article.article,
+      designation_article:article.designation,
+      stock_source_id:window.__ofSourceStock?.id||null,
+      lot,
+      quantite_prevue:qty,
+      unite:$("unite").value.trim()||"KG",
+      magasin_source:$("magasinSource").value.trim()||null,
+      magasin_destination:$("magasinDestination").value.trim()||null,
+      statut:$("statut").value||"BROUILLON",
+      commentaire:observations||null,
+      utilisateur:userId
+    };
+
+    const {data:head,error:headError}=await db
+      .from("ordres_fabrication").insert(header).select("*").single();
+    if(headError) throw headError;
+
+    const details=linked.map(x=>({
+      ordre_fabrication_id:head.id,
+      article_id:x.article_id,
+      article:x.article,
+      designation:x.designation,
+      role:x.role,
+      stock_id:x.stock_id,
+      lot:x.lot,
+      quantite_prevue:x.quantite_prevue,
+      unite:x.unite,
+      magasin_source:x.magasin_source,
+      magasin_destination:x.magasin_destination
+    }));
+
+    const {error:detailError}=await db
+      .from("ordres_fabrication_details").insert(details);
+
+    if(detailError){
+      await db.from("ordres_fabrication").delete().eq("id",head.id);
+      throw detailError;
+    }
+
+    toast(`OF ${head.numero_of} enregistré avec succès.`);
+    closeModal();
+    await loadOrders();
+  }catch(e){
+    console.error(e);
+    toast(e.message||"Erreur lors de l'enregistrement de l'OF.",true);
+  }finally{
+    $("saveBtn").disabled=false;
+    $("saveBtn").textContent="Enregistrer OF";
+  }
 }
 
 $("newBtn").addEventListener("click",openNew);
