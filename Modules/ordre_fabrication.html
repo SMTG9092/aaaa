@@ -162,26 +162,32 @@ input[readonly]{background:#f3f5f6}
         </div>
 
         <div class="field">
-          <label>Quantité prévue <span class="req">*</span></label>
-          <input id="quantitePrevue" type="number" min="0" step="0.001" placeholder="0.000">
+          <label>Stock source</label>
+          <button type="button" class="btn primary" id="chooseStockBtn">▣ Choisir dans le stock</button>
+          <div class="hint" id="stockHint">Choisissez d'abord l'article principal.</div>
+        </div>
+
+        <div class="field">
+          <label>Quantité prévue</label>
+          <input id="quantitePrevue" type="number" min="0" step="0.001" placeholder="Automatique" readonly>
         </div>
 
         <div class="field">
           <label>Unité</label>
-          <input id="unite" value="KG">
+          <input id="unite" value="KG" readonly>
         </div>
 
         <div class="field">
-          <label id="lotPrincipalLabel">Lot de production <span class="req">*</span></label>
-          <input id="lotPrincipal" maxlength="100" placeholder="Lot de production">
+          <label id="lotPrincipalLabel">Lot de production</label>
+          <input id="lotPrincipal" maxlength="100" placeholder="Sélection automatique" readonly>
           <div class="hint" id="lotPrincipalHint">
-            En TRANSFORMATION, ce lot sera appliqué automatiquement aux produits sortants.
+            Le lot et la quantité viennent du stock sélectionné.
           </div>
         </div>
 
         <div class="field">
           <label>Magasin source</label>
-          <input id="magasinSource" readonly placeholder="Selon paramétrage">
+          <input id="magasinSource" readonly placeholder="Selon le stock / paramétrage">
         </div>
 
         <div class="field">
@@ -233,6 +239,41 @@ input[readonly]{background:#f3f5f6}
   </div>
 </div>
 
+<div class="modal" id="stockModal">
+  <div class="box">
+    <div class="mhead">
+      <h3>Stock disponible — choisir le lot</h3>
+      <button class="close" id="stockCloseBtn">×</button>
+    </div>
+    <div class="mbody">
+      <div class="info" id="stockModalInfo">
+        Sélectionnez une ligne de stock. Le lot et la quantité disponible seront repris automatiquement dans l'OF.
+      </div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Désignation</th>
+              <th>Lot</th>
+              <th>Magasin</th>
+              <th>Emplacement</th>
+              <th>Disponible KG</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="stockBody">
+            <tr><td colspan="7" class="empty">Aucune ligne.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn secondary" id="stockCancelBtn">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -240,6 +281,7 @@ let supabaseClient = null;
 let articles = [];
 let nomenclatures = [];
 let orders = [];
+let stockRows = [];
 let editId = null;
 
 const $ = id => document.getElementById(id);
@@ -307,14 +349,22 @@ function selectedArticle(){
   return articles.find(a=>String(a.id)===String($("articlePrincipal").value));
 }
 
-function updateArticleInfo(){
+async function updateArticleInfo(){
   const a=selectedArticle();
 
   $("designation").value=a?.designation || "";
   $("groupe").value=a?.groupe || "";
   $("typeProduit").value=a?.type_produit || "";
 
+  $("lotPrincipal").value="";
+  $("quantitePrevue").value="";
+  $("magasinSource").value="";
+  $("stockHint").textContent=a
+    ? "Cliquez sur « Choisir dans le stock » pour sélectionner le lot."
+    : "Choisissez d'abord l'article principal.";
+
   loadLinkedRelations();
+  await loadStockForArticle();
 }
 
 function updateLogicText(){
@@ -322,10 +372,14 @@ function updateLogicText(){
 
   if(type==="TRANSFORMATION"){
     $("logicInfo").innerHTML =
-      `Mode <b>TRANSFORMATION</b> : l'article principal est la matière/produit travaillé. Les produits qui sortent sont récupérés automatiquement depuis le paramétrage.`;
+      `Mode <b>TRANSFORMATION</b> : sélectionnez le lot dans le stock source. Le lot et la quantité disponible sont repris automatiquement, puis appliqués aux produits sortants.`;
+    $("lotPrincipalLabel").textContent="Lot de production";
+    $("lotPrincipalHint").textContent="Lot et quantité alimentés automatiquement depuis le stock sélectionné.";
   }else{
     $("logicInfo").innerHTML =
-      `Mode <b>ASSEMBLAGE</b> : l'article principal est le produit final. Les articles nécessaires sont récupérés automatiquement depuis le paramétrage.`;
+      `Mode <b>ASSEMBLAGE</b> : le lot du produit final est saisi/attribué séparément, tandis que les matières consommées gardent leurs propres lots de stock.`;
+    $("lotPrincipalLabel").innerHTML=`Lot du produit final <span class="req">*</span>`;
+    $("lotPrincipalHint").textContent="Lot du produit final. Les matières ont leurs propres lots.";
   }
 
   loadLinkedRelations();
@@ -436,6 +490,105 @@ function collectLinked(){
       unite:$("unite").value.trim() || "KG"
     };
   });
+}
+
+async function loadStockForArticle(){
+  const article=selectedArticle();
+  const rels=getRelationsForCurrent();
+
+  if(!article){
+    stockRows=[];
+    $("stockHint").textContent="Choisissez d'abord l'article principal.";
+    return;
+  }
+
+  let magasin = rels[0]?.magasin_source || "";
+
+  $("stockHint").textContent = magasin
+    ? `Stock recherché pour ${article.article} dans ${magasin}.`
+    : `Stock recherché pour ${article.article}.`;
+
+  try{
+    const db=await getSupabase();
+
+    let query=db
+      .from("stock")
+      .select("id,article,designation_article,lot,magasin,emplacement,quantite,stock_reserve,stock_disponible,unite,statut")
+      .eq("article",article.article)
+      .gt("stock_disponible",0)
+      .order("lot",{ascending:true});
+
+    if(magasin) query=query.eq("magasin",magasin);
+
+    const {data,error}=await query;
+    if(error) throw error;
+
+    stockRows=data || [];
+  }catch(e){
+    console.error(e);
+    stockRows=[];
+    toast(e.message || "Erreur lors de la lecture du stock.",true);
+  }
+}
+
+function renderStockRows(){
+  if(!stockRows.length){
+    $("stockBody").innerHTML =
+      `<tr><td colspan="7" class="empty">
+        Aucun stock disponible pour cet article dans le magasin source.
+      </td></tr>`;
+    return;
+  }
+
+  $("stockBody").innerHTML=stockRows.map(s=>`
+    <tr>
+      <td><b>${esc(s.article)}</b></td>
+      <td>${esc(s.designation_article)}</td>
+      <td><b>${esc(s.lot)}</b></td>
+      <td>${esc(s.magasin)}</td>
+      <td>${esc(s.emplacement || "—")}</td>
+      <td>${Number(s.stock_disponible || 0).toLocaleString("fr-FR",{minimumFractionDigits:3})}</td>
+      <td>
+        <button class="btn primary" data-stock-id="${s.id}">Choisir</button>
+      </td>
+    </tr>
+  `).join("");
+
+  $("stockBody").querySelectorAll("[data-stock-id]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const row=stockRows.find(x=>String(x.id)===String(btn.dataset.stockId));
+      if(row) selectSourceStock(row);
+    });
+  });
+}
+
+function selectSourceStock(row){
+  const qty=Number(row.stock_disponible || 0);
+
+  $("lotPrincipal").value=row.lot || "";
+  $("quantitePrevue").value=qty.toFixed(3);
+  $("unite").value=row.unite || "KG";
+  $("magasinSource").value=row.magasin || "";
+
+  $("stockHint").textContent =
+    `Stock sélectionné : ${row.lot} — ${qty.toLocaleString("fr-FR",{minimumFractionDigits:3})} ${row.unite || "KG"} — ${row.emplacement || "sans emplacement"}.`;
+
+  syncTransformationLot();
+  $("stockModal").classList.remove("show");
+}
+
+async function openStockSelector(){
+  if(!selectedArticle()){
+    toast("Choisissez d'abord l'article principal.",true);
+    return;
+  }
+
+  $("stockModal").classList.add("show");
+  $("stockBody").innerHTML =
+    `<tr><td colspan="7" class="empty">Chargement du stock...</td></tr>`;
+
+  await loadStockForArticle();
+  renderStockRows();
 }
 
 function renderOrders(){
@@ -557,6 +710,8 @@ function resetForm(){
   $("unite").value="KG";
   $("lotPrincipal").value="";
   $("magasinSource").value="";
+  $("stockHint").textContent="Choisissez d'abord l'article principal.";
+  stockRows=[];
   $("magasinDestination").value="";
   $("observations").value="";
   $("linkedBody").innerHTML =
@@ -592,14 +747,19 @@ async function saveOF(){
   }
 
   if(!Number.isFinite(qty) || qty<=0){
-    toast("Veuillez saisir une quantité prévue supérieure à 0.",true);
+    toast(
+      type==="TRANSFORMATION"
+        ? "Choisissez d'abord une ligne de stock source."
+        : "Veuillez saisir une quantité valide.",
+      true
+    );
     return;
   }
 
   if(!lot){
     toast(
       type==="TRANSFORMATION"
-        ? "Veuillez saisir le lot de production."
+        ? "Choisissez le lot depuis le stock source."
         : "Veuillez saisir le lot du produit final.",
       true
     );
@@ -654,8 +814,16 @@ $("lotPrincipal").addEventListener("input",()=>{
   if($("typeProduction").value==="TRANSFORMATION") syncTransformationLot();
 });
 
+$("chooseStockBtn").addEventListener("click",openStockSelector);
+$("stockCloseBtn").addEventListener("click",()=>$("stockModal").classList.remove("show"));
+$("stockCancelBtn").addEventListener("click",()=>$("stockModal").classList.remove("show"));
+
 $("ofModal").addEventListener("click",e=>{
   if(e.target===$("ofModal")) closeModal();
+});
+
+$("stockModal").addEventListener("click",e=>{
+  if(e.target===$("stockModal")) $("stockModal").classList.remove("show");
 });
 
 loadAll();
