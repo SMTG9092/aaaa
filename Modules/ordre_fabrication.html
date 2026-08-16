@@ -347,7 +347,22 @@ function fillArticles(){
 }
 
 function selectedArticle(){
-  return articles.find(a=>String(a.id)===String($("articlePrincipal").value));
+  const select=$("articlePrincipal");
+  if(!select) return null;
+
+  const value=String(select.value || "").trim();
+  if(!value) return null;
+
+  let article=articles.find(a=>String(a.id)===value);
+  if(article) return article;
+
+  article=articles.find(a=>String(a.article || "").trim()===value);
+  if(article) return article;
+
+  const opt=select.options[select.selectedIndex];
+  const text=String(opt?.textContent || "").trim();
+  const code=text.split(" — ")[0].trim();
+  return articles.find(a=>String(a.article || "").trim()===code) || null;
 }
 
 async function updateArticleInfo(){
@@ -460,7 +475,11 @@ function loadLinkedRelations(){
     btn.addEventListener("click",()=>openStockSelector(btn.dataset.relId));
   });
 
-  if(type==="TRANSFORMATION") syncTransformationLot();
+  if(type==="TRANSFORMATION"){
+    syncTransformationLot();
+    const q=Number($("quantitePrevue").value || 0);
+    if(q>0) syncTransformationQuantities(q);
+  }
 }
 
 function syncTransformationLot(){
@@ -468,6 +487,14 @@ function syncTransformationLot(){
   const lot=lotPrincipal.value.trim();
   document.querySelectorAll(".rel-lot").forEach(input=>{
     input.value=lot;
+  });
+}
+
+function syncTransformationQuantities(qty){
+  if($("typeProduction").value!=="TRANSFORMATION") return;
+  document.querySelectorAll(".rel-qty").forEach(input=>{
+    input.value=Number(qty || 0).toFixed(3);
+    input.readOnly=true;
   });
 }
 
@@ -514,9 +541,7 @@ async function loadStockForArticle(articleOverride=null, magasinOverride=null){
 
   const magasin=magasinOverride || rels[0]?.magasin_source || "";
 
-  $("stockHint").textContent=magasin
-    ? `Stock recherché pour ${article.article} dans ${magasin}.`
-    : `Stock recherché pour ${article.article}.`;
+  $("stockHint").textContent="";
 
   try{
     const db=await getSupabase();
@@ -596,22 +621,29 @@ function selectSourceStock(row){
   $("magasinSource").value=row.magasin || "";
   window.__ofSourceStock=row;
 
-  $("stockHint").textContent=`Stock sélectionné : ${row.lot} — ${qty.toLocaleString("fr-FR",{minimumFractionDigits:3})} ${row.unite || "KG"} — ${row.emplacement || "sans emplacement"}.`;
+  $("stockHint").textContent="";
 
   syncTransformationLot();
+  if($("typeProduction").value==="TRANSFORMATION") syncTransformationQuantities(qty);
   $("stockModal").classList.remove("show");
 }
 
 async function openStockSelector(relId=null){
-  const article=relId
-    ? articles.find(a=>{
-        const r=nomenclatures.find(x=>String(x.id)===String(relId));
-        return String(a.id)===String(r?.article_lie_id);
-      })
-    : selectedArticle();
+  let article=null;
+
+  if(relId){
+    const r=nomenclatures.find(x=>String(x.id)===String(relId));
+    article=articles.find(a=>String(a.id)===String(r?.article_lie_id));
+  }else{
+    article=selectedArticle();
+  }
 
   if(!article){
-    toast("Veuillez d'abord choisir l'article.",true);
+    const select=$("articlePrincipal");
+    const value=String(select?.value || "").trim();
+    const optionText=String(select?.options?.[select.selectedIndex]?.textContent || "").trim();
+    console.warn("Article sélectionné introuvable",{value,optionText,articlesCount:articles.length});
+    toast("Impossible de retrouver l'article sélectionné. Rechargez la liste des articles puis réessayez.",true);
     return;
   }
 
