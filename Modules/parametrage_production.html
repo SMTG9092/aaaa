@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Paramétrage Production</title>
+
+<style>
+*{box-sizing:border-box}
+:root{
+ --primary:#145a1f;--primary-dark:#0d4015;--light:#eaf5ec;
+ --bg:#f4f6f8;--card:#fff;--text:#1f2937;--muted:#6b7280;
+ --border:#dfe4e8;--danger:#dc3545;--warning:#f59e0b;
+}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.page{padding:18px;width:100%}
+.header,.card{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.05)}
+.header{padding:16px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.title{display:flex;align-items:center;gap:12px}.icon{width:42px;height:42px;border-radius:8px;background:var(--light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px}
+h1{font-size:20px;margin:0;color:var(--primary)}.subtitle{font-size:12px;color:var(--muted);margin-top:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:6px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.primary{background:var(--primary);color:#fff}.primary:hover{background:var(--primary-dark)}
+.secondary{background:#eef1f3;color:#374151}.danger{background:#fdecec;color:var(--danger)}
+.card{margin-bottom:16px}.card-head{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-head h2{margin:0;color:var(--primary);font-size:14px}.card-body{padding:16px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:11px;font-weight:700;color:#4b5563}.req{color:var(--danger)}
+input,select{width:100%;height:37px;padding:8px 10px;border:1px solid #cfd6dc;border-radius:6px;background:#fff;font-size:12px;outline:none}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(20,90,31,.08)}
+input[readonly]{background:#f3f5f6}
+.hint{font-size:10px;color:var(--muted)}
+.full{grid-column:1/-1}
+.notice{padding:10px 12px;border-radius:7px;background:#f7faf8;border:1px solid #dce9df;color:#45604b;font-size:11px;margin-top:12px}
+.search{max-width:330px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#f5f7f8;color:#4b5563;padding:10px 8px;text-align:left;font-size:11px;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:9px 8px;border-bottom:1px solid #edf0f2;vertical-align:middle}
+tr:hover{background:#fafcfb}
+.badge{display:inline-flex;padding:5px 9px;border-radius:15px;font-size:10px;font-weight:700}
+.transform{background:#eaf5ec;color:#17652a}.assembly{background:#fff4d8;color:#916400}.off{background:#f0f1f2;color:#6b7280}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.actions-cell{white-space:nowrap}.mini{padding:6px 9px;font-size:11px;margin-right:4px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:15px;z-index:9999}
+.modal.show{display:flex}.modal-box{background:#fff;border-radius:10px;width:min(760px,100%);max-height:90vh;overflow:auto;box-shadow:0 15px 45px rgba(0,0,0,.2)}
+.modal-head{padding:15px 17px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0;font-size:15px;color:var(--primary)}
+.close{border:0;background:transparent;font-size:22px;cursor:pointer;color:#777}.modal-body{padding:17px}.modal-foot{padding:13px 17px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.toast{position:fixed;right:20px;bottom:20px;z-index:10000;padding:12px 16px;border-radius:7px;background:#1f2937;color:#fff;font-size:12px;display:none;box-shadow:0 5px 20px rgba(0,0,0,.2)}
+.toast.show{display:block}.toast.error{background:#b42318}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(180px,1fr))}}
+@media(max-width:650px){.page{padding:10px}.header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.full{grid-column:auto}.search{max-width:none}.card-head{gap:10px;flex-wrap:wrap}}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<div class="header">
+  <div class="title">
+    <div class="icon">🏭</div>
+    <div>
+      <h1>Paramétrage Production</h1>
+      <div class="subtitle">Définir les relations entre les articles et leurs circuits de production</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn secondary" id="refreshBtn">↻ Actualiser</button>
+    <button class="btn primary" id="newBtn">+ Nouvelle relation</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Relations de production</h2>
+    <input class="search" id="searchInput" placeholder="Rechercher article, désignation, magasin...">
+  </div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Article principal</th>
+            <th>Désignation</th>
+            <th>Article lié</th>
+            <th>Désignation liée</th>
+            <th>Magasin source</th>
+            <th>Magasin destination</th>
+            <th>Actif</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="relationsBody">
+          <tr><td colspan="9" class="empty">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="modal" id="relationModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modalTitle">Nouvelle relation de production</h3>
+      <button class="close" id="closeModal">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="grid">
+
+        <div class="field">
+          <label>Type de production <span class="req">*</span></label>
+          <select id="typeProduction">
+            <option value="TRANSFORMATION">TRANSFORMATION</option>
+            <option value="ASSEMBLAGE">ASSEMBLAGE</option>
+          </select>
+          <div class="hint">Transformation = 1 article → plusieurs produits. Assemblage = plusieurs articles → 1 produit.</div>
+        </div>
+
+        <div class="field">
+          <label>Article principal <span class="req">*</span></label>
+          <select id="articlePrincipal">
+            <option value="">Chargement...</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Article lié / sortant <span class="req">*</span></label>
+          <select id="articleLie">
+            <option value="">Choisir un article</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Magasin source</label>
+          <input id="magasinSource" maxlength="20" placeholder="Ex. VIF01">
+          <div class="hint">Magasin d'où provient l'article principal.</div>
+        </div>
+
+        <div class="field">
+          <label>Magasin destination</label>
+          <input id="magasinDestination" maxlength="20" placeholder="Ex. CONGELE">
+          <div class="hint">Magasin où sera placé l'article lié.</div>
+        </div>
+
+        <div class="field">
+          <label>Actif</label>
+          <select id="actif">
+            <option value="true">Oui</option>
+            <option value="false">Non</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="notice" id="logicNotice">
+        Pour une <b>TRANSFORMATION</b>, l'article principal est le produit/matière qui donne les articles liés.
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn secondary" id="cancelBtn">Annuler</button>
+      <button class="btn primary" id="saveBtn">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+let db = null;
+let articles = [];
+let relations = [];
+let editId = null;
+
+const $ = id => document.getElementById(id);
+
+function esc(v){
+  return String(v ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function toast(message,error=false){
+  const el=$("toast");
+  el.textContent=message;
+  el.className="toast show"+(error?" error":"");
+  setTimeout(()=>el.className="toast",3500);
+}
+
+/* Même mécanisme de chargement que les pages SMTG :
+   on réutilise le client Supabase déjà présent dans l'application,
+   ou assets/js/core/supabase.js. */
+async function getSupabase(){
+  if(db) return db;
+
+  const existing =
+    window.supabaseClient ||
+    window.SMTG?.supabase ||
+    window.app?.supabase ||
+    window.smtgSupabase;
+
+  if(existing && typeof existing.from==="function"){
+    db=existing;
+    return db;
+  }
+
+  try{
+    const module = await import("../assets/js/core/supabase.js");
+    db = module.default || module.supabase || window.supabaseClient;
+    if(db) window.supabaseClient=db;
+    return db;
+  }catch(e){
+    console.error(e);
+    throw new Error("Impossible de charger la connexion Supabase.");
+  }
+}
+
+function articleLabel(a){
+  return `${a.article || ""} — ${a.designation || ""}`;
+}
+
+function fillArticleSelects(){
+  const p=$("articlePrincipal");
+  const l=$("articleLie");
+
+  const options =
+    `<option value="">Choisir un article</option>` +
+    articles.map(a =>
+      `<option value="${esc(a.id)}">${esc(articleLabel(a))}</option>`
+    ).join("");
+
+  p.innerHTML=options;
+  l.innerHTML=options;
+}
+
+function openModal(id=null){
+  editId=id;
+  $("modalTitle").textContent =
+    id ? "Modifier la relation de production" : "Nouvelle relation de production";
+
+  if(id){
+    const r=relations.find(x=>String(x.id)===String(id));
+    if(!r) return;
+
+    $("typeProduction").value=r.type_production;
+    $("articlePrincipal").value=r.article_principal_id;
+    $("articleLie").value=r.article_lie_id;
+    $("magasinSource").value=r.magasin_source || "";
+    $("magasinDestination").value=r.magasin_destination || "";
+    $("actif").value=String(r.actif);
+  }else{
+    $("typeProduction").value="TRANSFORMATION";
+    $("articlePrincipal").value="";
+    $("articleLie").value="";
+    $("magasinSource").value="";
+    $("magasinDestination").value="";
+    $("actif").value="true";
+  }
+
+  updateLogicNotice();
+  $("relationModal").classList.add("show");
+}
+
+function closeModal(){
+  $("relationModal").classList.remove("show");
+  editId=null;
+}
+
+function updateLogicNotice(){
+  if($("typeProduction").value==="TRANSFORMATION"){
+    $("logicNotice").innerHTML =
+      "Pour une <b>TRANSFORMATION</b> : article principal → article(s) sortant(s).";
+  }else{
+    $("logicNotice").innerHTML =
+      "Pour un <b>ASSEMBLAGE</b> : article principal = produit final, article lié = produit/article nécessaire.";
+  }
+}
+
+function render(){
+  const q=$("searchInput").value.trim().toLowerCase();
+
+  const list=relations.filter(r=>{
+    const txt=[
+      r.type_production,
+      r.article_principal,
+      r.designation_principale,
+      r.article_lie,
+      r.designation_liee,
+      r.magasin_source,
+      r.magasin_destination
+    ].join(" ").toLowerCase();
+
+    return !q || txt.includes(q);
+  });
+
+  const body=$("relationsBody");
+
+  if(!list.length){
+    body.innerHTML=`<tr><td colspan="9" class="empty">Aucune relation trouvée.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML=list.map(r=>{
+    const cls=r.type_production==="TRANSFORMATION"?"transform":"assembly";
+    return `
+      <tr>
+        <td><span class="badge ${cls}">${esc(r.type_production)}</span></td>
+        <td><b>${esc(r.article_principal)}</b></td>
+        <td>${esc(r.designation_principale)}</td>
+        <td><b>${esc(r.article_lie)}</b></td>
+        <td>${esc(r.designation_liee)}</td>
+        <td>${esc(r.magasin_source || "—")}</td>
+        <td>${esc(r.magasin_destination || "—")}</td>
+        <td>
+          <span class="badge ${r.actif ? "transform":"off"}">
+            ${r.actif ? "OUI":"NON"}
+          </span>
+        </td>
+        <td class="actions-cell">
+          <button class="btn secondary mini" data-edit="${r.id}">Modifier</button>
+          <button class="btn danger mini" data-delete="${r.id}">Supprimer</button>
+        </td>
+      </tr>`;
+  }).join("");
+
+  body.querySelectorAll("[data-edit]").forEach(b=>{
+    b.addEventListener("click",()=>openModal(b.dataset.edit));
+  });
+
+  body.querySelectorAll("[data-delete]").forEach(b=>{
+    b.addEventListener("click",()=>deleteRelation(b.dataset.delete));
+  });
+}
+
+async function loadArticles(){
+  const supabase=await getSupabase();
+
+  const {data,error}=await supabase
+    .from("articles")
+    .select("id,article,designation,groupe,type_produit,date_limite_vente")
+    .order("article",{ascending:true});
+
+  if(error) throw error;
+
+  articles=data || [];
+  fillArticleSelects();
+}
+
+async function loadRelations(){
+  const supabase=await getSupabase();
+
+  const {data,error}=await supabase
+    .from("nomenclature_production")
+    .select(`
+      id,
+      type_production,
+      article_principal_id,
+      article_lie_id,
+      magasin_source,
+      magasin_destination,
+      actif,
+      created_at,
+      updated_at
+    `)
+    .order("id",{ascending:false});
+
+  if(error) throw error;
+
+  const map=new Map(articles.map(a=>[String(a.id),a]));
+
+  relations=(data || []).map(r=>{
+    const p=map.get(String(r.article_principal_id));
+    const l=map.get(String(r.article_lie_id));
+
+    return {
+      ...r,
+      article_principal:p?.article || "—",
+      designation_principale:p?.designation || "—",
+      article_lie:l?.article || "—",
+      designation_liee:l?.designation || "—"
+    };
+  });
+
+  render();
+}
+
+async function loadAll(){
+  try{
+    $("relationsBody").innerHTML =
+      `<tr><td colspan="9" class="empty">Chargement...</td></tr>`;
+
+    await loadArticles();
+    await loadRelations();
+  }catch(e){
+    console.error(e);
+    $("relationsBody").innerHTML =
+      `<tr><td colspan="9" class="empty">Erreur de chargement : ${esc(e.message || e)}</td></tr>`;
+    toast(e.message || "Erreur de chargement.",true);
+  }
+}
+
+async function saveRelation(){
+  try{
+    const supabase=await getSupabase();
+
+    const type=$("typeProduction").value;
+    const principal=Number($("articlePrincipal").value);
+    const lie=Number($("articleLie").value);
+    const source=$("magasinSource").value.trim() || null;
+    const destination=$("magasinDestination").value.trim() || null;
+    const actif=$("actif").value==="true";
+
+    if(!principal){
+      toast("Veuillez choisir l'article principal.",true);
+      return;
+    }
+
+    if(!lie){
+      toast("Veuillez choisir l'article lié / sortant.",true);
+      return;
+    }
+
+    if(principal===lie){
+      toast("L'article principal et l'article lié doivent être différents.",true);
+      return;
+    }
+
+    const payload={
+      type_production:type,
+      article_principal_id:principal,
+      article_lie_id:lie,
+      magasin_source:source,
+      magasin_destination:destination,
+      actif,
+      updated_at:new Date().toISOString()
+    };
+
+    let error;
+
+    if(editId){
+      ({error}=await supabase
+        .from("nomenclature_production")
+        .update(payload)
+        .eq("id",editId));
+    }else{
+      ({error}=await supabase
+        .from("nomenclature_production")
+        .insert({
+          ...payload,
+          created_at:new Date().toISOString()
+        }));
+    }
+
+    if(error){
+      if(error.code==="23505"){
+        throw new Error("Cette relation existe déjà.");
+      }
+      throw error;
+    }
+
+    toast(editId ? "Relation modifiée avec succès." : "Relation enregistrée avec succès.");
+    closeModal();
+    await loadRelations();
+
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Erreur lors de l'enregistrement.",true);
+  }
+}
+
+async function deleteRelation(id){
+  if(!confirm("Supprimer cette relation de production ?")) return;
+
+  try{
+    const supabase=await getSupabase();
+
+    const {error}=await supabase
+      .from("nomenclature_production")
+      .delete()
+      .eq("id",id);
+
+    if(error) throw error;
+
+    toast("Relation supprimée.");
+    await loadRelations();
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Erreur lors de la suppression.",true);
+  }
+}
+
+$("newBtn").addEventListener("click",()=>openModal());
+$("closeModal").addEventListener("click",closeModal);
+$("cancelBtn").addEventListener("click",closeModal);
+$("saveBtn").addEventListener("click",saveRelation);
+$("refreshBtn").addEventListener("click",loadAll);
+$("searchInput").addEventListener("input",render);
+$("typeProduction").addEventListener("change",updateLogicNotice);
+
+$("relationModal").addEventListener("click",e=>{
+  if(e.target===$("relationModal")) closeModal();
+});
+
+loadAll();
+</script>
+
+</body>
+</html>
