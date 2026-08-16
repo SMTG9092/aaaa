@@ -327,6 +327,11 @@
             justify-content: center;
         }
 
+        .action-production {
+            background: #eaf7ef;
+            color: #087f3e;
+        }
+
         .action-edit {
             background: #eef4ff;
             color: #175cd3;
@@ -711,7 +716,7 @@
 
             <div>
                 <h1>Produits</h1>
-                <p>Gestion des articles et paramètres DLC</p>
+                <p>Gestion des articles, groupes, types produit et paramètres DLC</p>
             </div>
 
         </div>
@@ -909,6 +914,14 @@
                         </th>
 
                         <th>
+                            Groupe
+                        </th>
+
+                        <th>
+                            Type produit
+                        </th>
+
+                        <th>
                             Jour DLC
                         </th>
 
@@ -929,7 +942,7 @@
                     <tr>
 
                         <td
-                            colspan="5"
+                            colspan="7"
                             class="loading-state"
                         >
                             <i class="fa-solid fa-spinner fa-spin"></i>
@@ -1176,6 +1189,12 @@
 
     const designationInput =
         document.getElementById("designationInput");
+
+    const groupeInput =
+        document.getElementById("groupeInput");
+
+    const typeProduitInput =
+        document.getElementById("typeProduitInput");
 
     const dlcInput =
         document.getElementById("dlcInput");
@@ -1576,7 +1595,7 @@
             } = await supabase
                 .from(TABLE_NAME)
                 .select(
-                    "id, article, designation, date_limite_vente, created_at"
+                    "id, article, designation, groupe, type_produit, date_limite_vente, created_at"
                 )
                 .order(
                     "created_at",
@@ -1643,7 +1662,7 @@
 
         tableBody.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="7">
                     <div class="loading-state">
                         <i class="fa-solid fa-spinner fa-spin"></i>
                         Chargement des articles...
@@ -1662,7 +1681,7 @@
 
         tableBody.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="7">
                     <div class="error-state">
                         <i class="fa-solid fa-circle-exclamation"></i>
 
@@ -1806,7 +1825,7 @@
 
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="5">
+                    <td colspan="7">
                         <div class="empty-state">
 
                             <i class="fa-solid fa-box-open"></i>
@@ -2165,6 +2184,18 @@
                 </td>
 
                 <td>
+                    <span class="date-cell">
+                        ${escapeHtml(product.groupe || "—")}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="date-cell">
+                        ${escapeHtml(product.type_produit || "—")}
+                    </span>
+                </td>
+
+                <td>
                     ${dlcHtml}
                 </td>
 
@@ -2177,6 +2208,16 @@
                 <td>
 
                     <div class="actions">
+
+                        <button
+                            type="button"
+                            class="action-btn action-production"
+                            title="Paramétrage production"
+                            data-action="production"
+                            data-id="${id}"
+                        >
+                            <i class="fa-solid fa-industry"></i>
+                        </button>
 
                         <button
                             type="button"
@@ -2226,6 +2267,12 @@
             "";
 
         designationInput.value =
+            "";
+
+        groupeInput.value =
+            "";
+
+        typeProduitInput.value =
             "";
 
         dlcInput.value =
@@ -2432,6 +2479,12 @@
                         designation:
                             designation,
 
+                        groupe:
+                            groupe || null,
+
+                        type_produit:
+                            typeProduit || null,
+
                         date_limite_vente:
                             dlc
                     })
@@ -2468,6 +2521,12 @@
 
                         designation:
                             designation,
+
+                        groupe:
+                            groupe || null,
+
+                        type_produit:
+                            typeProduit || null,
 
                         date_limite_vente:
                             dlc
@@ -2675,6 +2734,58 @@
 
         }
     );
+
+
+    /* =========================================================
+       PRODUCTION PARAMETRAGE
+       ========================================================= */
+
+    function openProductionParametrage(id) {
+
+        const product =
+            allProducts.find(
+                item =>
+                    String(item.id) === String(id)
+            );
+
+        if (!product) {
+            showToast(
+                "Article introuvable.",
+                "error"
+            );
+            return;
+        }
+
+        /*
+         * La table de paramétrage production n'est pas encore
+         * utilisée ici. On prépare uniquement le passage de
+         * l'article sélectionné vers la prochaine page.
+         */
+
+        const url =
+            new URL(
+                "Modules/parametrage_production.html",
+                document.baseURI
+            );
+
+        url.searchParams.set(
+            "article_id",
+            String(product.id)
+        );
+
+        url.searchParams.set(
+            "article",
+            String(product.article || "")
+        );
+
+        url.searchParams.set(
+            "designation",
+            String(product.designation || "")
+        );
+
+        window.location.href =
+            url.href;
+    }
 
 
     /* =========================================================
