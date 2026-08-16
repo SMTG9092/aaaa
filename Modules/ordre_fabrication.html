@@ -172,6 +172,14 @@ input[readonly]{background:#f3f5f6}
         </div>
 
         <div class="field">
+          <label id="lotPrincipalLabel">Lot de production <span class="req">*</span></label>
+          <input id="lotPrincipal" maxlength="100" placeholder="Lot de production">
+          <div class="hint" id="lotPrincipalHint">
+            En TRANSFORMATION, ce lot sera appliqué automatiquement aux produits sortants.
+          </div>
+        </div>
+
+        <div class="field">
           <label>Magasin source</label>
           <input id="magasinSource" readonly placeholder="Selon paramétrage">
         </div>
@@ -235,6 +243,7 @@ let orders = [];
 let editId = null;
 
 const $ = id => document.getElementById(id);
+const lotPrincipal = $("lotPrincipal");
 
 function esc(v){
   return String(v ?? "")
@@ -337,6 +346,7 @@ function getRelationsForCurrent(){
 
 function loadLinkedRelations(){
   const rels=getRelationsForCurrent();
+  const type=$("typeProduction").value;
 
   if(!rels.length){
     $("linkedBody").innerHTML =
@@ -349,15 +359,25 @@ function loadLinkedRelations(){
   }
 
   const first=rels[0];
-
   $("magasinSource").value=first.magasin_source || "";
   $("magasinDestination").value=first.magasin_destination || "";
 
+  if(type==="TRANSFORMATION"){
+    $("lotPrincipalLabel").innerHTML =
+      `Lot de production <span class="req">*</span>`;
+    $("lotPrincipalHint").textContent =
+      "Ce lot sera appliqué automatiquement à tous les produits sortants.";
+  }else{
+    $("lotPrincipalLabel").innerHTML =
+      `Lot du produit final <span class="req">*</span>`;
+    $("lotPrincipalHint").textContent =
+      "Le lot du produit final est indépendant des lots des matières consommées.";
+  }
+
   $("linkedBody").innerHTML=rels.map(r=>{
     const a=articles.find(x=>String(x.id)===String(r.article_lie_id));
-    const role=$("typeProduction").value==="TRANSFORMATION"
-      ? "Produit sortant"
-      : "Matière / produit nécessaire";
+    const transformation=type==="TRANSFORMATION";
+    const role=transformation ? "Produit sortant" : "Matière / produit consommé";
 
     return `
       <tr data-rel-id="${r.id}">
@@ -367,7 +387,11 @@ function loadLinkedRelations(){
         <td>${esc(r.magasin_source || "—")}</td>
         <td>${esc(r.magasin_destination || "—")}</td>
         <td>
-          <input class="rel-lot" data-id="${r.id}" placeholder="Lot">
+          ${
+            transformation
+            ? `<input class="rel-lot" data-id="${r.id}" value="${esc(lotPrincipal.value.trim())}" readonly placeholder="Automatique">`
+            : `<input class="rel-lot" data-id="${r.id}" maxlength="100" placeholder="Lot consommé">`
+          }
         </td>
         <td>
           <input class="rel-qty" data-id="${r.id}" type="number" min="0" step="0.001" placeholder="0.000">
@@ -375,13 +399,31 @@ function loadLinkedRelations(){
         <td>KG</td>
       </tr>`;
   }).join("");
+
+  if(type==="TRANSFORMATION") syncTransformationLot();
+}
+
+function syncTransformationLot(){
+  if($("typeProduction").value!=="TRANSFORMATION") return;
+  const lot=lotPrincipal.value.trim();
+  document.querySelectorAll(".rel-lot").forEach(input=>{
+    input.value=lot;
+  });
 }
 
 function collectLinked(){
+  const type=$("typeProduction").value;
+  const globalLot=lotPrincipal.value.trim();
+
   return [...document.querySelectorAll("#linkedBody tr[data-rel-id]")].map(row=>{
     const id=row.dataset.relId;
     const rel=nomenclatures.find(x=>String(x.id)===String(id));
     const a=articles.find(x=>String(x.id)===String(rel?.article_lie_id));
+
+    const lot = type==="TRANSFORMATION"
+      ? globalLot || null
+      : (row.querySelector(".rel-lot")?.value.trim() || null);
+
     return {
       nomenclature_id:Number(id),
       article_id:Number(rel.article_lie_id),
@@ -389,9 +431,9 @@ function collectLinked(){
       designation:a?.designation || null,
       magasin_source:rel?.magasin_source || null,
       magasin_destination:rel?.magasin_destination || null,
-      lot:row.querySelector(".rel-lot")?.value.trim() || null,
+      lot,
       quantite:Number(row.querySelector(".rel-qty")?.value || 0),
-      unite:"KG"
+      unite:$("unite").value.trim() || "KG"
     };
   });
 }
@@ -513,6 +555,7 @@ function resetForm(){
   $("typeProduit").value="";
   $("quantitePrevue").value="";
   $("unite").value="KG";
+  $("lotPrincipal").value="";
   $("magasinSource").value="";
   $("magasinDestination").value="";
   $("observations").value="";
@@ -540,6 +583,8 @@ function closeModal(){
 async function saveOF(){
   const article=selectedArticle();
   const qty=Number($("quantitePrevue").value);
+  const type=$("typeProduction").value;
+  const lot=lotPrincipal.value.trim();
 
   if(!article){
     toast("Veuillez choisir l'article.",true);
@@ -551,6 +596,17 @@ async function saveOF(){
     return;
   }
 
+  if(!lot){
+    toast(
+      type==="TRANSFORMATION"
+        ? "Veuillez saisir le lot de production."
+        : "Veuillez saisir le lot du produit final.",
+      true
+    );
+    lotPrincipal.focus();
+    return;
+  }
+
   const rels=getRelationsForCurrent();
 
   if(!rels.length){
@@ -558,13 +614,31 @@ async function saveOF(){
     return;
   }
 
-  /*
-   * On ne fait volontairement aucun INSERT ici :
-   * la structure SQL de l'OF n'a pas encore été fournie.
-   * La page est déjà prête à enregistrer l'OF et ses lignes
-   * dès que les tables OF seront définies.
-   */
-  toast("Formulaire OF validé. Il reste à brancher la table SQL des OF.",true);
+  const linked=collectLinked();
+
+  if(type==="ASSEMBLAGE"){
+    const missing=linked.filter(x=>!x.lot);
+    if(missing.length){
+      toast("Chaque matière consommée doit avoir son propre lot.",true);
+      return;
+    }
+  }
+
+  console.log("OF prêt:",{
+    type,
+    article_id:article.id,
+    article:article.article,
+    quantite_prevue:qty,
+    unite:$("unite").value.trim() || "KG",
+    lot_production:lot,
+    lignes:linked
+  });
+
+  toast(
+    type==="TRANSFORMATION"
+      ? "OF préparé : le même lot sera appliqué aux produits sortants."
+      : "OF préparé : le lot final est séparé des lots consommés."
+  );
 }
 
 $("newBtn").addEventListener("click",openNew);
@@ -575,6 +649,10 @@ $("refreshBtn").addEventListener("click",loadAll);
 $("searchInput").addEventListener("input",renderOrders);
 $("articlePrincipal").addEventListener("change",updateArticleInfo);
 $("typeProduction").addEventListener("change",updateLogicText);
+
+$("lotPrincipal").addEventListener("input",()=>{
+  if($("typeProduction").value==="TRANSFORMATION") syncTransformationLot();
+});
 
 $("ofModal").addEventListener("click",e=>{
   if(e.target===$("ofModal")) closeModal();
