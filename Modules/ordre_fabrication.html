@@ -28,6 +28,11 @@ th{background:#f5f7f8;color:#4b5563;font-size:11px;text-align:left;padding:10px 
 td{padding:9px 8px;border-bottom:1px solid #edf0f2;vertical-align:middle}
 tr:hover{background:#fafcfb}
 .badge{display:inline-flex;padding:5px 9px;border-radius:14px;font-size:10px;font-weight:700}
+.actions{display:flex;gap:5px;flex-wrap:wrap}
+.btn.small{padding:6px 9px;font-size:10px}
+.btn.launch{background:#fff4d8;color:#8a5a00}
+.btn.work{background:#145a1f;color:#fff}
+
 .b1{background:#eaf5ec;color:#17652a}.b2{background:#fff4d8;color:#916400}.b3{background:#eef1f3;color:#5b6470}
 .empty{text-align:center;color:var(--muted);padding:30px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;padding:14px;z-index:9999}
@@ -163,24 +168,25 @@ input[readonly]{background:#f3f5f6}
 
         <div class="field">
           <label>Stock source</label>
-          <div class="hint" style="padding:10px 12px;border:1px solid #d7e0dc;border-radius:6px;background:#f5f8f6">Le stock sera vérifié au lancement de l'OF.</div>
+          <button type="button" class="btn primary" id="chooseStockBtn">▣ Choisir dans le stock</button>
+          <div class="hint" id="stockHint">Choisissez d'abord l'article principal.</div>
         </div>
 
         <div class="field">
-          <label>Quantité prévue <span class="req">*</span></label>
-          <input id="quantitePrevue" type="number" min="0" step="0.001" placeholder="Saisir la quantité prévue">
+          <label>Quantité prévue</label>
+          <input id="quantitePrevue" type="number" min="0" step="0.001" placeholder="Automatique" readonly>
         </div>
 
         <div class="field">
           <label>Unité</label>
-          <input id="unite" value="KG">
+          <input id="unite" value="KG" readonly>
         </div>
 
         <div class="field">
           <label id="lotPrincipalLabel">Lot de production</label>
-          <input id="lotPrincipal" maxlength="100" placeholder="Saisir le lot">
+          <input id="lotPrincipal" maxlength="100" placeholder="Sélection automatique" readonly>
           <div class="hint" id="lotPrincipalHint">
-            Le lot est saisi manuellement pour l'OF.
+            Le lot et la quantité viennent du stock sélectionné.
           </div>
         </div>
 
@@ -238,6 +244,124 @@ input[readonly]{background:#f3f5f6}
   </div>
 </div>
 
+<div class="modal" id="workModal">
+  <div class="box">
+    <div class="mhead">
+      <div>
+        <h3 id="workTitle">Travail sur OF</h3>
+        <div class="sub" id="workSubtitle"></div>
+      </div>
+      <button class="close" id="workCloseBtn">×</button>
+    </div>
+    <div class="mbody">
+      <div class="grid">
+        <div class="field">
+          <label>N° OF</label>
+          <input id="workNumero" readonly>
+        </div>
+        <div class="field">
+          <label>Statut</label>
+          <input id="workStatut" readonly>
+        </div>
+        <div class="field">
+          <label>Article</label>
+          <input id="workArticle" readonly>
+        </div>
+        <div class="field">
+          <label>Désignation</label>
+          <input id="workDesignation" readonly>
+        </div>
+        <div class="field">
+          <label>Type production</label>
+          <input id="workType" readonly>
+        </div>
+        <div class="field">
+          <label>Lot</label>
+          <input id="workLot" readonly>
+        </div>
+        <div class="field">
+          <label>Quantité prévue</label>
+          <input id="workQty" readonly>
+        </div>
+        <div class="field">
+          <label>Magasin source</label>
+          <input id="workSource" readonly>
+        </div>
+        <div class="field">
+          <label>Magasin destination</label>
+          <input id="workDestination" readonly>
+        </div>
+      </div>
+
+      <div class="section-title">Produits / matières de l'OF</div>
+      <div class="table-wrap">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Désignation</th>
+              <th>Rôle</th>
+              <th>Lot</th>
+              <th>Quantité prévue</th>
+              <th>Unité</th>
+              <th>Magasin source</th>
+              <th>Magasin destination</th>
+            </tr>
+          </thead>
+          <tbody id="workDetailsBody">
+            <tr><td colspan="8" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info warning" style="margin-top:14px">
+        Cet écran est la zone de travail de l'OF. Les opérations de production
+        (Poste → Balons → Stock) seront ajoutées ici sans modifier les données
+        de création de l'OF.
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn secondary" id="workCloseBtn2">Fermer</button>
+      <button class="btn primary" id="finishWorkBtn">Terminer l'OF</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="stockModal">
+  <div class="box">
+    <div class="mhead">
+      <h3>Stock disponible — choisir le lot</h3>
+      <button class="close" id="stockCloseBtn">×</button>
+    </div>
+    <div class="mbody">
+      <div class="info" id="stockModalInfo">
+        Sélectionnez une ligne de stock. Le lot et la quantité disponible seront repris automatiquement dans l'OF.
+      </div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Désignation</th>
+              <th>Lot</th>
+              <th>Magasin</th>
+              <th>Emplacement</th>
+              <th>Disponible KG</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="stockBody">
+            <tr><td colspan="7" class="empty">Aucune ligne.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn secondary" id="stockCancelBtn">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -245,6 +369,7 @@ let supabaseClient = null;
 let articles = [];
 let nomenclatures = [];
 let orders = [];
+let stockRows = [];
 let stockSelectionTarget = null;
 let editId = null;
 
@@ -303,28 +428,14 @@ function fillArticles(){
   $("articlePrincipal").innerHTML =
     `<option value="">Choisir un article</option>` +
     articles.map(a=>`
-      <option value="${esc(a.id)}" data-article-id="${esc(a.id)}" data-article-code="${esc(a.article)}">
+      <option value="${esc(a.id)}">
         ${esc(a.article)} — ${esc(a.designation)}
       </option>
     `).join("");
 }
 
 function selectedArticle(){
-  const select=$("articlePrincipal");
-  const value=String(select?.value || "").trim();
-  const option=select?.options?.[select.selectedIndex];
-  const articleId=String(option?.dataset?.articleId || value).trim();
-  const articleCode=String(option?.dataset?.articleCode || "").trim();
-
-  if(!value) return null;
-
-  // Supporte les anciennes valeurs (id), les valeurs article et les options
-  // qui ont été restaurées par le navigateur après un refresh.
-  return articles.find(a =>
-    String(a.id)===articleId ||
-    (articleCode && String(a.article).trim()===articleCode) ||
-    String(a.article).trim()===value
-  ) || null;
+  return articles.find(a=>String(a.id)===String($("articlePrincipal").value));
 }
 
 async function updateArticleInfo(){
@@ -337,7 +448,12 @@ async function updateArticleInfo(){
   $("lotPrincipal").value="";
   $("quantitePrevue").value="";
   $("magasinSource").value="";
+  $("stockHint").textContent=a
+    ? "Cliquez sur « Choisir dans le stock » pour sélectionner le lot."
+    : "Choisissez d'abord l'article principal.";
+
   loadLinkedRelations();
+  await loadStockForArticle();
 }
 
 function updateLogicText(){
@@ -345,9 +461,9 @@ function updateLogicText(){
 
   if(type==="TRANSFORMATION"){
     $("logicInfo").innerHTML =
-      `Mode <b>TRANSFORMATION</b> : saisissez manuellement le lot et les quantités prévues. Le stock sera vérifié au lancement de l'OF.`;
-    $("lotPrincipalLabel").innerHTML=`Lot de production <span class="req">*</span>`;
-    $("lotPrincipalHint").textContent="Lot saisi manuellement. Le stock sera vérifié au lancement de l'OF.";
+      `Mode <b>TRANSFORMATION</b> : sélectionnez le lot dans le stock source. Le lot et la quantité disponible sont repris automatiquement, puis appliqués aux produits sortants.`;
+    $("lotPrincipalLabel").textContent="Lot de production";
+    $("lotPrincipalHint").textContent="Lot et quantité alimentés automatiquement depuis le stock sélectionné.";
   }else{
     $("logicInfo").innerHTML =
       `Mode <b>ASSEMBLAGE</b> : le lot du produit final est saisi/attribué séparément, tandis que les matières consommées gardent leurs propres lots de stock.`;
@@ -583,14 +699,6 @@ async function openStockSelector(relId=null){
     : selectedArticle();
 
   if(!article){
-    // Dernier fallback : l'option sélectionnée contient le code article.
-    const opt=$("articlePrincipal")?.selectedOptions?.[0];
-    const code=String(opt?.dataset?.articleCode || "").trim();
-    const fallback=code ? articles.find(a=>String(a.article).trim()===code) : null;
-    if(fallback) article=fallback;
-  }
-
-  if(!article){
     toast("Veuillez d'abord choisir l'article.",true);
     return;
   }
@@ -643,7 +751,24 @@ function renderOrders(){
         <td>${esc(o.unite || "KG")}</td>
         <td><span class="badge ${bc}">${esc(o.statut)}</span></td>
         <td>
-          <button class="btn secondary" data-view="${o.id}">Voir</button>
+          <div class="actions">
+            <button class="btn secondary small" data-view="${o.id}">Voir</button>
+            ${
+              o.statut==="BROUILLON"
+              ? `<button class="btn launch small" data-launch="${o.id}">Lancer OF</button>`
+              : ""
+            }
+            ${
+              o.statut==="EN_COURS"
+              ? `<button class="btn work small" data-work="${o.id}">Travailler</button>`
+              : ""
+            }
+            ${
+              o.statut==="TERMINE"
+              ? `<button class="btn secondary small" data-work="${o.id}">Consulter</button>`
+              : ""
+            }
+          </div>
         </td>
       </tr>`;
   }).join("");
@@ -651,6 +776,167 @@ function renderOrders(){
   $("ofBody").querySelectorAll("[data-view]").forEach(b=>{
     b.addEventListener("click",()=>openEdit(b.dataset.view));
   });
+
+  $("ofBody").querySelectorAll("[data-launch]").forEach(b=>{
+    b.addEventListener("click",()=>launchOF(b.dataset.launch));
+  });
+
+  $("ofBody").querySelectorAll("[data-work]").forEach(b=>{
+    b.addEventListener("click",()=>openWorkOF(b.dataset.work));
+  });
+}
+
+async function launchOF(id){
+  const of=orders.find(x=>String(x.id)===String(id));
+  if(!of) return;
+
+  if(of.statut!=="BROUILLON"){
+    toast("Cet OF est déjà lancé ou terminé.",true);
+    return;
+  }
+
+  const ok=confirm(
+    `Lancer l'OF ${of.numero_of} ?\n\n` +
+    `Article : ${of.article}\n` +
+    `Quantité prévue : ${Number(of.quantite_prevue||0).toLocaleString("fr-FR",{minimumFractionDigits:3})} ${of.unite||"KG"}`
+  );
+
+  if(!ok) return;
+
+  try{
+    const db=await getSupabase();
+    const {error}=await db
+      .from("ordres_fabrication")
+      .update({
+        statut:"EN_COURS",
+        updated_at:new Date().toISOString()
+      })
+      .eq("id",of.id);
+
+    if(error) throw error;
+
+    toast(`OF ${of.numero_of} lancé avec succès.`);
+    await loadOrders();
+  }catch(e){
+    console.error(e);
+    toast(e.message||"Impossible de lancer l'OF.",true);
+  }
+}
+
+async function loadOFDetails(ofId){
+  const db=await getSupabase();
+
+  const {data,error}=await db
+    .from("ordres_fabrication_details")
+    .select(`
+      id,
+      article_id,
+      article,
+      designation,
+      role,
+      stock_id,
+      lot,
+      quantite_prevue,
+      unite,
+      magasin_source,
+      magasin_destination
+    `)
+    .eq("ordre_fabrication_id",ofId)
+    .order("id",{ascending:true});
+
+  if(error) throw error;
+  return data || [];
+}
+
+async function openWorkOF(id){
+  const of=orders.find(x=>String(x.id)===String(id));
+  if(!of) return;
+
+  if(of.statut==="BROUILLON"){
+    toast("Lancez d'abord l'OF avant de commencer le travail.",true);
+    return;
+  }
+
+  $("workNumero").value=of.numero_of||"";
+  $("workStatut").value=of.statut||"";
+  $("workArticle").value=of.article||"";
+  $("workDesignation").value=of.designation||"";
+  $("workType").value=of.type_production||"";
+  $("workLot").value=of.lot||"";
+  $("workQty").value=
+    `${Number(of.quantite_prevue||0).toLocaleString("fr-FR",{minimumFractionDigits:3})} ${of.unite||"KG"}`;
+  $("workSource").value=of.magasin_source||"";
+  $("workDestination").value=of.magasin_destination||"";
+  $("workSubtitle").textContent=
+    `${of.article||""} — ${of.designation||""}`;
+
+  $("workDetailsBody").innerHTML=
+    `<tr><td colspan="8" class="empty">Chargement...</td></tr>`;
+
+  $("workModal").classList.add("show");
+
+  try{
+    const details=await loadOFDetails(of.id);
+
+    if(!details.length){
+      $("workDetailsBody").innerHTML=
+        `<tr><td colspan="8" class="empty">Aucune ligne de détail.</td></tr>`;
+    }else{
+      $("workDetailsBody").innerHTML=details.map(d=>`
+        <tr>
+          <td><b>${esc(d.article||"—")}</b></td>
+          <td>${esc(d.designation||"—")}</td>
+          <td>${esc(d.role||"—")}</td>
+          <td>${esc(d.lot||"—")}</td>
+          <td>${Number(d.quantite_prevue||0).toLocaleString("fr-FR",{minimumFractionDigits:3})}</td>
+          <td>${esc(d.unite||"KG")}</td>
+          <td>${esc(d.magasin_source||"—")}</td>
+          <td>${esc(d.magasin_destination||"—")}</td>
+        </tr>
+      `).join("");
+    }
+
+    $("finishWorkBtn").style.display =
+      of.statut==="EN_COURS" ? "" : "none";
+
+    $("finishWorkBtn").onclick=()=>finishOF(of.id);
+  }catch(e){
+    console.error(e);
+    $("workDetailsBody").innerHTML=
+      `<tr><td colspan="8" class="empty">Erreur : ${esc(e.message||e)}</td></tr>`;
+    $("finishWorkBtn").style.display="none";
+  }
+}
+
+async function finishOF(id){
+  const of=orders.find(x=>String(x.id)===String(id));
+  if(!of || of.statut!=="EN_COURS") return;
+
+  const ok=confirm(
+    `Terminer l'OF ${of.numero_of} ?\n\n` +
+    `Cette action passera uniquement le statut à TERMINÉ.`
+  );
+  if(!ok) return;
+
+  try{
+    const db=await getSupabase();
+    const {error}=await db
+      .from("ordres_fabrication")
+      .update({
+        statut:"TERMINE",
+        updated_at:new Date().toISOString()
+      })
+      .eq("id",id);
+
+    if(error) throw error;
+
+    $("workModal").classList.remove("show");
+    toast(`OF ${of.numero_of} terminé avec succès.`);
+    await loadOrders();
+  }catch(e){
+    console.error(e);
+    toast(e.message||"Impossible de terminer l'OF.",true);
+  }
 }
 
 async function loadArticles(){
@@ -730,6 +1016,8 @@ function resetForm(){
   $("unite").value="KG";
   $("lotPrincipal").value="";
   $("magasinSource").value="";
+  $("stockHint").textContent="Choisissez d'abord l'article principal.";
+  stockRows=[];
   window.__ofSourceStock=null;
   window.__ofRelationStock={};
   stockSelectionTarget=null;
@@ -908,12 +1196,27 @@ $("searchInput").addEventListener("input",renderOrders);
 $("articlePrincipal").addEventListener("change",updateArticleInfo);
 $("typeProduction").addEventListener("change",updateLogicText);
 
+$("lotPrincipal").addEventListener("input",()=>{
+  if($("typeProduction").value==="TRANSFORMATION") syncTransformationLot();
+});
 
+$("chooseStockBtn").addEventListener("click",openStockSelector);
+$("stockCloseBtn").addEventListener("click",()=>$("stockModal").classList.remove("show"));
+$("stockCancelBtn").addEventListener("click",()=>$("stockModal").classList.remove("show"));
 
 $("ofModal").addEventListener("click",e=>{
   if(e.target===$("ofModal")) closeModal();
 });
 
+$("stockModal").addEventListener("click",e=>{
+  if(e.target===$("stockModal")) $("stockModal").classList.remove("show");
+});
+
+$("workCloseBtn").addEventListener("click",()=>$("workModal").classList.remove("show"));
+$("workCloseBtn2").addEventListener("click",()=>$("workModal").classList.remove("show"));
+$("workModal").addEventListener("click",e=>{
+  if(e.target===$("workModal")) $("workModal").classList.remove("show");
+});
 
 loadAll();
 </script>
