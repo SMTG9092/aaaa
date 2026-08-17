@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travailler OF</title>
+<style>
+*{box-sizing:border-box}
+:root{--green:#145a1f;--green2:#0d4015;--soft:#edf7ef;--bg:#f4f6f8;--border:#dfe4e8;--text:#1f2937;--muted:#6b7280;--red:#b42318;--orange:#a15c00}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+.page{padding:18px;max-width:1500px;margin:auto}
+.top,.card{background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.05)}
+.top{padding:15px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.title{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:9px;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:21px}
+h1{margin:0;color:var(--green);font-size:20px}.sub{margin-top:4px;color:var(--muted);font-size:12px}
+.btn{border:0;border-radius:6px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer}.primary{background:var(--green);color:#fff}.primary:hover{background:var(--green2)}.secondary{background:#eef1f3;color:#374151}.danger{background:#fdecec;color:var(--red)}.orange{background:#fff4d8;color:#8a5a00}.btn:disabled{opacity:.55;cursor:not-allowed}
+.card{margin-bottom:14px}.head{padding:12px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.head h2{margin:0;color:var(--green);font-size:14px}.body{padding:14px}
+.info{background:#f7faf8;border:1px solid #dce9df;border-radius:7px;padding:10px 12px;color:#45604b;font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:11px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:10px;font-weight:700;color:#4b5563}
+input,select{width:100%;height:36px;border:1px solid #cfd6dc;border-radius:6px;padding:7px 9px;font-size:12px;background:#fff}input[readonly]{background:#f3f5f6}
+.tabs{display:flex;gap:7px;margin-bottom:10px}.tab{background:#eef1f3;color:#374151;border:0;border-radius:6px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer}.tab.active{background:var(--green);color:#fff}
+.panel{display:none}.panel.active{display:block}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#f5f7f8;color:#4b5563;font-size:10px;text-align:left;padding:9px 7px;border-bottom:1px solid var(--border);white-space:nowrap}td{padding:8px 7px;border-bottom:1px solid #edf0f2;vertical-align:middle}tr:hover{background:#fafcfb}
+.select-row{cursor:pointer}.select-row.selected{background:#eaf5ec;outline:2px solid #b9d9bf}
+.qty{font-weight:800;color:var(--green)}
+.total-box{border:1px solid #b9e0c3;background:#edf9f0;border-radius:7px;padding:11px;margin-bottom:10px}.total-label{font-size:10px;color:#4b5563}.total-value{font-size:20px;font-weight:800;color:#008b45;margin-top:4px}
+.section-title{font-size:12px;font-weight:800;color:var(--green);margin:14px 0 8px}
+.small{font-size:10px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.toast{position:fixed;right:18px;bottom:18px;background:#1f2937;color:#fff;padding:11px 15px;border-radius:7px;font-size:12px;display:none;z-index:10000}.toast.show{display:block}.toast.error{background:#b42318}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;padding:14px;z-index:9999}.modal.show{display:flex}.box{background:#fff;width:min(900px,100%);max-height:90vh;overflow:auto;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.mhead{padding:14px 17px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.mhead h3{margin:0;color:var(--green);font-size:15px}.close{border:0;background:transparent;font-size:23px;color:#777;cursor:pointer}.mbody{padding:16px}.mfoot{padding:12px 17px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(150px,1fr))}.layout{grid-template-columns:1fr}}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.page{padding:9px}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <div class="title">
+      <div class="logo">🏭</div>
+      <div><h1 id="pageTitle">Travailler — OF</h1><div class="sub" id="pageSub">Consommation et entrée de production</div></div>
+    </div>
+    <div>
+      <button class="btn secondary" id="refreshBtn">↻ Actualiser</button>
+      <button class="btn secondary" id="backBtn">← Retour aux OF</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="head"><h2>Informations OF</h2><span id="statusBadge"></span></div>
+    <div class="body">
+      <div class="grid">
+        <div class="field"><label>N° OF</label><input id="ofNumero" readonly></div>
+        <div class="field"><label>Article principal</label><input id="ofArticle" readonly></div>
+        <div class="field"><label>Désignation</label><input id="ofDesignation" readonly></div>
+        <div class="field"><label>Type production</label><input id="ofType" readonly></div>
+        <div class="field"><label>Lot de production</label><input id="ofLot" readonly></div>
+        <div class="field"><label>Quantité prévue</label><input id="ofQty" readonly></div>
+        <div class="field"><label>Magasin source</label><input id="ofSource" readonly></div>
+        <div class="field"><label>Magasin destination</label><input id="ofDestination" readonly></div>
+        <div class="field"><label>Quantité consommée</label><input id="totalConsumed" readonly></div>
+        <div class="field"><label>Quantité entrée</label><input id="totalEntered" readonly></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="consTab">CONSOMMATION</button>
+    <button class="tab" id="entryTab">ENTRÉE</button>
+  </div>
+
+  <div class="panel active" id="consPanel">
+    <div class="layout">
+      <div class="card">
+        <div class="head"><h2>Produits / matières à consommer</h2><span class="small">Cliquez sur un produit pour le sélectionner</span></div>
+        <div class="body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Article</th><th>Désignation</th><th>Rôle</th><th>Lot</th><th>Stock disponible</th><th>À consommer</th><th>Unité</th></tr></thead>
+              <tbody id="consBody"><tr><td colspan="7" class="empty">Chargement...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head"><h2>Opérations</h2></div>
+        <div class="body">
+          <div class="total-box">
+            <div class="total-label">TOTAL CONSOMMÉ</div>
+            <div class="total-value" id="consTotalBox">0,000 KG</div>
+          </div>
+          <button class="btn primary" style="width:100%;margin-bottom:7px" id="historyBtn">1 — Historique des consommations</button>
+          <button class="btn orange" style="width:100%" id="detailConsBtn">2 — Saisir cartons / palettes / charp</button>
+          <div class="info" style="margin-top:10px">Le total est recalculé automatiquement à partir des consommations enregistrées pour cet OF.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="entryPanel">
+    <div class="layout">
+      <div class="card">
+        <div class="head"><h2>Produits à entrer</h2><span class="small">Produit fabriqué / sorti par l'OF</span></div>
+        <div class="body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Article</th><th>Désignation</th><th>Lot</th><th>Magasin destination</th><th>Quantité prévue</th><th>Quantité entrée</th><th>Action</th></tr></thead>
+              <tbody id="entryBody"><tr><td colspan="7" class="empty">Chargement...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Total entrée</h2></div>
+        <div class="body">
+          <div class="total-box"><div class="total-label">TOTAL ENTRÉ</div><div class="total-value" id="entryTotalBox">0,000 KG</div></div>
+          <div class="info">Le bouton d'entrée servira à enregistrer le mouvement <b>ENTREE</b> dans le stock.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="historyCard" style="display:none">
+    <div class="head"><h2 id="historyTitle">Historique des opérations</h2><button class="btn secondary" id="closeHistoryBtn">Fermer</button></div>
+    <div class="body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Type</th><th>Article</th><th>Désignation</th><th>Lot</th><th>Quantité</th><th>Magasin source</th><th>Magasin destination</th><th>Utilisateur</th></tr></thead>
+          <tbody id="historyBody"><tr><td colspan="9" class="empty">Aucune opération.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="detailModal">
+  <div class="box">
+    <div class="mhead"><div><h3 id="detailTitle">Détail de consommation</h3><div class="sub" id="detailSub"></div></div><button class="close" id="detailClose">×</button></div>
+    <div class="mbody">
+      <div class="info" style="margin-bottom:12px">Cette partie prépare la saisie détaillée par <b>cartons / palettes / charp</b>. Les lignes saisies seront additionnées dans le total.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type support</th><th>Nombre</th><th>Poids / unité (KG)</th><th>Total KG</th><th></th></tr></thead>
+          <tbody id="detailRows"></tbody>
+        </table>
+      </div>
+      <button class="btn secondary" id="addDetailRow" style="margin-top:10px">+ Ajouter une ligne</button>
+      <div class="total-box" style="margin-top:12px"><div class="total-label">TOTAL DÉTAIL</div><div class="total-value" id="detailTotal">0,000 KG</div></div>
+    </div>
+    <div class="mfoot"><button class="btn secondary" id="detailCancel">Annuler</button><button class="btn primary" id="detailSave">Enregistrer la consommation</button></div>
+  </div>
+</div>
+
+<div class="modal" id="entryModal">
+  <div class="box">
+    <div class="mhead"><div><h3 id="entryTitle">Entrée de production</h3><div class="sub">Enregistrer le produit fabriqué</div></div><button class="close" id="entryClose">×</button></div>
+    <div class="mbody">
+      <div class="grid">
+        <div class="field"><label>Article</label><input id="entryArticle" readonly></div>
+        <div class="field"><label>Désignation</label><input id="entryDesignation" readonly></div>
+        <div class="field"><label>Lot</label><input id="entryLot" readonly></div>
+        <div class="field"><label>Magasin destination</label><input id="entryMagasin" readonly></div>
+        <div class="field"><label>Quantité prévue</label><input id="entryExpected" readonly></div>
+        <div class="field"><label>Quantité entrée <span style="color:#b42318">*</span></label><input id="entryQty" type="number" min="0" step="0.001"></div>
+      </div>
+      <div class="info" style="margin-top:12px">Cette opération enregistrera un mouvement <b>ENTREE</b> lié au numéro de l'OF.</div>
+    </div>
+    <div class="mfoot"><button class="btn secondary" id="entryCancel">Annuler</button><button class="btn primary" id="entrySave">Enregistrer l'entrée</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+let db=null, of=null, details=[], movements=[], selectedConsId=null, selectedEntry=null;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+function toast(msg,error=false){const e=$("toast");e.textContent=msg;e.className="toast show"+(error?" error":"");setTimeout(()=>e.className="toast",3500)}
+function fmt(n){return Number(n||0).toLocaleString("fr-FR",{minimumFractionDigits:3,maximumFractionDigits:3})}
+function paramsId(){return new URLSearchParams(location.search).get("id")}
+async function getSupabase(){
+  if(db) return db;
+  const existing=window.supabaseClient||window.SMTG?.supabase||window.app?.supabase||window.smtgSupabase;
+  if(existing&&typeof existing.from==="function"){db=existing;return db}
+  const m=await import("../assets/js/core/supabase.js");
+  db=m.default||m.supabase||window.supabaseClient;
+  if(!db) throw new Error("Client Supabase introuvable.");
+  window.supabaseClient=db; return db;
+}
+function badge(status){$("statusBadge").innerHTML=`<span style="display:inline-flex;padding:5px 9px;border-radius:14px;font-size:10px;font-weight:700;background:${status==="EN_COURS"?"#fff4d8":"#eaf5ec"};color:${status==="EN_COURS"?"#8a5a00":"#17652a"}">${esc(status||"—")}</span>`}
+async function loadOF(){
+  const id=paramsId();
+  if(!id) throw new Error("ID de l'OF manquant dans l'URL.");
+  const {data,error}=await db.from("ordres_fabrication").select("id,numero_of,date_of,type_production,article_id,article,designation_article,stock_source_id,lot,quantite_prevue,unite,magasin_source,magasin_destination,statut,commentaire").eq("id",id).single();
+  if(error) throw error;
+  of=data;
+  if(of.statut==="BROUILLON") throw new Error("Cet OF est encore en BROUILLON. Lancez-le d'abord.");
+  $("pageTitle").textContent=`Travailler — ${of.numero_of}`;
+  $("ofNumero").value=of.numero_of||"";
+  $("ofArticle").value=of.article||"";
+  $("ofDesignation").value=of.designation_article||"";
+  $("ofType").value=of.type_production||"";
+  $("ofLot").value=of.lot||"";
+  $("ofQty").value=`${fmt(of.quantite_prevue)} ${of.unite||"KG"}`;
+  $("ofSource").value=of.magasin_source||"";
+  $("ofDestination").value=of.magasin_destination||"";
+  badge(of.statut);
+}
+async function loadDetails(){
+  const {data,error}=await db.from("ordres_fabrication_details")
+    .select("id,article_id,article,designation,role,stock_id,lot,quantite_prevue,unite,magasin_source,magasin_destination")
+    .eq("ordre_fabrication_id",of.id).order("id",{ascending:true});
+  if(error) throw error;
+  details=data||[];
+}
+async function loadMovements(){
+  const {data,error}=await db.from("mouvements_stock")
+    .select("id,document_vente,type_mouvement,article,designation_article,lot,magasin_source,magasin_destination,quantite,unite,utilisateur,date_mouvement")
+    .eq("document_vente",of.numero_of).order("date_mouvement",{ascending:false});
+  if(error) throw error;
+  movements=data||[];
+  const c=movements.filter(x=>x.type_mouvement==="CONSOMMATION").reduce((s,x)=>s+Number(x.quantite||0),0);
+  const e=movements.filter(x=>x.type_mouvement==="ENTREE").reduce((s,x)=>s+Number(x.quantite||0),0);
+  $("totalConsumed").value=`${fmt(c)} KG`; $("totalEntered").value=`${fmt(e)} KG`;
+  $("consTotalBox").textContent=`${fmt(c)} KG`; $("entryTotalBox").textContent=`${fmt(e)} KG`;
+}
+function renderConsumption(){
+  const rows=details.filter(d=>d.role==="CONSOMMATION");
+  if(!rows.length){$("consBody").innerHTML=`<tr><td colspan="7" class="empty">Aucun produit/matière à consommer paramétré pour cet OF.</td></tr>`;return}
+  $("consBody").innerHTML=rows.map(d=>{
+    const consumed=movements.filter(m=>m.type_mouvement==="CONSOMMATION"&&m.article===d.article).reduce((s,m)=>s+Number(m.quantite||0),0);
+    return `<tr class="select-row ${selectedConsId===d.id?"selected":""}" data-cons-id="${d.id}">
+      <td><b>${esc(d.article)}</b></td><td>${esc(d.designation)}</td><td>${esc(d.role)}</td><td>${esc(d.lot||"—")}</td>
+      <td>—</td><td class="qty">${fmt(consumed)}</td><td>${esc(d.unite||"KG")}</td></tr>`
+  }).join("");
+  document.querySelectorAll("[data-cons-id]").forEach(r=>r.addEventListener("click",()=>{selectedConsId=Number(r.dataset.consId);renderConsumption()}))
+}
+function renderEntry(){
+  const rows=details.filter(d=>d.role==="SORTIE");
+  if(!rows.length){$("entryBody").innerHTML=`<tr><td colspan="7" class="empty">Aucun produit sortant paramétré pour cet OF.</td></tr>`;return}
+  $("entryBody").innerHTML=rows.map(d=>{
+    const entered=movements.filter(m=>m.type_mouvement==="ENTREE"&&m.article===d.article).reduce((s,m)=>s+Number(m.quantite||0),0);
+    return `<tr>
+      <td><b>${esc(d.article)}</b></td><td>${esc(d.designation)}</td><td>${esc(d.lot||of.lot||"—")}</td>
+      <td>${esc(d.magasin_destination||of.magasin_destination||"—")}</td><td>${fmt(d.quantite_prevue)} ${esc(d.unite||"KG")}</td>
+      <td class="qty">${fmt(entered)}</td><td><button class="btn primary small" data-entry-id="${d.id}">Entrée</button></td>
+    </tr>`
+  }).join("");
+  document.querySelectorAll("[data-entry-id]").forEach(b=>b.addEventListener("click",()=>openEntry(Number(b.dataset.entryId))))
+}
+function renderHistory(){
+  $("historyTitle").textContent=`Historique — ${of.numero_of}`;
+  if(!movements.length){$("historyBody").innerHTML=`<tr><td colspan="9" class="empty">Aucune opération enregistrée.</td></tr>`;return}
+  $("historyBody").innerHTML=movements.map(m=>`<tr>
+    <td>${esc(m.date_mouvement?new Date(m.date_mouvement).toLocaleString("fr-FR"):"—")}</td>
+    <td>${esc(m.type_mouvement)}</td><td><b>${esc(m.article)}</b></td><td>${esc(m.designation_article||"—")}</td>
+    <td>${esc(m.lot||"—")}</td><td class="qty">${fmt(m.quantite)} ${esc(m.unite||"KG")}</td>
+    <td>${esc(m.magasin_source||"—")}</td><td>${esc(m.magasin_destination||"—")}</td><td>${esc(m.utilisateur||"—")}</td>
+  </tr>`).join("")
+}
+function addDetailRow(){
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td><select class="d-type"><option>Carton</option><option>Palette</option><option>Charp</option></select></td>
+    <td><input class="d-n" type="number" min="0" step="1" value="1"></td>
+    <td><input class="d-w" type="number" min="0" step="0.001" value="0"></td>
+    <td class="d-total qty">0,000</td><td><button type="button" class="btn danger small d-del">×</button></td>`;
+  $("detailRows").appendChild(tr);
+  const recalc=()=>{const n=Number(tr.querySelector(".d-n").value||0),w=Number(tr.querySelector(".d-w").value||0);tr.querySelector(".d-total").textContent=fmt(n*w);calcDetailTotal()};
+  tr.querySelectorAll("input").forEach(i=>i.addEventListener("input",recalc));
+  tr.querySelector(".d-del").addEventListener("click",()=>{tr.remove();calcDetailTotal()}); recalc();
+}
+function calcDetailTotal(){
+  let t=0;document.querySelectorAll("#detailRows tr").forEach(tr=>{t+=Number(tr.querySelector(".d-n")?.value||0)*Number(tr.querySelector(".d-w")?.value||0)});$("detailTotal").textContent=`${fmt(t)} KG`;return t
+}
+function openDetails(){
+  if(!selectedConsId){toast("Sélectionnez d'abord le produit à consommer.",true);return}
+  const d=details.find(x=>x.id===selectedConsId);$("detailTitle").textContent=`Consommation — ${d.article}`;$("detailSub").textContent=d.designation||"";
+  $("detailRows").innerHTML="";addDetailRow();$("detailModal").classList.add("show")
+}
+async function saveConsumption(){
+  const d=details.find(x=>x.id===selectedConsId);if(!d){toast("Produit non sélectionné.",true);return}
+  const qty=calcDetailTotal();if(qty<=0){toast("La quantité à consommer doit être supérieure à 0.",true);return}
+  const {data:stocks,error:se}=await db.from("stock").select("id,article,designation_article,lot,magasin,emplacement,stock_disponible,unite").eq("article",d.article).gt("stock_disponible",0).order("lot",{ascending:true});
+  if(se) throw se;
+  let remaining=qty, userId=null;
+  try{const u=await db.auth.getUser();userId=u.data?.user?.id||null}catch{}
+  const inserted=[];
+  for(const s of (stocks||[])){
+    if(remaining<=0)break;
+    const take=Math.min(remaining,Number(s.stock_disponible||0));
+    if(take<=0)continue;
+    const mv={stock_id:s.id,document_vente:of.numero_of,type_mouvement:"CONSOMMATION",article:s.article,designation_article:s.designation_article,lot:s.lot,magasin_source:s.magasin,magasin_destination:null,quantite:Number(take.toFixed(3)),unite:s.unite||"KG",utilisateur:userId,commentaire:`Consommation OF ${of.numero_of}`};
+    const {error}=await db.from("mouvements_stock").insert(mv);if(error)throw error;inserted.push(mv);remaining-=take;
+  }
+  if(remaining>0){toast(`Stock insuffisant. ${fmt(remaining)} KG non couverts.`,true);return}
+  $("detailModal").classList.remove("show");toast(`Consommation de ${fmt(qty)} KG enregistrée.`);await loadMovements();renderConsumption();renderHistory()
+}
+function openEntry(id){
+  const d=details.find(x=>x.id===id);if(!d)return;selectedEntry=d;
+  $("entryArticle").value=d.article||"";$("entryDesignation").value=d.designation||"";$("entryLot").value=d.lot||of.lot||"";$("entryMagasin").value=d.magasin_destination||of.magasin_destination||"";$("entryExpected").value=`${fmt(d.quantite_prevue)} ${d.unite||"KG"}`;$("entryQty").value="";$("entryModal").classList.add("show")
+}
+async function saveEntry(){
+  if(!selectedEntry)return;const qty=Number($("entryQty").value);if(!Number.isFinite(qty)||qty<=0){toast("Saisissez une quantité d'entrée valide.",true);return}
+  const user=await db.auth.getUser();const userId=user.data?.user?.id||null;
+  const mv={stock_id:null,document_vente:of.numero_of,type_mouvement:"ENTREE",article:selectedEntry.article,designation_article:selectedEntry.designation,lot:selectedEntry.lot||of.lot,magasin_source:of.magasin_source||null,magasin_destination:selectedEntry.magasin_destination||of.magasin_destination,quantite:Number(qty.toFixed(3)),unite:selectedEntry.unite||"KG",utilisateur:userId,commentaire:`Entrée production OF ${of.numero_of}`};
+  const {error}=await db.from("mouvements_stock").insert(mv);if(error)throw error;
+  $("entryModal").classList.remove("show");toast(`Entrée de ${fmt(qty)} KG enregistrée.`);await loadMovements();renderEntry();renderHistory()
+}
+async function refresh(){try{await loadOF();await loadDetails();await loadMovements();renderConsumption();renderEntry();renderHistory()}catch(e){console.error(e);toast(e.message||"Erreur de chargement.",true)}}
+$("consTab").onclick=()=>{$("consTab").classList.add("active");$("entryTab").classList.remove("active");$("consPanel").classList.add("active");$("entryPanel").classList.remove("active")}
+$("entryTab").onclick=()=>{$("entryTab").classList.remove("active");$("consTab").classList.add("active");$("entryPanel").classList.add("active");$("consPanel").classList.remove("active")}
+$("historyBtn").onclick=()=>{$("historyCard").style.display="block";renderHistory();$("historyCard").scrollIntoView({behavior:"smooth"})}
+$("closeHistoryBtn").onclick=()=>$("historyCard").style.display="none"
+$("detailConsBtn").onclick=openDetails
+$("addDetailRow").onclick=addDetailRow
+$("detailSave").onclick=()=>saveConsumption().catch(e=>toast(e.message||"Erreur d'enregistrement.",true))
+$("detailClose").onclick=()=>$("detailModal").classList.remove("show");$("detailCancel").onclick=()=>$("detailModal").classList.remove("show")
+$("entryClose").onclick=()=>$("entryModal").classList.remove("show");$("entryCancel").onclick=()=>$("entryModal").classList.remove("show")
+$("entrySave").onclick=()=>saveEntry().catch(e=>toast(e.message||"Erreur d'enregistrement.",true))
+$("refreshBtn").onclick=refresh
+$("backBtn").onclick=()=>{location.href="ordre_fabrication.html"}
+$("detailModal").onclick=e=>{if(e.target===$("detailModal"))$("detailModal").classList.remove("show")}
+$("entryModal").onclick=e=>{if(e.target===$("entryModal"))$("entryModal").classList.remove("show")}
+(async()=>{db=await getSupabase();await refresh()})().catch(e=>toast(e.message||"Erreur.",true))
+</script>
+</body>
+</html>
