@@ -340,7 +340,7 @@ function fillArticles(){
   $("articlePrincipal").innerHTML =
     `<option value="">Choisir un article</option>` +
     articles.map(a=>`
-      <option value="${esc(a.id)}">
+      <option value="${esc(a.id)}" data-article-id="${esc(a.id)}" data-article-code="${esc(a.article)}">
         ${esc(a.article)} — ${esc(a.designation)}
       </option>
     `).join("");
@@ -348,21 +348,20 @@ function fillArticles(){
 
 function selectedArticle(){
   const select=$("articlePrincipal");
-  if(!select) return null;
+  const value=String(select?.value || "").trim();
+  const option=select?.options?.[select.selectedIndex];
+  const articleId=String(option?.dataset?.articleId || value).trim();
+  const articleCode=String(option?.dataset?.articleCode || "").trim();
 
-  const value=String(select.value || "").trim();
   if(!value) return null;
 
-  let article=articles.find(a=>String(a.id)===value);
-  if(article) return article;
-
-  article=articles.find(a=>String(a.article || "").trim()===value);
-  if(article) return article;
-
-  const opt=select.options[select.selectedIndex];
-  const text=String(opt?.textContent || "").trim();
-  const code=text.split(" — ")[0].trim();
-  return articles.find(a=>String(a.article || "").trim()===code) || null;
+  // Supporte les anciennes valeurs (id), les valeurs article et les options
+  // qui ont été restaurées par le navigateur après un refresh.
+  return articles.find(a =>
+    String(a.id)===articleId ||
+    (articleCode && String(a.article).trim()===articleCode) ||
+    String(a.article).trim()===value
+  ) || null;
 }
 
 async function updateArticleInfo(){
@@ -475,11 +474,7 @@ function loadLinkedRelations(){
     btn.addEventListener("click",()=>openStockSelector(btn.dataset.relId));
   });
 
-  if(type==="TRANSFORMATION"){
-    syncTransformationLot();
-    const q=Number($("quantitePrevue").value || 0);
-    if(q>0) syncTransformationQuantities(q);
-  }
+  if(type==="TRANSFORMATION") syncTransformationLot();
 }
 
 function syncTransformationLot(){
@@ -487,14 +482,6 @@ function syncTransformationLot(){
   const lot=lotPrincipal.value.trim();
   document.querySelectorAll(".rel-lot").forEach(input=>{
     input.value=lot;
-  });
-}
-
-function syncTransformationQuantities(qty){
-  if($("typeProduction").value!=="TRANSFORMATION") return;
-  document.querySelectorAll(".rel-qty").forEach(input=>{
-    input.value=Number(qty || 0).toFixed(3);
-    input.readOnly=true;
   });
 }
 
@@ -541,7 +528,9 @@ async function loadStockForArticle(articleOverride=null, magasinOverride=null){
 
   const magasin=magasinOverride || rels[0]?.magasin_source || "";
 
-  $("stockHint").textContent="";
+  $("stockHint").textContent=magasin
+    ? `Stock recherché pour ${article.article} dans ${magasin}.`
+    : `Stock recherché pour ${article.article}.`;
 
   try{
     const db=await getSupabase();
@@ -621,29 +610,30 @@ function selectSourceStock(row){
   $("magasinSource").value=row.magasin || "";
   window.__ofSourceStock=row;
 
-  $("stockHint").textContent="";
+  $("stockHint").textContent=`Stock sélectionné : ${row.lot} — ${qty.toLocaleString("fr-FR",{minimumFractionDigits:3})} ${row.unite || "KG"} — ${row.emplacement || "sans emplacement"}.`;
 
   syncTransformationLot();
-  if($("typeProduction").value==="TRANSFORMATION") syncTransformationQuantities(qty);
   $("stockModal").classList.remove("show");
 }
 
 async function openStockSelector(relId=null){
-  let article=null;
+  const article=relId
+    ? articles.find(a=>{
+        const r=nomenclatures.find(x=>String(x.id)===String(relId));
+        return String(a.id)===String(r?.article_lie_id);
+      })
+    : selectedArticle();
 
-  if(relId){
-    const r=nomenclatures.find(x=>String(x.id)===String(relId));
-    article=articles.find(a=>String(a.id)===String(r?.article_lie_id));
-  }else{
-    article=selectedArticle();
+  if(!article){
+    // Dernier fallback : l'option sélectionnée contient le code article.
+    const opt=$("articlePrincipal")?.selectedOptions?.[0];
+    const code=String(opt?.dataset?.articleCode || "").trim();
+    const fallback=code ? articles.find(a=>String(a.article).trim()===code) : null;
+    if(fallback) article=fallback;
   }
 
   if(!article){
-    const select=$("articlePrincipal");
-    const value=String(select?.value || "").trim();
-    const optionText=String(select?.options?.[select.selectedIndex]?.textContent || "").trim();
-    console.warn("Article sélectionné introuvable",{value,optionText,articlesCount:articles.length});
-    toast("Impossible de retrouver l'article sélectionné. Rechargez la liste des articles puis réessayez.",true);
+    toast("Veuillez d'abord choisir l'article.",true);
     return;
   }
 
