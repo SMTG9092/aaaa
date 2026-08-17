@@ -163,25 +163,24 @@ input[readonly]{background:#f3f5f6}
 
         <div class="field">
           <label>Stock source</label>
-          <button type="button" class="btn primary" id="chooseStockBtn">▣ Choisir dans le stock</button>
-          <div class="hint" id="stockHint">Choisissez d'abord l'article principal.</div>
+          <div class="hint" style="padding:10px 12px;border:1px solid #d7e0dc;border-radius:6px;background:#f5f8f6">Le stock sera vérifié au lancement de l'OF.</div>
         </div>
 
         <div class="field">
-          <label>Quantité prévue</label>
-          <input id="quantitePrevue" type="number" min="0" step="0.001" placeholder="Automatique" readonly>
+          <label>Quantité prévue <span class="req">*</span></label>
+          <input id="quantitePrevue" type="number" min="0" step="0.001" placeholder="Saisir la quantité prévue">
         </div>
 
         <div class="field">
           <label>Unité</label>
-          <input id="unite" value="KG" readonly>
+          <input id="unite" value="KG">
         </div>
 
         <div class="field">
           <label id="lotPrincipalLabel">Lot de production</label>
-          <input id="lotPrincipal" maxlength="100" placeholder="Sélection automatique" readonly>
+          <input id="lotPrincipal" maxlength="100" placeholder="Saisir le lot">
           <div class="hint" id="lotPrincipalHint">
-            Le lot et la quantité viennent du stock sélectionné.
+            Le lot est saisi manuellement pour l'OF.
           </div>
         </div>
 
@@ -239,41 +238,6 @@ input[readonly]{background:#f3f5f6}
   </div>
 </div>
 
-<div class="modal" id="stockModal">
-  <div class="box">
-    <div class="mhead">
-      <h3>Stock disponible — choisir le lot</h3>
-      <button class="close" id="stockCloseBtn">×</button>
-    </div>
-    <div class="mbody">
-      <div class="info" id="stockModalInfo">
-        Sélectionnez une ligne de stock. Le lot et la quantité disponible seront repris automatiquement dans l'OF.
-      </div>
-      <div class="table-wrap" style="margin-top:12px">
-        <table>
-          <thead>
-            <tr>
-              <th>Article</th>
-              <th>Désignation</th>
-              <th>Lot</th>
-              <th>Magasin</th>
-              <th>Emplacement</th>
-              <th>Disponible KG</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="stockBody">
-            <tr><td colspan="7" class="empty">Aucune ligne.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="mfoot">
-      <button class="btn secondary" id="stockCancelBtn">Annuler</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -281,7 +245,6 @@ let supabaseClient = null;
 let articles = [];
 let nomenclatures = [];
 let orders = [];
-let stockRows = [];
 let stockSelectionTarget = null;
 let editId = null;
 
@@ -374,12 +337,7 @@ async function updateArticleInfo(){
   $("lotPrincipal").value="";
   $("quantitePrevue").value="";
   $("magasinSource").value="";
-  $("stockHint").textContent=a
-    ? "Cliquez sur « Choisir dans le stock » pour sélectionner le lot."
-    : "Choisissez d'abord l'article principal.";
-
   loadLinkedRelations();
-  await loadStockForArticle();
 }
 
 function updateLogicText(){
@@ -387,9 +345,9 @@ function updateLogicText(){
 
   if(type==="TRANSFORMATION"){
     $("logicInfo").innerHTML =
-      `Mode <b>TRANSFORMATION</b> : sélectionnez le lot dans le stock source. Le lot et la quantité disponible sont repris automatiquement, puis appliqués aux produits sortants.`;
-    $("lotPrincipalLabel").textContent="Lot de production";
-    $("lotPrincipalHint").textContent="Lot et quantité alimentés automatiquement depuis le stock sélectionné.";
+      `Mode <b>TRANSFORMATION</b> : saisissez manuellement le lot et les quantités prévues. Le stock sera vérifié au lancement de l'OF.`;
+    $("lotPrincipalLabel").innerHTML=`Lot de production <span class="req">*</span>`;
+    $("lotPrincipalHint").textContent="Lot saisi manuellement. Le stock sera vérifié au lancement de l'OF.";
   }else{
     $("logicInfo").innerHTML =
       `Mode <b>ASSEMBLAGE</b> : le lot du produit final est saisi/attribué séparément, tandis que les matières consommées gardent leurs propres lots de stock.`;
@@ -772,8 +730,6 @@ function resetForm(){
   $("unite").value="KG";
   $("lotPrincipal").value="";
   $("magasinSource").value="";
-  $("stockHint").textContent="Choisissez d'abord l'article principal.";
-  stockRows=[];
   window.__ofSourceStock=null;
   window.__ofRelationStock={};
   stockSelectionTarget=null;
@@ -952,21 +908,12 @@ $("searchInput").addEventListener("input",renderOrders);
 $("articlePrincipal").addEventListener("change",updateArticleInfo);
 $("typeProduction").addEventListener("change",updateLogicText);
 
-$("lotPrincipal").addEventListener("input",()=>{
-  if($("typeProduction").value==="TRANSFORMATION") syncTransformationLot();
-});
 
-$("chooseStockBtn").addEventListener("click",openStockSelector);
-$("stockCloseBtn").addEventListener("click",()=>$("stockModal").classList.remove("show"));
-$("stockCancelBtn").addEventListener("click",()=>$("stockModal").classList.remove("show"));
 
 $("ofModal").addEventListener("click",e=>{
   if(e.target===$("ofModal")) closeModal();
 });
 
-$("stockModal").addEventListener("click",e=>{
-  if(e.target===$("stockModal")) $("stockModal").classList.remove("show");
-});
 
 loadAll();
 </script>
